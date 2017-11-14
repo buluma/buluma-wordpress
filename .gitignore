@@ -1,0 +1,11 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+wp-config.php
+error_log
+/vender/
+/tests/
+/import-database-sql-file-using-PHP-script-master/
+/cache/
+/db_dump/filename[0-9].sql
+**/cache
+*.cache
+*.zip
