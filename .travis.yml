@@ -23,14 +23,13 @@ env:
 # total of four configurations even though we're testing 4 versions of PHP
 # along with 2 versions of WordPress (which would build 8 configs otherwise).
 # This takes half as long to run while still providing adequate coverage.
-
 matrix:
   include:
-    - php: "5.3"
+    - php: 5.2
+      dist: precise
       env: WP_VERSION=master
-    - php: "5.4"
-      env: WP_VERSION=3.8
-    - php: "5.2"
+    - php: 5.3
+      dist: precise
       env: WP_VERSION=3.8
 
 # Clones WordPress and configures our testing environment.
