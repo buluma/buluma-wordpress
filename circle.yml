@@ -12,3 +12,10 @@ test:
 #    branch: master
 #    commands:  
 #      - ./deploy.sh
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript:
+      - php:
