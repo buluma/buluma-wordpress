@@ -1,9 +1,9 @@
 machine:
   environment:
-    SFTP_USERNAME: your_username_here
-    SFTP_PASSWORD: your_secret_password
-    SFTP_HOSTNAME: sftp.pressftp.com
-    THEME_NAME: your_theme_name
+    SFTP_USERNAME: bulumame
+    SFTP_PASSWORD: j5QmB#PcY4uW8hU
+    SFTP_HOSTNAME: 54.213.15.152
+    THEME_NAME: pingraphy
 test:
   override:
     - /bin/true
