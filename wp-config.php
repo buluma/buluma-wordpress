@@ -43,6 +43,9 @@ define('DB_CHARSET', 'utf8mb4');
 /** The Database Collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
 
+// Sentry Error Loging
+define( 'WP_SENTRY_DSN', 'https://461143d7e72e46848352ff1d914ecd97:6ecc9cf1ab2749429a1e9af4e40bc69e@sentry.io/245218' );
+
 /**#@+
  * Authentication Unique Keys and Salts.
  *

@@ -2,7 +2,7 @@
 Contributors: themeisle, codeinwp, rodicaelena, hardeepasrani, pirateforms, rozroz
 Tags:  contact form, contact form plugin, forms, smtp, custom form, subscribe form, feedback form, wordpress contact form
 Requires at least: 3.0
-Tested up to: 4.8
+Tested up to: 4.9
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -177,6 +177,12 @@ Activating the Pirate Contact Form plugin is just like any other plugin. If you'
 4. Screenshot 4. Enabling SMTP
 
 == Changelog ==
+= 2.2.5 - 2017-11-16  = 
+
+* Adds compatibility with WordPress 4.9
+* Minor improvement for toggle the password in the admin form fields.
+
+
 = 2.2.4 - 2017-11-13  = 
 
 * Improved assets loading, loading them only they are necessary. 
