@@ -1,8 +1,8 @@
 machine:
   environment:
     SFTP_USERNAME: bulumame
-    SFTP_PASSWORD: j5QmB#PcY4uW8hU
-    SFTP_HOSTNAME: 54.213.15.152
+    SFTP_PASSWORD: SFTP_PASSWORD
+    SFTP_HOSTNAME: SFTP_HOSTNAME
     THEME_NAME: pingraphy
 test:
   override:
