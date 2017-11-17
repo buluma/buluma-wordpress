@@ -7,8 +7,8 @@ machine:
 test:
   override:
     - /bin/true
-deployment:
-  production:
-    branch: master
-    commands:  
-      - ./deploy.sh
+#deployment:
+#  production:
+#    branch: master
+#    commands:  
+#      - ./deploy.sh
