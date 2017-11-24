@@ -86,3 +86,19 @@
 
 	<div id="content" class="site-content<?php echo $class; ?>">
 		<div class="inner clearfix">
+
+	<!-- Search Engine -->
+	<script>
+	  (function() {
+	    var cx = '004345898060710859271:sbg6cgrakv4';
+	    var gcse = document.createElement('script');
+	    gcse.type = 'text/javascript';
+	    gcse.async = true;
+	    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+	    var s = document.getElementsByTagName('script')[0];
+	    s.parentNode.insertBefore(gcse, s);
+	  })();
+	</script>
+	<gcse:search></gcse:search>
+	<!-- Search Engine -->
+	<p></p>

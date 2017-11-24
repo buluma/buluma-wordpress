@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+<url>
+  <loc>https://www.buluma.me.ke/</loc>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/about-me/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/blog/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/how-to-install-cpanel-and-whm-ami-instance-in-aws/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/author/root/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/50-reasons-love/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/lets-move-on/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/10-ways-introverts-interact-differently-with-the-world/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/running-ansible-playbook-localhost/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/just-listen/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/kanban-vs-scrum/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/understanding-four-levels-delegation-managing-people-business/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/5-tips-delegate-appropriately/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/3-reasons-get-better-delegating/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/page/2/</loc>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/agile/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/ansible/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/ansible-tower/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/atlassian/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/devops/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/docker/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/infrastructure-as-code/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/kanban/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/project-m/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/project-management/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/tag/srum/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/author/root/page/2/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/effective-delegation-management-skills-attention-detail/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/becoming-effective-manager/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/kanban-vs-scrum-vs-agile/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/six-ways-ansible-makes-docker-compose-better/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/integrating-atlassian-bitbucket-pipelines-ansible-tower/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/29-questions-ask-youre-devops/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/how-ansible-works/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/highly-available-infrastructure-provisioning-configuration-ansible/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/creating-custom-dynamic-inventories-ansible/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/automating-automation-ansible-tower/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/page/3/</loc>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/what-is-a-devops-engineer/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/are-you-a-doer-or-a-talker/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/defeating-optimism/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/just-say-no/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/devops-is-a-culture-not-a-job-description/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/infrastructure-as-code/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/author/root/page/3/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/soul-searching/</loc>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.buluma.me.ke/devops-101-best-practices-for-optimizing-and-automating-your-infrastructure/</loc>
+  <priority>0.51</priority>
+</url>
+</urlset>
