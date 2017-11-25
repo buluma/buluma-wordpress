@@ -1,0 +1,44 @@
+.gswps-admin-sidebar .postbox {
+    text-align: center;
+}
+.gswps-admin-sidebar h3 {
+    font-size: 14px;
+    padding: 8px 12px;
+    margin: 0;
+    line-height: 1.4;
+}
+.gs_beh_wrap .metabox-holder {
+    background: #fff;
+    margin-top: 3px;
+}
+.gs_beh_wrap h2 {
+    margin-left: 10px;
+}
+
+/*.gs_beh_wrap input[type=text],*/
+.gs_beh_wrap tr:first-child input.regular-text,
+.gs_beh_wrap select, 
+.gs_beh_wrap input[type=number] {
+    min-width: 150px;
+    max-width: 150px;
+    text-align: center;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.gs_beh_wrap .description {
+    display: inline-block;
+    margin: 0 0 0 20px;
+    font-size: 13px;
+}
+.gs_beh_wrap tr:nth-child(2) .description,
+.gs_beh_wrap tr:nth-child(7) .description {
+	margin-left: 0;
+	display: block;
+}
+i.gsbeh-mce-icon {
+    background-image: url('gsbehance.png');
+}
+a.gs-pro-link {
+    color: red;
+    font-weight: bold;
+}
