@@ -1,0 +1,26 @@
+{
+    "name": "mozilla/wp-add-to-homescreen",
+    "description": "Make your WordPress sites to appear in home screens.",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Salvador de la Puente González",
+            "email": "salva@mozilla.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mozilla/wp-sw-manager"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/marco-c/wp-web-app-manifest-generator"
+        }
+    ],
+    "require": {
+        "marco-c/wp_serve_file": "dev-master",
+        "marco-c/wp-web-app-manifest-generator": "dev-master",
+        "mozilla/wp-sw-manager": "dev-master"
+    }
+}
