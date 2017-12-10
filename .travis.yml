@@ -4,8 +4,11 @@
 language: php
 
 # PHP version used in first build configuration.
-php:
-    - "5.5"
+php:   
+  - 5.4
+  - 5.5
+  - 5.6
+  - hhvm
 
 # WordPress version used in first build configuration.
 env:
@@ -32,20 +35,13 @@ matrix:
       dist: precise
       env: WP_VERSION=3.8
 
-# Clones WordPress and configures our testing environment.
+# In case of timeouts and build failures you may want to prepend 'travis_retry' to the following commands:
 before_script:
-    - export PLUGIN_SLUG=$(basename $(pwd))
-    - git clone https://github.com/buluma/buluma-wordpress.git /tmp/wordpress-tests
-# - git clone . "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd ..
-    - mv $PLUGIN_SLUG "/tmp/wordpress-tests/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd /tmp/wordpress-tests
-    - git checkout $WP_VERSION
-    - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
-    - cp wp-tests-config-sample.php wp-tests-config.php
-    - sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-    - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
-    - sed -i "s/yourpasswordhere//" wp-tests-config.php
-    - cd "/tmp/wordpress-tests/src/wp-content/plugins/$PLUGIN_SLUG"
+  - curl -s http://getcomposer.org/installer | php
+  - php composer.phar install -n
 
-script: phpunit
+script:
+  - php vendor/bin/phpunit
+
+after_script:
+  - php vendor/bin/codacycoverage clover build/logs/clover.xml
