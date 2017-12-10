@@ -3,8 +3,8 @@ Contributors:      davidsword
 Donate link:       http://www.redcross.ca/donate/
 Tags:              Goodreads, goodreads.com, Good Reads, goodread, show books, kindle, currently reading, bookshelf, bookshelves, books read, amazon, paperwhite, oasis, voyage, e-reader, readers, bookies
 Requires at least: 4.0
-Tested up to:      4.8
-Stable tag:        1.1
+Tested up to:      4.9.1
+Stable tag:        1.2
 
 Showcase currently reading and recently read Goodreads books on your website.
 
@@ -17,8 +17,8 @@ Showcase currently reading and recently read Goodreads books on your website.
 * Select how many books to show in a row
   * Will display all currently reading
   * Rest of space filled with recently read
-* Updates daily
-* Black and White covers for the Kindle experience
+* Updates shelves daily
+* Colour, or, Black & White covers (for the true Kindle experience)
 
 = Usage =
 
@@ -26,7 +26,7 @@ Showcase currently reading and recently read Goodreads books on your website.
 
 = Please Note =
 
-* 🍺 This is a new plugin, please open a support request before summiting a negative review, I'm happy to help, please provide as much information as possible (books that are causing an issue, theme currently used, Wordpress and PHP version).
+* 🍺 This is a new plugin, please [open a support request](https://wordpress.org/support/plugin/display-good-reads-books) before summiting a negative review, *I'm happy to help,* please provide as much information as possible (books that are causing an issue, theme currently used, your GoodReads profile URL, your GoodReads API key, Wordpress and PHP version).
 
 ---
 
@@ -76,6 +76,15 @@ The fine fellows at Goodreads in their API agreement state that no one can't use
 
 == Changelog ==
 
+= 1.2 =
+* Dec 6, 2017
+* added: user ID parser logic to better extract member/authors who have custom usernames (thanks Andy E!)
+* added: a "Refresh" AJAX button in admin. Though saving page refreshes plugin, this button makes it easier. 
+* added: new error handler for api returning a 404 (odd, but it can happen!)
+* changed: rewrote most inline field description instructions
+* changed: B&W covers now optional
+* fixed: properly localized text that contained variables/html
+
 = 1.1 =
 * July 6, 2016
 * fixed use of php shorttag that caused undefined var for credit on some server setups
@@ -87,6 +96,10 @@ The fine fellows at Goodreads in their API agreement state that no one can't use
 
 == Upgrade Notice ==
 
+= 1.2 =
+
+* Black & White books covers will show as colour now. Theres a new option in settings to make black and white
+
 = 1.1 =
 
 * All good
@@ -95,8 +108,7 @@ The fine fellows at Goodreads in their API agreement state that no one can't use
 
 = The current todo list: =
 
-* Make B&W covers optional
-* Make a **Select Media Item** input with upload instead of **URL** input for cover exemptions
+* Make the **Select Media Item** input with upload instead of text input for cover exemptions
 * Better default CSS for headings
 
-Please add any additional requests into the Support tab.
+Please add any additional requests into [the Support tab](https://wordpress.org/support/plugin/display-good-reads-books).

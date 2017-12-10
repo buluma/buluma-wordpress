@@ -1,11 +1,11 @@
 <?php
 /*
   Plugin Name: YouTube
-  Plugin URI: http://www.embedplus.com/dashboard/pro-easy-video-analytics.aspx
+  Plugin URI: https://www.embedplus.com/dashboard/pro-easy-video-analytics.aspx
   Description: YouTube Embed and YouTube Gallery WordPress Plugin. Embed a responsive video, YouTube channel, playlist gallery, or live stream
-  Version: 11.8.3
+  Version: 11.8.4
   Author: EmbedPlus Team
-  Author URI: http://www.embedplus.com
+  Author URI: https://www.embedplus.com
  */
 
 /*
@@ -33,7 +33,7 @@ class YouTubePrefs
 {
 
     public static $curltimeout = 20;
-    public static $version = '11.8.3';
+    public static $version = '11.8.4';
     public static $opt_version = 'version';
     public static $optembedwidth = null;
     public static $optembedheight = null;
@@ -51,6 +51,7 @@ class YouTubePrefs
     public static $opt_modestbranding = 'modestbranding';
     public static $opt_rel = 'rel';
     public static $opt_showinfo = 'showinfo';
+    public static $opt_fs = 'fs';
     public static $opt_playsinline = 'playsinline';
     public static $opt_autohide = 'autohide';
     public static $opt_controls = 'controls';
@@ -87,6 +88,7 @@ class YouTubePrefs
     public static $opt_gallery_collapse_grid = 'gallery_collapse_grid';
     public static $opt_gallery_collapse_grid_breaks = 'gallery_collapse_grid_breaks';
     public static $opt_gallery_scrolloffset = 'gallery_scrolloffset';
+    public static $opt_gallery_hideprivate = 'gallery_hideprivate';
     public static $opt_gallery_showtitle = 'gallery_showtitle';
     public static $opt_gallery_showpaging = 'gallery_showpaging';
     public static $opt_gallery_thumbplay = 'gallery_thumbplay';
@@ -158,6 +160,7 @@ class YouTubePrefs
             self::$opt_modestbranding,
             self::$opt_rel,
             self::$opt_showinfo,
+            self::$opt_fs,
             self::$opt_playsinline,
             self::$opt_autohide,
             self::$opt_controls,
@@ -1221,7 +1224,12 @@ class YouTubePrefs
 
     public static function is_ajax()
     {
-        return (function_exists('wp_doing_ajax') && wp_doing_ajax() || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
+        $is_ajax = (function_exists('wp_doing_ajax') && wp_doing_ajax() || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'));
+        if ($is_ajax)
+        {
+            header('HTTP/1.1 200 OK');
+        }
+        return $is_ajax;
     }
 
     public static function my_embedplus_glance_vids()
@@ -1563,6 +1571,7 @@ class YouTubePrefs
         $_modestbranding = 0;
         $_rel = 1;
         $_showinfo = 1;
+        $_fs = 1;
         $_theme = 'dark';
         $_color = 'red';
         $_autohide = 2;
@@ -1597,6 +1606,7 @@ class YouTubePrefs
         $_gallery_collapse_grid = 0;
         $_gallery_collapse_grid_breaks = self::$dft_bpts;
         $_gallery_scrolloffset = 20;
+        $_gallery_hideprivate = 0;
         $_gallery_showtitle = 1;
         $_gallery_showpaging = 1;
         $_gallery_autonext = 0;
@@ -1625,6 +1635,7 @@ class YouTubePrefs
             $_modestbranding = self::tryget($arroptions, self::$opt_modestbranding, 0);
             $_rel = self::tryget($arroptions, self::$opt_rel, 1);
             $_showinfo = self::tryget($arroptions, self::$opt_showinfo, 1);
+            $_fs = self::tryget($arroptions, self::$opt_fs, 1);
             $_theme = self::tryget($arroptions, self::$opt_theme, 'dark');
             $_color = self::tryget($arroptions, self::$opt_color, 'red');
             $_autohide = self::tryget($arroptions, self::$opt_autohide, 2);
@@ -1660,6 +1671,7 @@ class YouTubePrefs
             $_gallery_collapse_grid = self::tryget($arroptions, self::$opt_gallery_collapse_grid, 0);
             $_gallery_collapse_grid_breaks = self::tryget($arroptions, self::$opt_gallery_collapse_grid_breaks, self::$dft_bpts);
             $_gallery_scrolloffset = self::tryget($arroptions, self::$opt_gallery_scrolloffset, 20);
+            $_gallery_hideprivate = self::tryget($arroptions, self::$opt_gallery_hideprivate, 0);
             $_gallery_showtitle = self::tryget($arroptions, self::$opt_gallery_showtitle, 1);
             $_gallery_showpaging = self::tryget($arroptions, self::$opt_gallery_showpaging, 1);
             $_gallery_autonext = self::tryget($arroptions, self::$opt_gallery_autonext, 0);
@@ -1691,6 +1703,7 @@ class YouTubePrefs
             self::$opt_modestbranding => $_modestbranding,
             self::$opt_rel => $_rel,
             self::$opt_showinfo => $_showinfo,
+            self::$opt_fs => $_fs,
             self::$opt_theme => $_theme,
             self::$opt_color => $_color,
             self::$opt_autohide => $_autohide,
@@ -1725,6 +1738,7 @@ class YouTubePrefs
             self::$opt_gallery_collapse_grid => $_gallery_collapse_grid,
             self::$opt_gallery_collapse_grid_breaks => $_gallery_collapse_grid_breaks,
             self::$opt_gallery_scrolloffset => $_gallery_scrolloffset,
+            self::$opt_gallery_hideprivate => $_gallery_hideprivate,
             self::$opt_gallery_showtitle => $_gallery_showtitle,
             self::$opt_gallery_showpaging => $_gallery_showpaging,
             self::$opt_gallery_autonext => $_gallery_autonext,
@@ -1975,6 +1989,11 @@ class YouTubePrefs
                 $thumb->title = $options->showTitle ? $item->snippet->title : '';
                 $thumb->privacyStatus = isset($item->status->privacyStatus) ? $item->status->privacyStatus : null;
 
+                if ($thumb->privacyStatus == 'private' && self::$alloptions[self::$opt_gallery_hideprivate] == 1)
+                {
+                    continue;
+                }
+                
                 if ($cnt == 0 && $options->pageToken == null)
                 {
                     $init_id = $thumb->id;
@@ -2619,11 +2638,11 @@ class YouTubePrefs
         $new_pointer_content .= '<p>'; // ooopointer
         if (!(self::$alloptions[self::$opt_pro] && strlen(trim(self::$alloptions[self::$opt_pro])) > 0))
         {
-            $new_pointer_content .= __("This update improves compatibility, accessibility, and gallery scrolling for both the Free and <a target=_blank href=" . self::$epbase . '/dashboard/pro-easy-video-analytics.aspx?ref=frompointer' . ">Pro versions &raquo;</a>");
+            $new_pointer_content .= __("This update adds the ability to hide private videos from galleries, the ability to hide the fullscreen button, and fixes a gallery AJAX issue for both Free and <a target=_blank href=" . self::$epbase . '/dashboard/pro-easy-video-analytics.aspx?ref=frompointer' . ">Pro versions &raquo;</a>");
         }
         else
         {
-            $new_pointer_content .= __("This update improves compatibility, accessibility, and gallery scrolling for both the Free and Pro versions. " . '<strong>Important message to YouTube Pro users</strong>: From version 11.7 onward, you must <a href="https://www.embedplus.com/youtube-pro/download/?prokey=' . esc_attr(self::$alloptions[self::$opt_pro]) . '" target="_blank">download the separate plugin here</a> to regain your Pro features. All your settings will automatically migrate after installing the separate Pro download. Thank you for your support and patience during this transition.');
+            $new_pointer_content .= __("This update adds the ability to hide private videos from galleries, the ability to hide the fullscreen button, and fixes a gallery AJAX issue for both Free and Pro versions. " . '<strong>Important message to YouTube Pro users</strong>: From version 11.7 onward, you must <a href="https://www.embedplus.com/youtube-pro/download/?prokey=' . esc_attr(self::$alloptions[self::$opt_pro]) . '" target="_blank">download the separate plugin here</a> to regain your Pro features. All your settings will automatically migrate after installing the separate Pro download. Thank you for your support and patience during this transition.');
         }
         $new_pointer_content .= '</p>';
 
@@ -2681,6 +2700,7 @@ class YouTubePrefs
             $new_options[self::$opt_modestbranding] = self::postchecked(self::$opt_modestbranding) ? 1 : 0;
             $new_options[self::$opt_rel] = self::postchecked(self::$opt_rel) ? 1 : 0;
             $new_options[self::$opt_showinfo] = self::postchecked(self::$opt_showinfo) ? 1 : 0;
+            $new_options[self::$opt_fs] = self::postchecked(self::$opt_fs) ? 1 : 0;
             $new_options[self::$opt_playsinline] = self::postchecked(self::$opt_playsinline) ? 1 : 0;
             $new_options[self::$opt_origin] = self::postchecked(self::$opt_origin) ? 1 : 0;
             $new_options[self::$opt_controls] = self::postchecked(self::$opt_controls) ? 2 : 0;
@@ -2703,6 +2723,7 @@ class YouTubePrefs
             $new_options[self::$opt_defaultdims] = self::postchecked(self::$opt_defaultdims) ? 1 : 0;
             $new_options[self::$opt_defaultvol] = self::postchecked(self::$opt_defaultvol) ? 1 : 0;
             $new_options[self::$opt_dohl] = self::postchecked(self::$opt_dohl) ? 1 : 0;
+            $new_options[self::$opt_gallery_hideprivate] = self::postchecked(self::$opt_gallery_hideprivate) ? 1 : 0;
             $new_options[self::$opt_gallery_showtitle] = self::postchecked(self::$opt_gallery_showtitle) ? 1 : 0;
             $new_options[self::$opt_gallery_showpaging] = self::postchecked(self::$opt_gallery_showpaging) ? 1 : 0;
             $new_options[self::$opt_gallery_autonext] = self::postchecked(self::$opt_gallery_autonext) ? 1 : 0;
@@ -3109,6 +3130,10 @@ class YouTubePrefs
                     <p>
                         <input name="<?php echo self::$opt_showinfo; ?>" id="<?php echo self::$opt_showinfo; ?>" <?php checked($all[self::$opt_showinfo], 1); ?> type="checkbox" class="checkbox">
                         <label for="<?php echo self::$opt_showinfo; ?>"><?php _e('<b class="chktitle">Show Title:</b> Show the video title and other info.') ?></label>
+                    </p>
+                    <p>
+                        <input name="<?php echo self::$opt_fs; ?>" id="<?php echo self::$opt_fs; ?>" <?php checked($all[self::$opt_fs], 1); ?> type="checkbox" class="checkbox">
+                        <label for="<?php echo self::$opt_fs; ?>"><?php _e('<b class="chktitle">Show Fullscreen Button:</b> <sup class="orange">NEW</sup> Show the fullscreen button.') ?></label>
                     </p>
                     <p>
                         <input name="<?php echo self::$opt_acctitle; ?>" id="<?php echo self::$opt_acctitle; ?>" <?php checked($all[self::$opt_acctitle], 1); ?> type="checkbox" class="checkbox">
@@ -3539,6 +3564,10 @@ class YouTubePrefs
                         <label for="<?php echo self::$opt_gallery_showtitle; ?>"><b class="chktitle">Show Thumbnail Title:</b> Show titles with each thumbnail.</label>
                     </p>
                     <p>
+                        <input name="<?php echo self::$opt_gallery_hideprivate; ?>" id="<?php echo self::$opt_gallery_hideprivate; ?>" <?php checked($all[self::$opt_gallery_hideprivate], 1); ?> type="checkbox" class="checkbox">
+                        <label for="<?php echo self::$opt_gallery_hideprivate; ?>"><b class="chktitle">Hide Private Thumbnails:</b> <sup class="orange">NEW</sup> Hide thumbnails for videos in a playlist that cannot be embedded yet. Note: This may make some page sizes look uneven.</label>
+                    </p>
+                    <p>
                         <input name="<?php echo self::$opt_gallery_autonext; ?>" id="<?php echo self::$opt_gallery_autonext; ?>" <?php checked($all[self::$opt_gallery_autonext], 1); ?> type="checkbox" class="checkbox">
                         <label for="<?php echo self::$opt_gallery_autonext; ?>"><b class="chktitle">Automatic Continuous Play:</b>  Automatically play the next video in the gallery as soon as the current video finished.
                             <strong>Note:</strong> If you're embedding videos from your own monetized YouTube channel, we advise you to read YouTube's resource page on ads on embedded videos:
@@ -3616,6 +3645,7 @@ class YouTubePrefs
                     _e("<li><strong>modestbranding</strong> - Set this to 1 to remove the YouTube logo while playing (or 0 to show the logo). <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&modestbranding=1</strong></em> </li>");
                     _e("<li><strong>rel</strong> - Set this to 0 to not show related videos at the end of playing (or 1 to show them). <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&rel=0</strong></em> </li>");
                     _e("<li><strong>showinfo</strong> - Set this to 0 to hide the video title and other info (or 1 to show it). <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&showinfo=0</strong></em> </li>");
+                    _e("<li><strong>fs</strong> - Set this to 0 to hide the fullscreen button (or 1 to show it). <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&fs=0</strong></em> </li>");
                     _e("<li><strong>color</strong> - Set this to 'white' to make the player have a white progress bar (or 'red' for a red progress bar). Note: Using white will disable the modestbranding option. <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&color=white</strong></em> </li>");
                     _e("<li><strong>controls</strong> - Set this to 0 to completely hide the video controls (or 2 to show it). <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&controls=0</strong></em> </li>");
                     _e("<li><strong>autohide</strong> - Set this to 1 to slide away the control bar after the video starts playing. It will automatically slide back in again if you mouse over the video. (Set to  2 to always show it). <em>Example: http://www.youtube.com/watch?v=quwebVjAEJA<strong>&autohide=1</strong></em> </li>");
@@ -4031,7 +4061,7 @@ class YouTubePrefs
                     'stopMobileBuffer' => self::$alloptions[self::$opt_stop_mobile_buffer] == '1' ? true : false
                 );
 
-                wp_localize_script('__ytprefs__', '_EPYT_', $my_script_vars);
+                wp_localize_script('jquery', '_EPYT_', $my_script_vars);
             }
 
             ////////////////////// cloudflare accomodation

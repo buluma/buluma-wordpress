@@ -4,7 +4,7 @@ Plugin Name: YouTube Embed
 Tags: youtube gallery, video gallery, youtube channel, youtube live, live stream
 Requires at least: 3.6.1
 Tested up to: 4.9
-Stable tag: 11.8.3
+Stable tag: 11.8.4
 License: GPLv3 or later
 
 YouTube Embed WordPress Plugin. Embed a responsive video, YouTube channel gallery, playlist gallery, or YouTube.com live stream
@@ -61,6 +61,7 @@ Customizations can be also made to each YouTube embed by adding more to the link
 * modestbranding - Set this to 1 to remove the YouTube logo while playing (or 0 to show the logo). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&modestbranding=1"`
 * rel - Set this to 0 to not show related videos at the end of playing (or 1 to show them). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&rel=0"`
 * showinfo - Set this to 0 to hide the video title and other info (or 1 to show it). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&showinfo=0"`
+* fs - Set this to 0 to hide the fullscreen button (or 1 to show it). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&fs=0"`
 * autohide - Set this to 1 to slide away the control bar after the video starts playing. It will automatically slide back in again if you mouse over the video. (Set to  2 to always show it). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&autohide=1"`
 
 You can also start and end each individual video at particular times. Like the above, each option should begin with '&'
@@ -117,6 +118,7 @@ See more details after installing. Enjoy!
 * modestbranding - Set this to 1 to remove the YouTube logo while playing (or 0 to show the logo). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&modestbranding=1"`
 * rel - Set this to 0 to not show related videos at the end of playing (or 1 to show them). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&rel=0"`
 * showinfo - Set this to 0 to hide the video title and other info (or 1 to show it). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&showinfo=0"`
+* fs - Set this to 0 to hide the fullscreen button (or 1 to show it). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&fs=0"`
 * autohide - Set this to 1 to slide away the control bar after the video starts playing. It will automatically slide back in again if you mouse over the video. (Set to  2 to always show it). Example: `"https://www.youtube.com/watch?v=quwebVjAEJA&autohide=1"`
 
 You can also start and end each individual video at particular times. Like the above, each option should begin with '&'
@@ -144,6 +146,12 @@ You can also start and end each individual video at particular times. Like the a
 9. YouTube Embed Screenshot 9: Optional YouTube channel subscription button above gallery thumbnails
 
 == Changelog ==
+
+= WordPress YouTube Embed 11.8.4 =
+* Fixes gallery AJAX issue
+* Adds ability to hide fullscreen button
+* Adds ability to hide private videos from galleries
+* Changes localized script dependency to jquery
 
 = WordPress YouTube Embed 11.8.3 =
 * Improved compatability with PHP 7

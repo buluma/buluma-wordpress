@@ -3,7 +3,7 @@
 Plugin Name:    Good Reads Books
 Plugin URI:     https://davidsword.ca/wordpress-plugins/
 Description:    Showcase currently reading and recently read Goodreads books on your website.
-Version:        1.1
+Version:        1.2
 Author:         davidsword
 Author URI:     https://davidsword.ca/
 License:        GPLv3
@@ -45,6 +45,14 @@ class goodrds {
 		add_action('wp', array( $this,'goodrds_schedule_cron'));
 		add_action('goodrds_cronjob', array( $this,'goodrds_get'));
 		
+		// refresh button
+	    if (isset($_POST['refresh_goodrds'])) {
+		    if ( wp_verify_nonce( $_POST['nonce'], 'refresh_goodrds' ) ) 
+		    	$this->goodrds_get();
+		    else
+		    	die('not verified');
+	    }
+	    
 		// shortcode
 		add_shortcode('goodreads', array( $this,'goodrds_show'));
 		
@@ -58,10 +66,10 @@ class goodrds {
 	 * @since 1.0
 	 */
 	function goodrds_scripts() {
-		wp_register_style( 'goodrds_css', plugins_url('goodrds.css', __FILE__), false, '0.1' );
+		wp_register_style( 'goodrds_css', plugins_url('goodrds.css', __FILE__), false, filemtime( plugin_dir_path( __FILE__ ) . '/goodrds.css' ) );
 		wp_enqueue_style( 'goodrds_css' );
 
-		wp_register_script( 'goodrds_js', plugins_url('goodrds.js', __FILE__), array('jquery'), '0.1', true );
+		wp_register_script( 'goodrds_js', plugins_url('goodrds.js', __FILE__), array('jquery'), filemtime( plugin_dir_path( __FILE__ ) . '/goodrds.js' ), true );
 		wp_enqueue_script( 'goodrds_js' );
 	}
 	
@@ -120,8 +128,10 @@ class goodrds {
 						<td colspan=2>
 							<input class='code' name='goodrds_options[apikey]' placeholder='###################' value='<?php echo $goodrds_options['apikey'] ?>' />
 							<p class='description'>
-								<?php _e('Get an API Key Here:','goodrds') ?> <a href='https://www.goodreads.com/api/keys' target='_Blank'>goodreads.com/api/keys</a>
-								<?php _e('Set whatever "Application name" and "Company name" you want, create and paste the generated key above.','goodrds') ?>
+								<?php 
+								$apilink = "<a href='https://www.goodreads.com/api/keys' target='_Blank'>goodreads.com/api/keys</a>";
+								printf( esc_html__( 'Get an API Key here: %s Set whatever "Application name" and "Company name" you want, create, then paste the generated key above.', 'goodrds' ), $apilink);
+								 ?>
 							</p>
 						</td>
 					</tr>
@@ -132,23 +142,77 @@ class goodrds {
 						<td colspan=2>
 							<input  class='code' name='goodrds_options[user]' placeholder='########-user-name' value='<?php echo $goodrds_options['user'] ?>' />
 							<p class='description'>
-								<?php _e('Click "View Profile" in the top right of','goodrds') ?>
-								 <a href='https://goodreads.com/' target='_Blank'>goodreads.com</a>, 
-								<?php _e('then copy/paste from the URL:','goodrds') ?> <code>goodreads.com/user/show/<span style='background:yellow;'>12345678-username</span></code><br />
-								<?php _e('While in your profile, in Settings make sure "Who Can View My Profile" is set to public.','goodrds') ?>
+								<?php _e('While in your GoodReads profile click your "Read" or "Reading" shelf. Once loaded, copy the URL/address of the page, then paste it into the field above. It should look like:','goodrds') ?> <code>goodreads.com/review/list/12345678?shelf=read</code><br />
 							</p>
 						</td>
 					</tr>
+					
+					
 					<tr>
 						<th>
-							<strong><?php _e('Show','goodrds') ?>:</strong>
+							<strong><?php _e('Goodreads Public Profile','goodrds') ?>:</strong>
 						</th>
 						<td colspan=2>
-							<select name='goodrds_options[show]'>
-								<?php echo $this->goodrds_listnumbers($goodrds_options['show']) ?>
-							</select> <?php _e('Books Total','goodrds') ?>
+							<label><input type='checkbox' class='code' name='goodrds_options[public]' value='1' <?php echo ($goodrds_options['public'] == '1') ? 'checked ' : ''; ?>/><?php _e('My Goodreads Profile is Public','goodrds') ?></label>
+							<p class='description'><?php 
+								$editLink = '<a href="https://www.goodreads.com/user/edit?tab=settings" target="_Blank">goodreads.com/user/edit?tab=settings</a>';
+								printf( esc_html__( 'Ensure on your Goodreads Account Settings %s under "Who Can View My Profile" it is set to "anyone (including search engines)"', 'goodrds' ), $editLink);
+							?></p>
 						</td>
 					</tr>
+					
+					
+					<tr>
+						<th>
+							<strong><?php _e('Display Options','goodrds') ?>:</strong>
+						</th>
+						<td colspan=2>
+							<?php
+								$showOptns = $this->goodrds_listnumbers($goodrds_options['show']);
+								$showSel = "<select name='goodrds_options[show]'>{$showOptns}</select> ";
+								printf( esc_html__( 'Show %s Books Total', 'goodrds' ), $showSel);
+							?>
+							<div style='height: 10px;'></div>
+							<label><input type='checkbox' class='code' name='goodrds_options[bw]' value='1' <?php echo ($goodrds_options['bw'] == '1') ? 'checked ' : ''; ?>/> <?php _e('Use Black and White Covers','goodrds') ?></label>
+						</td>
+					</tr>
+					
+					<tr>
+						<th>
+							<strong><?php _e('Refresh','goodrds') ?>:</strong>
+						</th>
+						<td colspan=2>
+							<button class='button' id='refresh'><?php _e('Refresh My Plugin','goodrds') ?></button>
+							
+							<script>
+								jQuery('#refresh').click(function(event){
+									
+									jQuery('#refresh').text("..<?php _e('loading','goodrds') ?>...");
+									
+									event.preventDefault();
+								    jQuery.ajax({
+								        type: 'post',
+								        data: { 
+									        "refresh_goodrds" : "now",
+									        "nonce" : "<?php echo wp_create_nonce( 'refresh_goodrds' ); ?>"
+								        },
+								        success: function(response) { 
+									        jQuery('#refresh').text("<?php _e('Successfully Refreshed','goodrds') ?>!");
+								        },
+								        error: function(response) { 
+									        jQuery('#refresh').text("...<?php _e('error','goodrds') ?>!");
+								        },
+								    });
+								    return false;
+							    });
+							</script>
+							
+							<p class='description'><?php _e('Your books will refresh every 24 hours, but you may manually update it by hitting "Save Settings" on the bottom of this page, or by clicking the button above.','goodrds') ?></p>
+						</td>
+					</tr>
+					
+					
+
 					<tr>
 						<th>
 							<strong><?php _e('Show Credit','goodrds') ?>:</strong>
@@ -157,8 +221,9 @@ class goodrds {
 							<?php
 								$credit = (isset($goodrds_options['credit']) && $goodrds_options['credit'] == '1') ? 'checked' : '';
 							?>
-							<label><input type='checkbox' value='1' name='goodrds_options[credit]' <?php echo $credit ?> /> Show "Goodreads" credit</label>
-							<p class='description'><?php _e('The Goodreads API agreement requires the showing of "Goodreads" with their content. Wordpress agreement requires the option to toggle them with the default off. Since the API key is yours, the decision is yours.','goodrds') ?>
+							<label><input type='checkbox' value='1' name='goodrds_options[credit]' <?php echo $credit ?> /> <?php _e('Show "Goodreads" credit','goodrds') ?></label>
+							<p class='description'><?php _e('The Goodreads API agreement requires the showing of "Goodreads" with their content. Contrarily, Wordpress\'s agreement requires no showing of credit on content (unless it\'s default off with an option to toggle on). Since the API key is yours, the decision is yours.','goodrds') ?></p>
+							<br />
 						</td>
 					</tr>
 					
@@ -183,9 +248,13 @@ class goodrds {
 					<tr id='last'>
 						<td></td>
 						<td colspan=2>
-							<button class="add_field_button">+ <?php _e('Add Another','goodrds') ?></button>
+							<button class="button add_field_button">+ <?php _e('Add Another','goodrds') ?></button>
 							<p class='description'><?php _e('Due to licensing, sadly some image covers are not available through Goodreads API.
-								If a books image is blank, you can define it here with your own cover.','goodrds') ?></p>
+								If a books image is blank, you can define it here with your own cover. To get a books ID, visit the front end of your site where this plugin appears. Your books will have a link back to GoodReads, clicking the cover-less book, you can extract the book ID from the URL. ','goodrds') ?>
+								
+							<code>https://www.goodreads.com/book/show/<span style='background:yellow;'>12345678</span></code>
+								
+								</p>
 						</td>
 					</tr>
 				</table>
@@ -210,18 +279,29 @@ class goodrds {
 		
 		// if we have valid options, else our shortcode should spit instructions
 		if (!$this->goodrds_haveInfo())
-			return "<div id='goodrds' class='error'>".__("Good Reads Books plugin requires you to setup a proper API key and USERNAME in your wp-admin > Settings > Good Reads Books",'goodrds')."</div>";	
+			return "<div id='goodrds' class='error'>".__("Good Reads Books plugin requires you to setup a proper API key and USERNAME in your wp-admin > Settings > Good Reads Books",'goodrds')." <code>ERROR:01</code></div>";	
 		
 		if (!function_exists('curl_version'))
-			return "<div id='goodrds' class='error'>".__("Good Reads Books plugin requires your server to have CURL enabled. You'll need to contact your hosting provider for assistance. See plugin FAQ for more information.",'goodrds')."</div>";
+			return "<div id='goodrds' class='error'>".__("Good Reads Books plugin requires your server to have CURL enabled. You'll need to contact your hosting provider for assistance. See plugin FAQ for more information.",'goodrds')." <code>ERROR:02</code></div>";
 			
 		// get the json returns for the API and parse them
 		$goodrds_reading_json = get_option('goodrds_reading_json');
 		$goodrds_read_json = get_option('goodrds_read_json');
-		if (empty($goodrds_reading_json) || empty($goodrds_read_json))
-			return "<div id='goodrds' class='error'>".__("Good Reads Books can't get anything back from the Goodreads API. Make sure your Goodreads profile is set to Public in Settings. If you're still having issues, please contact plugin author.",'goodrds')."</div>";	
 		
-		$reading 	= new SimpleXMLElement($goodrds_reading_json);
+		if (empty($goodrds_reading_json) || empty($goodrds_read_json))
+			return "<div id='goodrds' class='error'>".__("Good Reads Books can't get anything back from the Goodreads API. Make sure your Goodreads profile is set to Public in Settings. If you're still having issues, please contact plugin author.",'goodrds')." <code>ERROR:03</code></div>";	
+		
+		// you can get a 404 if your userID or KEY is very wrong
+		if($goodrds_reading_json == '<error>forbidden</error>') {
+			return "<div id='goodrds' class='error'>".__("Good Reads Books can't get anything back from the Goodreads API. To resolve this, visit GoodReads.com > Account Settings > Settings (tab) > Under \"Who Can View My Profile\" > select \"anyone (including search engines)\". If you're still having issues, please contact plugin author.",'goodrds')." <code>ERROR:04</code></div>";	
+		}
+
+		// you can get a 404 if your userID or KEY is very wrong
+		if(!preg_match('/\<reviews/',$goodrds_reading_json) || !preg_match('/\<reviews/',$goodrds_read_json)) {
+			return "<div id='goodrds' class='error'>".__("Good Reads Books can't get anything back from the Goodreads API. There is likely a problem with the GoodReads Member ID or APP ID. If you're still having issues, please contact plugin author.",'goodrds')." <code>ERROR:05</code></div>";	
+		}
+				
+		$reading = new SimpleXMLElement($goodrds_reading_json);
 		$read 		= new SimpleXMLElement($goodrds_read_json);
 		$image_fix  = array();
 		
@@ -272,10 +352,29 @@ class goodrds {
 		
 		$return .= "
 		</div><!--/goodrds-->";
+		
+		// if its black and white, we'll add this in the footer
+		if ($goodrds_options['bw'] == '1')
+			// calling this hook within a shortcode ensure it only shows when shortcode is on page
+			add_action( 'wp_footer', array( $this, 'goodrds_show_footer_css' ) );
+		
 		return $return;
 			
 	}
 	
+	/**
+	 * footer css
+	 *
+	 * were adding some css for b&w covers if selected to use
+	 *
+	 * @since 1.2
+	 */
+	function goodrds_show_footer_css() {
+		?>
+		<style>html body #goodrds #goodrds_shelves .book{-webkit-filter:grayscale(100%);filter:grayscale(100%);}</style>
+		<?php
+	}
+
 	/**
 	 * Custom Images
 	 *
@@ -377,19 +476,35 @@ class goodrds {
 	 * @since 1.0
 	 */
 	function goodrds_options() {
-		$goodrds_options = get_option('goodrds_options');		
-		// okay we have the options, but lets make sure they're actually there.
-		if (!is_array($goodrds_options))
-			$goodrds_options = array(
+		$defaults = array(
 				'apikey' => '',
 				'user'   => '',
+				'public' => '0',
 				'show'   => '8',
-				'credit' => '',
+				'credit' => '0',
+				'bw'     => '0',
 				'exceptions' => array(
 								'ids' => array(''),
 								'urls' => array('')
 								)
 			);
+		
+		// okay we have the options, but lets make sure they're actually there.
+		$goodrds_options = get_option('goodrds_options');
+		if (!is_array($goodrds_options)) {
+			$goodrds_options = $defaults;
+		} 
+		// if they're there, lets make sure all of them are set
+		else {
+			foreach ($defaults as $defaultKey => $defaultValue) {
+				if (!isset($goodrds_options[$defaultKey]))
+					$goodrds_options[$defaultKey] = $defaultValue;
+			}
+		}
+		
+		// we're going to refine the user a bit, for front and backend
+		$goodrds_options['user'] = $this->goodrds_parse_user($goodrds_options['user']);
+		
 		return $goodrds_options;
 	}
 	
@@ -434,6 +549,19 @@ class goodrds {
 	public function goodrds_admin_menu() {
 		$this->menu_id = add_options_page( __( 'Good Reads Books', 'goodrds' ), __( 'Good Reads Books', 'goodrds' ), 'administrator', 'goodrds', array($this, 'goodrds_interface') );
 	}
-	
+
+	/**
+	 * get USERID helper
+	 *
+	 * @since 1.2
+	 */
+	public function goodrds_parse_user($user) {
+		// it's a URL, lets extract the userID
+		if (preg_match('/goodreads\.com\/review\/list\/(.+?)\?shelf/',$user,$matches)) {
+			return $matches[1];
+		} else { // it's a userid entered, use as-is
+			return $user;
+		}
+	}	
 }
 ?>
