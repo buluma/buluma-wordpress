@@ -4,7 +4,7 @@ group: travis_latest
 language: php
 
 # PHP version used in first build configuration.
-php:   
+#php:   
 #  - 5.4
 #  - 5.5
 #  - 5.6
@@ -31,9 +31,6 @@ matrix:
     - php: 7.1.3
       dist: precise
       env: WP_VERSION=master
-    - php: 5.6
-      dist: precise
-      env: WP_VERSION=3.8
 
 # In case of timeouts and build failures you may want to prepend 'travis_retry' to the following commands:
 before_script:
