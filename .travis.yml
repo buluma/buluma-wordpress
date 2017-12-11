@@ -1,5 +1,5 @@
 # Travis CI Configuration File
-
+group: travis_latest
 # Tell Travis CI we're using PHP
 language: php
 
