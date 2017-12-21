@@ -15,7 +15,7 @@ if ( !class_exists('WooCommerce') )
 function ignis_wc_support() {
     add_theme_support( 'woocommerce' );
     add_theme_support( 'wc-product-gallery-lightbox' );
-    add_theme_support( 'wc-product-gallery-slider' );    
+    add_theme_support( 'wc-product-gallery-slider' );
 }
 add_action( 'after_setup_theme', 'ignis_wc_support' );
 
@@ -66,7 +66,7 @@ add_filter( 'woocommerce_output_related_products_args', 'ignis_related_products_
 function ignis_header_add_to_cart_fragment( $fragments ) {
     ob_start();
     ?>
-    <a class="cart-contents" href="<?php echo WC()->cart->get_cart_url(); ?>"><i class="icon-shopping-bag"></i><span class="cart-amount"><?php echo WC()->cart->cart_contents_count; ?></span></a>
+    <a class="cart-contents" href="<?php echo wc_get_cart_url(); ?>"><i class="icon-shopping-bag"></i><span class="cart-amount"><?php echo WC()->cart->cart_contents_count; ?></span></a>
     <?php
     
     $fragments['a.cart-contents'] = ob_get_clean();
@@ -82,7 +82,7 @@ function ignis_nav_cart ( $items, $args ) {
     $swc_show_cart_menu = get_theme_mod('swc_show_cart_menu', 1);
     if ( $swc_show_cart_menu ) {
         if ( $args -> theme_location == 'menu-1' ) {
-            $items .= '<li class="nav-cart menu-icon"><a class="cart-contents" href="' . esc_url( WC()->cart->get_cart_url() ) . '"><i class="icon-shopping-bag"></i><span class="cart-amount">' . WC()->cart->cart_contents_count . '</span></a></li>';
+            $items .= '<li class="nav-cart menu-icon"><a class="cart-contents" href="' . esc_url( wc_get_cart_url() ) . '"><i class="icon-shopping-bag"></i><span class="cart-amount">' . WC()->cart->cart_contents_count . '</span></a></li>';
         }
     }
     return $items;

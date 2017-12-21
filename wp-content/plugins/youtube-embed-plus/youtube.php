@@ -3,7 +3,7 @@
   Plugin Name: YouTube
   Plugin URI: https://www.embedplus.com/dashboard/pro-easy-video-analytics.aspx
   Description: YouTube Embed and YouTube Gallery WordPress Plugin. Embed a responsive video, YouTube channel, playlist gallery, or live stream
-  Version: 11.8.4
+  Version: 11.8.5
   Author: EmbedPlus Team
   Author URI: https://www.embedplus.com
  */
@@ -33,7 +33,7 @@ class YouTubePrefs
 {
 
     public static $curltimeout = 20;
-    public static $version = '11.8.4';
+    public static $version = '11.8.5';
     public static $opt_version = 'version';
     public static $optembedwidth = null;
     public static $optembedheight = null;
@@ -1993,7 +1993,7 @@ class YouTubePrefs
                 {
                     continue;
                 }
-                
+
                 if ($cnt == 0 && $options->pageToken == null)
                 {
                     $init_id = $thumb->id;
@@ -2638,11 +2638,11 @@ class YouTubePrefs
         $new_pointer_content .= '<p>'; // ooopointer
         if (!(self::$alloptions[self::$opt_pro] && strlen(trim(self::$alloptions[self::$opt_pro])) > 0))
         {
-            $new_pointer_content .= __("This update adds the ability to hide private videos from galleries, the ability to hide the fullscreen button, and fixes a gallery AJAX issue for both Free and <a target=_blank href=" . self::$epbase . '/dashboard/pro-easy-video-analytics.aspx?ref=frompointer' . ">Pro versions &raquo;</a>");
+            $new_pointer_content .= __("This update adds the YouTube wizard button to the new built-in WordPress text widget, and fixes a gallery scrolling issue for both Free and <a target=_blank href=" . self::$epbase . '/dashboard/pro-easy-video-analytics.aspx?ref=frompointer' . ">Pro versions &raquo;</a>");
         }
         else
         {
-            $new_pointer_content .= __("This update adds the ability to hide private videos from galleries, the ability to hide the fullscreen button, and fixes a gallery AJAX issue for both Free and Pro versions. " . '<strong>Important message to YouTube Pro users</strong>: From version 11.7 onward, you must <a href="https://www.embedplus.com/youtube-pro/download/?prokey=' . esc_attr(self::$alloptions[self::$opt_pro]) . '" target="_blank">download the separate plugin here</a> to regain your Pro features. All your settings will automatically migrate after installing the separate Pro download. Thank you for your support and patience during this transition.');
+            $new_pointer_content .= __("This update adds the YouTube wizard button to the new built-in WordPress text widget, and fixes a gallery scrolling issue for both Free and Pro versions. " . '<strong>Important message to YouTube Pro users</strong>: From version 11.7 onward, you must <a href="https://www.embedplus.com/youtube-pro/download/?prokey=' . esc_attr(self::$alloptions[self::$opt_pro]) . '" target="_blank">download the separate plugin here</a> to regain your Pro features. All your settings will automatically migrate after installing the separate Pro download. Thank you for your support and patience during this transition.');
         }
         $new_pointer_content .= '</p>';
 
@@ -3313,18 +3313,18 @@ class YouTubePrefs
                         <br>
                         <input type="radio" disabled> Default &nbsp; <input type="radio" disabled> Popup lightbox
                     </p>
-                    
-                     <div class="hr"></div>
 
-                        <p>
-                            <img class="sshidethumbimg" src="<?php echo plugins_url('images/sshidethumbimg.jpg', __FILE__) ?>" />
-                            <input disabled type="checkbox" class="checkbox">
-                            <label>
-                                <b class="chktitle">Hide Thumbnail Images:</b> <span class="pronon">(PRO Users)</span> <sup class="orange">NEW</sup>
-                                (For "Grid" and "Vertical List" gallery layouts only) Hide the image for each thumbnail, leaving just the text. This can improve performance when imagery is not important.
-                                <a href="<?php echo self::$epbase ?>/responsive-youtube-playlist-channel-gallery-for-wordpress.aspx" target="_blank">See an example here &raquo;</a>
-                            </label>
-                        </p>
+                    <div class="hr"></div>
+
+                    <p>
+                        <img class="sshidethumbimg" src="<?php echo plugins_url('images/sshidethumbimg.jpg', __FILE__) ?>" />
+                        <input disabled type="checkbox" class="checkbox">
+                        <label>
+                            <b class="chktitle">Hide Thumbnail Images:</b> <span class="pronon">(PRO Users)</span> <sup class="orange">NEW</sup>
+                            (For "Grid" and "Vertical List" gallery layouts only) Hide the image for each thumbnail, leaving just the text. This can improve performance when imagery is not important.
+                            <a href="<?php echo self::$epbase ?>/responsive-youtube-playlist-channel-gallery-for-wordpress.aspx" target="_blank">See an example here &raquo;</a>
+                        </label>
+                    </p>
 
                     <div class="hr"></div>
                     <p>
@@ -3529,7 +3529,7 @@ class YouTubePrefs
                     <p>
                         <input name="<?php echo self::$opt_gallery_showpaging; ?>" id="<?php echo self::$opt_gallery_showpaging; ?>" <?php checked($all[self::$opt_gallery_showpaging], 1); ?> type="checkbox" class="checkbox">
                         <label for="<?php echo self::$opt_gallery_showpaging; ?>"><b class="chktitle">Show Pagination:</b> Show the Next/Previous buttons and page numbering.
-                        It might be useful to hide pagination if you want your gallery to display just a subset of videos from a playlist or channel.  That is, only the first page of videos (defined by your page size) will be visible to your visitors if these buttons are hidden.
+                            It might be useful to hide pagination if you want your gallery to display just a subset of videos from a playlist or channel.  That is, only the first page of videos (defined by your page size) will be visible to your visitors if these buttons are hidden.
                         </label>
                     </p>
                     <p>
@@ -4116,7 +4116,8 @@ class YouTubePrefs
         wp_enqueue_style('embedplusyoutube', plugins_url() . '/youtube-embed-plus/scripts/embedplus_mce' . self::$min . '.css');
         wp_enqueue_script('__ytprefs_admin__', plugins_url('scripts/ytprefs-admin' . self::$min . '.js', __FILE__), array('jquery'), self::$version, false);
         $admin_script_vars = array(
-            'wpajaxurl' => admin_url('admin-ajax.php')
+            'wpajaxurl' => admin_url('admin-ajax.php'),
+            'wizhref' => admin_url('admin.php?page=youtube-ep-wizard') . '&random=' . rand(1, 1000) . '&TB_iframe=true&width=950&height=800'
                 //'epblogwidth' => self::get_blogwidth(),
                 //'epprokey' => self::$alloptions[self::$opt_pro],
                 //'epbasesite' => self::$epbase,
@@ -4126,7 +4127,10 @@ class YouTubePrefs
         );
         wp_localize_script('__ytprefs_admin__', '_EPYTA_', $admin_script_vars);
 
-
+        if (function_exists('add_thickbox'))
+        {
+            add_thickbox();
+        }
 
 
         if ((get_bloginfo('version') >= '3.3') && self::custom_admin_pointers_check())

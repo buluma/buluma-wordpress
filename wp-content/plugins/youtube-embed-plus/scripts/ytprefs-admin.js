@@ -69,9 +69,18 @@
         }, false);
 
 
-        $('body').on('click.tbyt', "#ytprefs_wiz_button", function () {
+        $('body').on('click.tbyt', "#ytprefs_wiz_button, .ytprefs_wiz_button_widget_text", function () {
             window._EPYTA_.widen_ytprefs_wiz();
         });
         $(window).resize(window._EPYTA_.widen_ytprefs_wiz);
+
+        $(document).on('wp-before-tinymce-init.ytprefs-media_button', function (event, init) {
+            $media_buttons = $(init.selector).closest('.wp-editor-wrap').find('.wp-media-buttons');
+            if (!$media_buttons.find('.ytprefs_media_link').length)
+            {
+                $media_buttons.append('<a href="' + encodeURI(window._EPYTA_.wizhref) + '" class="thickbox button ytprefs_media_link ytprefs_wiz_button_widget_text" title="Visual YouTube Search Tool and Wizard - For easier embedding"><span></span> YouTube</a>');
+            }
+        });
+
     });
 })(window, jQuery);

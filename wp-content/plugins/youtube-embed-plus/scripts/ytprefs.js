@@ -225,7 +225,7 @@
                                 }
 
                                 // https://github.com/jquery/jquery-ui/blob/master/ui/scroll-parent.js
-                                var bodyScrollTop = $('html').scrollTop();
+                                var bodyScrollTop = Math.max($('body').scrollTop(), $('html').scrollTop());
                                 var scrollNext = $iframe.offset().top - parseInt(_EPYT_.gallery_scrolloffset);
                                 if (bodyScrollTop > scrollNext)
                                 {
@@ -301,7 +301,7 @@
                                             if ($container.find('.epyt-pagebutton').first().data('autonext') != '1')
                                             {
                                                 // https://github.com/jquery/jquery-ui/blob/master/ui/scroll-parent.js
-                                                var bodyScrollTop = $('html').scrollTop();
+                                                var bodyScrollTop = Math.max($('body').scrollTop(), $('html').scrollTop());
                                                 var scrollNext = $container.find('.epyt-gallery-list').offset().top - parseInt(_EPYT_.gallery_scrolloffset);
                                                 if (bodyScrollTop > scrollNext)
                                                 {

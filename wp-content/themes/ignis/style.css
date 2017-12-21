@@ -4,7 +4,7 @@ Theme URI: https://athemes.com/theme/ignis/
 Author: aThemes.com
 Author URI: https://athemes.com
 Description: Ignis is a modern portfolio theme that features a custom home page template for displaying your projects, color and font options, multiple blog layouts and much more. In order to use the portfolio feature in Ignis, you need to have Jetpack installed.
-Version: 1.0.3
+Version: 1.0.4
 License: GNU General Public License v3
 License URI: LICENSE
 Text Domain: ignis
@@ -1342,43 +1342,43 @@ img {
 	font-family: Fontello;
 }
 .social-navigation a[href*="twitter.com"]::before {
-	content: '\f099';
+	content: '\e80b';
 }
 .social-navigation a[href*="facebook.com"]::before {
-	content: '\f09a';
+	content: '\e811';
 }
 .social-navigation a[href*="plus.google.com"]::before {
-	content: '\f0d5';
+	content: '\e800';
 }
 .social-navigation a[href*="google.com/+"]::before {
-	content: '\f0d5';
+	content: '\e800';
 }
 .social-navigation a[href*="dribbble.com"]::before {
-	content: '\f17d';
+	content: '\e806';
 }
 .social-navigation a[href*="pinterest.com"]::before {
-	content: '\f231';
+	content: '\e802';
 }
 .social-navigation a[href*="youtube.com"]::before {
-	content: '\f167';
+	content: '\e80c';
 }
 .social-navigation a[href*="flickr.com"]::before {
-	content: '\f16e';
+	content: '\e807';
 }
 .social-navigation a[href*="vimeo.com"]::before {
-	content: '\f194';
+	content: '\e80d';
 }
 .social-navigation a[href*="instagram.com"]::before {
-	content: '\f16d';
+	content: '\e817';
 }
 .social-navigation a[href*="linkedin.com"]::before {
-	content: '\f0e1';
+	content: '\e809';
 }
 .social-navigation a[href*="foursquare.com"]::before {
 	content: '\f180';
 }
 .social-navigation a[href*="tumblr.com"]::before {
-	content: '\f173';
+	content: '\e814';
 }
 .social-navigation a[href*="behance.net"]::before {
 	content: '\f1b4';
@@ -1387,21 +1387,26 @@ img {
 	content: '\f1bd';
 }
 .social-navigation a[href*="soundcloud.com"]::before {
-	content: '\f1be';
+	content: '\e813';
 }
 .social-navigation a[href*="spotify.com"]::before {
-	content: '\f1bc';
+	content: '\e804';
 }
 .social-navigation a[href*="weibo.com"]::before {
-	content: '\f18a';
+	content: '\e808';
 }
 .social-navigation a[href*="xing.com"]::before {
-	content: '\f168';
+	content: '\e80e';
 }
 .social-navigation a[href*="trello.com"]::before {
 	content: '\f181';
 }
-
+.social-navigation a[href*="github.com"]::before {
+	content: '\e812';
+}
+.social-navigation a[href*="mailto:"]::before {
+	content: '\e80f';
+}
 /*--------------------------------------------------------------
 ## Woocommerce
 --------------------------------------------------------------*/
