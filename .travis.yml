@@ -10,7 +10,7 @@ php:
   - 7.1
 
 matrix:
-  fast_finish: true
+#  fast_finish: true
   include:
     # test against the latest HHVM version by using trusty
     - php: hhvm
