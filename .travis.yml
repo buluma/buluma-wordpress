@@ -3,6 +3,10 @@ sudo: false
 language: php
 
 php:
+- 5.2
+  dist: precise
+- 5.3
+  dist: precise
 #  - 5.4
 #  - 5.5
 #  - 5.6
@@ -35,5 +39,5 @@ before_script:
 
 script:
     #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
-    - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
+    #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
     - vendor/bin/phpunit -c .
