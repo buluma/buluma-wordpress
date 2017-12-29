@@ -33,9 +33,9 @@ matrix:
     - php: hhvm
 
 before_install:
-  git clone https://github.com/buluma/buluma-wordpress.git src/wordpress
- - |
-   if [[ "$WP_TRAVISCI" == "travis:phpunit" ]]; then
+  #git clone https://github.com/buluma/buluma-wordpress.git src/wordpress
+ 
+  if [[ "$WP_TRAVISCI" == "travis:phpunit" ]]; then
        mysql -u root -e "CREATE DATABASE wordpress_tests;"
        cp wp-tests-config-sample.php wp-tests-config.php
        sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
@@ -43,7 +43,7 @@ before_install:
        sed -i "s/yourpasswordhere//" wp-tests-config.php
        svn checkout https://plugins.svn.wordpress.org/wordpress-importer/trunk tests/phpunit/data/plugins/wordpress-importer
    fi
- - |
+ 
    if [[ "$WP_TRAVIS_OBJECT_CACHE" == "true" ]]; then
      curl https://raw.githubusercontent.com/tollmanz/wordpress-pecl-memcached-object-cache/584392b56dc4adbe52bd2c7b86f875e23a3e5f75/object-cache.php > src/wp-content/object-cache.php
   echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
