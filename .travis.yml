@@ -52,7 +52,9 @@ before_install:
   fi
 before_script:
 - npm install -g npm
-- npm install -g grunt-cli
+- npm install grunt --save-dev
+#- npm install -g grunt-cli
+- npm init
 - npm install
 - npm prune
 - mysql --version
