@@ -1,0 +1,56 @@
+{
+    "name": "shadow/wordpress",
+    "description": "This is a very cool wordpress package!",
+    "version": "0.3.0",
+    "type": "library",
+    "keywords": ["logging", "cool", "awesome"],
+    "homepage": "https://buluma.me.ke",
+    "time": "2017-12-10",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Buluma",
+            "email": "michael@buluma.me.ke",
+            "homepage": "http://www.buluma.me.ke",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "ops@buluma.me.ke",
+        "issues": "https://github.com/jolicode/jane/issues",
+        "forum": "http://www.my-forum.com/",
+        "wiki": "http://www.my-wiki.com/",
+        "irc": "irc://irc.freenode.org/composer",
+        "source": "https://github.com/jolicode/jane",
+        "docs": "https://github.com/jolicode/jane/wiki"
+    },
+    "autoload": {
+        "psr-0": { 
+            "Example": "src/"
+        }
+    },
+    "require": {
+        "monolog/monolog": "1.0.*",
+        "phpunit/php-code-coverage": "^5.3"
+    },
+    "require-dev": {
+        "debug/dev-only": "1.0.*",
+        "codacy/coverage": "dev-master",
+        "phpunit/phpunit": "^6.1",
+        "johnkary/phpunit-speedtrap": "^2.0"
+    },
+    "replace": {
+        "debug/dev-only": "1.0.*"
+    },
+    "provide": {
+        "debug/dev-only": "1.0.*"
+    },
+    "config": {
+        "preferred-install": {
+            "my-organization/stable-package": "dist",
+            "my-organization/*": "source",
+            "partner-organization/*": "auto",
+            "*": "dist"
+        }
+    }
+}
