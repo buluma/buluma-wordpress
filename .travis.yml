@@ -23,9 +23,16 @@ before_install:
   - composer self-update
   - composer clear-cache
 
+<<<<<<< HEAD
 install:
   - if [[ "$DEPENDENCIES" = 'high' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS; fi
   - if [[ "$DEPENDENCIES" = 'low' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
+
+before_script:
+     - travis_retry composer update 
+    #- travis_retry composer self-update
+    # - travis_retry composer --prefer-source --dev install
+ #   - ls
 
 script:
   - if [[ "$DRIVER" = 'phpdbg' ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover=coverage.xml; fi
