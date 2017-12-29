@@ -5,7 +5,7 @@ jobs:
       CC_TEST_REPORTER_ID: cf67988a2691791ecb5172f11cca3339775261817f37a41227aa7f206391ace9
     docker:
       - image: circleci/php:7.1.9-browsers
-    working_directory: ~/repo
+    working_directory: /home/travis/build/buluma/buluma-wordpress/
     steps:
       - checkout
       - run:
