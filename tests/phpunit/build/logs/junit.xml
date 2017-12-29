@@ -1,72 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="tests" tests="14" assertions="14" errors="0" failures="4" skipped="0" time="0.007620">
-    <testsuite name="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="0.003401">
-      <testcase name="testEquality" class="LongArrayDiffTest" classname="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" line="6" assertions="1" time="0.003401">
-        <failure type="PHPUnit\Framework\ExpectationFailedException">LongArrayDiffTest::testEquality
-Failed asserting that two arrays are equal.
---- Expected
-+++ Actual
-@@ @@
--    14 =&gt; 3
-+    14 =&gt; 33
-
-/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php:9
-</failure>
-      </testcase>
+  <testsuite name="tests" tests="6" assertions="6" errors="0" failures="0" skipped="0" time="0.004972">
+    <testsuite name="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.002739">
+      <testcase name="testEquality" class="LongArrayDiffTest" classname="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" line="6" assertions="1" time="0.002739"/>
     </testsuite>
-    <testsuite name="DataTest" file="/Applications/MAMP/htdocs/wordpress/tests/DataTest.php" tests="4" assertions="4" errors="0" failures="1" skipped="0" time="0.000664">
-      <testsuite name="DataTest::testAdd" tests="4" assertions="4" errors="0" failures="1" skipped="0" time="0.000664">
-        <testcase name="testAdd with data set #0" class="DataTest" classname="DataTest" file="/Applications/MAMP/htdocs/wordpress/tests/DataTest.php" line="9" assertions="1" time="0.000161"/>
-        <testcase name="testAdd with data set #1" class="DataTest" classname="DataTest" file="/Applications/MAMP/htdocs/wordpress/tests/DataTest.php" line="9" assertions="1" time="0.000104"/>
-        <testcase name="testAdd with data set #2" class="DataTest" classname="DataTest" file="/Applications/MAMP/htdocs/wordpress/tests/DataTest.php" line="9" assertions="1" time="0.000129"/>
-        <testcase name="testAdd with data set #3" class="DataTest" classname="DataTest" file="/Applications/MAMP/htdocs/wordpress/tests/DataTest.php" line="9" assertions="1" time="0.000270">
-          <failure type="PHPUnit\Framework\ExpectationFailedException">DataTest::testAdd with data set #3 (1, 1, 3)
-Failed asserting that 2 matches expected 3.
-
-/Applications/MAMP/htdocs/wordpress/tests/DataTest.php:11
-</failure>
-        </testcase>
-      </testsuite>
+    <testsuite name="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" tests="3" assertions="3" errors="0" failures="0" skipped="0" time="0.001996">
+      <testcase name="testCanBeCreatedFromValidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="8" assertions="1" time="0.001359"/>
+      <testcase name="testCannotBeCreatedFromInvalidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="16" assertions="1" time="0.000481"/>
+      <testcase name="testCanBeUsedAsString" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="23" assertions="1" time="0.000156"/>
     </testsuite>
-    <testsuite name="DependencyAndDataProviderComboTest" file="/Applications/MAMP/htdocs/wordpress/tests/DependencyAndDataProviderComboTest.php" tests="4" assertions="4" errors="0" failures="1" skipped="0" time="0.000937">
-      <testcase name="testProducerFirst" class="DependencyAndDataProviderComboTest" classname="DependencyAndDataProviderComboTest" file="/Applications/MAMP/htdocs/wordpress/tests/DependencyAndDataProviderComboTest.php" line="11" assertions="1" time="0.000303"/>
-      <testcase name="testProducerSecond" class="DependencyAndDataProviderComboTest" classname="DependencyAndDataProviderComboTest" file="/Applications/MAMP/htdocs/wordpress/tests/DependencyAndDataProviderComboTest.php" line="17" assertions="1" time="0.000119"/>
-      <testsuite name="DependencyAndDataProviderComboTest::testConsumer" tests="2" assertions="2" errors="0" failures="1" skipped="0" time="0.000515">
-        <testcase name="testConsumer with data set #0" class="DependencyAndDataProviderComboTest" classname="DependencyAndDataProviderComboTest" file="/Applications/MAMP/htdocs/wordpress/tests/DependencyAndDataProviderComboTest.php" line="28" assertions="1" time="0.000123"/>
-        <testcase name="testConsumer with data set #1" class="DependencyAndDataProviderComboTest" classname="DependencyAndDataProviderComboTest" file="/Applications/MAMP/htdocs/wordpress/tests/DependencyAndDataProviderComboTest.php" line="28" assertions="1" time="0.000392">
-          <failure type="PHPUnit\Framework\ExpectationFailedException">DependencyAndDataProviderComboTest::testConsumer with data set #1 ('provider2')
-Failed asserting that two arrays are equal.
---- Expected
-+++ Actual
-@@ @@
- Array (
--    0 =&gt; 'provider1'
-+    0 =&gt; 'provider2'
-
-/Applications/MAMP/htdocs/wordpress/tests/DependencyAndDataProviderComboTest.php:32
-</failure>
-        </testcase>
-      </testsuite>
-    </testsuite>
-    <testsuite name="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" tests="3" assertions="3" errors="0" failures="0" skipped="0" time="0.002385">
-      <testcase name="testCanBeCreatedFromValidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="8" assertions="1" time="0.001966"/>
-      <testcase name="testCannotBeCreatedFromInvalidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="16" assertions="1" time="0.000289"/>
-      <testcase name="testCanBeUsedAsString" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="23" assertions="1" time="0.000130"/>
-    </testsuite>
-    <testsuite name="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" tests="2" assertions="2" errors="0" failures="1" skipped="0" time="0.000233">
-      <testcase name="testExpectFooActualFoo" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="6" assertions="1" time="0.000105"/>
-      <testcase name="testExpectBarActualBaz" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="12" assertions="1" time="0.000128">
-        <failure type="PHPUnit\Framework\ExpectationFailedException">OutputTest::testExpectBarActualBaz
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'bar'
-+'baz'
-
-</failure>
-      </testcase>
+    <testsuite name="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" tests="2" assertions="2" errors="0" failures="0" skipped="0" time="0.000237">
+      <testcase name="testExpectFooActualFoo" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="6" assertions="1" time="0.000100"/>
+      <testcase name="testExpectBarActualBaz" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="12" assertions="1" time="0.000137"/>
     </testsuite>
   </testsuite>
 </testsuites>
