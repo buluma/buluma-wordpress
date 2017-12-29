@@ -34,4 +34,5 @@ before_script:
     - travis_retry composer --prefer-source --dev install
 
 script:
-    - phpunit 
+    - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
+    #- phpunit 
