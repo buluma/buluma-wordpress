@@ -30,8 +30,8 @@ matrix:
     - php: hhvm
 
 before_script:
-    - travis_retry composer update 
-    - travis_retry composer --prefer-source --dev install
+ #   - travis_retry composer update 
+ #   - travis_retry composer --prefer-source --dev install
 
 script:
     - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
