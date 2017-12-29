@@ -10,6 +10,17 @@
 			Deny from all
 		</IfModule>
 	</files>
+
+	<IfModule mod_rewrite.c>
+		RewriteEngine On
+
+		# Reduce Comment Spam - Security > Settings > WordPress Tweaks > Comment Spam
+		RewriteCond %{REQUEST_METHOD} POST
+		RewriteCond %{REQUEST_URI} /wp-comments-post\.php$
+		RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
+		RewriteCond %{HTTP_REFERER} !^https?://(([^/]+\.)?localhost|jetpack\.wordpress\.com/jetpack-comment)(/|$) [NC]
+		RewriteRule ^.* - [F]
+	</IfModule>
 # END iThemes Security - Do not modify or remove this line
 
 # BEGIN WordPress
