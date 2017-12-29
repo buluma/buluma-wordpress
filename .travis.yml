@@ -19,6 +19,7 @@ matrix:
       group: edge # Use edge image until the next travis CI image update
       services:
         - mysql
+        - memcached
   
 before_install:
   #- sudo apt-get update && sudo apt-get dist-upgrade
