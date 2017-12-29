@@ -1,59 +1,7 @@
-# faster builds on new travis setup not using sudo
-sudo: false
 language: php
-
 php:
-#  - 5.4
-#  - 5.5
-  - 5.6
-  - 7.0
-  - 7.0.8
-  - 7.1
-
-global:
-    - WP_TRAVISCI=travis:phpunit
- 
-matrix:
-#  fast_finish: true
-  include:
-    # test against the latest HHVM version by using trusty
-    - php: hhvm
-      sudo: true
-      dist: trusty
-      group: edge # Use edge image until the next travis CI image update
-      addons:
-        apt:
-          packages:
-            - mysql-server-5.6
-            - mysql-client-core-5.6
-            - mysql-client-5.6
-      services:
-        - mysql
-  allow_failures:
-    - php: hhvm
-
-before_install:
-  #git clone https://github.com/buluma/buluma-wordpress.git src/wordpress
- 
-  if [[ "$WP_TRAVISCI" == "travis:phpunit" ]]; then
-       mysql -u root -e "CREATE DATABASE wordpress_tests;"
-       cp wp-tests-config-sample.php wp-tests-config.php
-       sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-       sed -i "s/yourusernamehere/root/" wp-tests-config.php
-       sed -i "s/yourpasswordhere//" wp-tests-config.php
-       svn checkout https://plugins.svn.wordpress.org/wordpress-importer/trunk tests/phpunit/data/plugins/wordpress-importer
-   fi
- 
-   if [[ "$WP_TRAVIS_OBJECT_CACHE" == "true" ]]; then
-     curl https://raw.githubusercontent.com/tollmanz/wordpress-pecl-memcached-object-cache/584392b56dc4adbe52bd2c7b86f875e23a3e5f75/object-cache.php > src/wp-content/object-cache.php
-  echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
- fi
- 
-before_script:
-    - travis_retry composer update 
- #   - travis_retry composer --prefer-source --dev install
-
-script:
-    #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
-    - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
-    - vendor/bin/phpunit
+  - '5.4'
+  - '5.6'
+  - '7.0'
+  - hhvm # on Trusty only
+  - nightly
