@@ -1,44 +1,63 @@
-# Travis CI Configuration File
-group: travis_latest
-# Tell Travis CI we're using PHP
+sudo: false
 language: php
-
-# PHP version used in first build configuration.
-#php:   
-#  - 5.4
-#  - 5.5
-#  - 5.6
-#  - hhvm
-
-# WordPress version used in first build configuration.
+cache:
+  apt: true
+  directories:
+    - node_modules
 env:
-    - WP_VERSION=master
-
-# Next we define our matrix of additional build configurations to test against.
-# The versions listed above will automatically create our first configuration,
-# so it doesn't need to be re-defined below.
-
-# WP_VERSION specifies the tag to use. The way these tests are configured to run
-# requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
-
-# Note that Travis CI supports listing these above to automatically build a
-# matrix of configurations, but we're being nice here by manually building a
-# total of four configurations even though we're testing 4 versions of PHP
-# along with 2 versions of WordPress (which would build 8 configs otherwise).
-# This takes half as long to run while still providing adequate coverage.
+  global:
+    - WP_TRAVISCI=travis:phpunit
 matrix:
   include:
-    - php: 7.1.3
-      dist: precise
-      env: WP_VERSION=master
-
-# In case of timeouts and build failures you may want to prepend 'travis_retry' to the following commands:
+  - php: 7
+    env: WP_TRAVISCI=travis:js
+  - php: 5.2
+  - php: 5.3
+  - php: 5.4
+  - php: 5.5
+  - php: 5.6
+  - php: 5.6
+    env: WP_TRAVIS_OBJECT_CACHE=true
+    services: memcached
+  - php: hhvm
+    sudo: required
+    dist: trusty
+    group: edge
+    addons:
+      apt:
+        packages:
+        - mysql-server-5.6
+        - mysql-client-core-5.6
+        - mysql-client-5.6
+  - php: 7.0
+  - php: nightly
+  allow_failures:
+  - php: hhvm
+  - php: nightly
+before_install:
+- git clone https://github.com/buluma/buluma-wordpress.git src/wordpress
+- |
+  if [[ "$WP_TRAVISCI" == "travis:phpunit" ]]; then
+      mysql -u root -e "CREATE DATABASE wordpress_tests;"
+      cp wp-tests-config-sample.php wp-tests-config.php
+      sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
+      sed -i "s/yourusernamehere/root/" wp-tests-config.php
+      sed -i "s/yourpasswordhere//" wp-tests-config.php
+      svn checkout https://plugins.svn.wordpress.org/wordpress-importer/trunk tests/phpunit/data/plugins/wordpress-importer
+  fi
+- |
+  if [[ "$WP_TRAVIS_OBJECT_CACHE" == "true" ]]; then
+    curl https://raw.githubusercontent.com/tollmanz/wordpress-pecl-memcached-object-cache/584392b56dc4adbe52bd2c7b86f875e23a3e5f75/object-cache.php > src/wp-content/object-cache.php
+    echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  fi
 before_script:
-  - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install -n
-
-script:
-  - php vendor/bin/phpunit
-
-after_script:
-  - php vendor/bin/codacycoverage clover build/logs/clover.xml
+- npm install -g npm
+- npm install -g grunt-cli
+- npm install
+- npm prune
+- mysql --version
+- phpenv versions
+script: grunt $WP_TRAVISCI
+#notifications:
+#  slack:
+#    secure: lih3IWJqM6ppyK17lTElNOso2pgWgdi325QkYQiuluk2rOf7t5IuE+hHuO81TG8nC1ySQccbeNOoL+qQwMmb20ER5yHHndlh2Ml1i9LgL+RInstkqAtmU9uhAmvlS0n5L55aeGCjE3+IOLyNwCHxaC6xPdAl9uASN8hpQlqD4kg=
