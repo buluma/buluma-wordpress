@@ -40,10 +40,10 @@ script:
     #- vendor/bin/phpunit -c .
     #- vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox test
     - ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
-    - php vendor/bin/phpunit --coverage-clover build/coverage/xml
+    #- php vendor/bin/phpunit --coverage-clover build/coverage/xml
 
-after_script:
-  - php vendor/bin/codacycoverage clover build/coverage/xml
+#after_script:
+#  - php vendor/bin/codacycoverage clover build/coverage/xml
   
 after_success:
   - bash <(curl -s https://codecov.io/bash)

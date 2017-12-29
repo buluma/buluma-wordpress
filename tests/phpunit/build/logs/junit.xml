@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="tests" tests="6" assertions="6" errors="0" failures="0" skipped="0" time="0.005512">
-    <testsuite name="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.002913">
-      <testcase name="testEquality" class="LongArrayDiffTest" classname="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" line="6" assertions="1" time="0.002913"/>
+  <testsuite name="tests" tests="6" assertions="6" errors="0" failures="0" skipped="0" time="0.005034">
+    <testsuite name="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.002695">
+      <testcase name="testEquality" class="LongArrayDiffTest" classname="LongArrayDiffTest" file="/Applications/MAMP/htdocs/wordpress/tests/ArrayDiffTest.php" line="6" assertions="1" time="0.002695"/>
     </testsuite>
-    <testsuite name="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" tests="3" assertions="3" errors="0" failures="0" skipped="0" time="0.002338">
-      <testcase name="testCanBeCreatedFromValidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="8" assertions="1" time="0.001448"/>
-      <testcase name="testCannotBeCreatedFromInvalidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="16" assertions="1" time="0.000695"/>
-      <testcase name="testCanBeUsedAsString" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="23" assertions="1" time="0.000195"/>
+    <testsuite name="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" tests="3" assertions="3" errors="0" failures="0" skipped="0" time="0.002040">
+      <testcase name="testCanBeCreatedFromValidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="8" assertions="1" time="0.001191"/>
+      <testcase name="testCannotBeCreatedFromInvalidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="16" assertions="1" time="0.000652"/>
+      <testcase name="testCanBeUsedAsString" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="23" assertions="1" time="0.000197"/>
     </testsuite>
-    <testsuite name="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" tests="2" assertions="2" errors="0" failures="0" skipped="0" time="0.000261">
-      <testcase name="testExpectFooActualFoo" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="6" assertions="1" time="0.000113"/>
-      <testcase name="testExpectBarActualBaz" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="12" assertions="1" time="0.000148"/>
+    <testsuite name="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" tests="2" assertions="2" errors="0" failures="0" skipped="0" time="0.000299">
+      <testcase name="testExpectFooActualFoo" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="6" assertions="1" time="0.000164"/>
+      <testcase name="testExpectBarActualBaz" class="OutputTest" classname="OutputTest" file="/Applications/MAMP/htdocs/wordpress/tests/OutputTest.php" line="12" assertions="1" time="0.000135"/>
     </testsuite>
   </testsuite>
 </testsuites>

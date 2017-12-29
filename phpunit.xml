@@ -1,10 +1,10 @@
-<!-- <phpunit
+<phpunit
 	bootstrap="tests/phpunit/includes/bootstrap.php"
         backupGlobals="false"
         colors="true"
         beStrictAboutTestsThatDoNotTestAnything="true"
-        > -->
-<phpunit bootstrap="vendor/autoload.php">
+        >
+<!-- <phpunit bootstrap="vendor/autoload.php"> -->
     <testsuites>
         <!-- Default test suite to run all tests -->
         <testsuite>
