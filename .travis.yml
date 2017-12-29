@@ -1,70 +1,20 @@
-sudo: false
 language: php
-cache:
-  apt: true
-  directories:
-    - node_modules
-env:
-  global:
-    - WP_TRAVISCI=travis:phpunit
 
-matrix:
-  include:
-  - php: 7
-    env: WP_TRAVISCI=travis:js
-  - php: 5.2
-    dist: precise
-  - php: 5.3
-    dist: precise
-  - php: 5.4
-  - php: 5.5
-  - php: 5.6
-  - php: 5.6
-    env: WP_TRAVIS_OBJECT_CACHE=true
-    services: memcached
-  - php: hhvm
-    sudo: required
-    dist: trusty
-    group: edge
-    addons:
-      apt:
-        packages:
-        - mysql-server-5.6
-        - mysql-client-core-5.6
-        - mysql-client-5.6
-  - php: 7.0
-  - php: nightly
-  allow_failures:
-  - php: hhvm
-  - php: nightly
+php:
+  - '5.2'
+  - '5.3'
+  - '5.4'
+  - '5.5'
+  - '5.6'
+  - '7.0'
+  - hhvm
+  - nightly
+
 before_install:
-- git clone https://github.com/buluma/buluma-wordpress.git src/wordpress
-- |
-  if [[ "$WP_TRAVISCI" == "travis:phpunit" ]]; then
-      mysql -u root -e "CREATE DATABASE wordpress_tests;"
-      cp wp-tests-config-sample.php wp-tests-config.php
-      sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-      sed -i "s/yourusernamehere/root/" wp-tests-config.php
-      sed -i "s/yourpasswordhere//" wp-tests-config.php
-      svn checkout https://plugins.svn.wordpress.org/wordpress-importer/trunk tests/phpunit/data/plugins/wordpress-importer
-  fi
-- |
-  if [[ "$WP_TRAVIS_OBJECT_CACHE" == "true" ]]; then
-    curl https://raw.githubusercontent.com/tollmanz/wordpress-pecl-memcached-object-cache/584392b56dc4adbe52bd2c7b86f875e23a3e5f75/object-cache.php > src/wp-content/object-cache.php
-    echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  fi
-before_script:
-- npm install -g npm
-- npm install -g grunt-cli
-# fill all details and it will create a package.json file.
-- npm install grunt #(for grunt dependencies.)
-#- npm install grunt --save-dev
-#- npm install -g grunt-cli
-#- npm init
-- npm prune
-- mysql --version
-- phpenv versions
-script: grunt $WP_TRAVISCI
-#notifications:
-#  slack:
-#    secure: lih3IWJqM6ppyK17lTElNOso2pgWgdi325QkYQiuluk2rOf7t5IuE+hHuO81TG8nC1ySQccbeNOoL+qQwMmb20ER5yHHndlh2Ml1i9LgL+RInstkqAtmU9uhAmvlS0n5L55aeGCjE3+IOLyNwCHxaC6xPdAl9uASN8hpQlqD4kg=
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.2" ]]; then `phpenv global 5.3`; fi
+  - composer update
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.2" ]]; then `phpenv global "$TRAVIS_PHP_VERSION"`; fi
+
+script:
+  - ./vendor/bin/phpunit-php52 --version
+  - ./vendor/bin/phpunit-php52
