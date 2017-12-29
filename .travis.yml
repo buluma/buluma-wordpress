@@ -23,7 +23,7 @@ matrix:
 before_install:
   #- sudo apt-get update && sudo apt-get dist-upgrade
   - sudo apt-get update
-  - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" mysql-server-5.5 mysql-client-5.5 mysql-server-core-5.5
+#  - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" mysql-server-5.5 mysql-client-5.5 mysql-server-core-5.5
 
 before_script:
     - travis_retry composer update 
