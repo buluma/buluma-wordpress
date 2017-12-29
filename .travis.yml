@@ -17,14 +17,12 @@ matrix:
       sudo: true
       dist: precise
       group: edge # Use edge image until the next travis CI image update
-      addons:
-        apt:
-          packages:
-            - mysql-server
-            - mysql-client-core
-            - mysql-client
       services:
         - mysql
+  
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" gcc g++ make zip unzip apache2 php5 php5-cli libapache2-mod-php5 php5-mysql php5-json mysql-server mysql-client mysql-client-core
 
 before_script:
     - travis_retry composer update 
