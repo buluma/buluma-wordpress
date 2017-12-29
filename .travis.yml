@@ -21,7 +21,8 @@ matrix:
         - mysql
   
 before_install:
-  - sudo apt-get update && sudo apt-get dist-upgrade
+  #- sudo apt-get update && sudo apt-get dist-upgrade
+  - sudo apt-get update
   - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" mysql-server mysql-client-5.5
 
 before_script:
