@@ -38,7 +38,6 @@
     "provide": {
         "debug/dev-only": "1.0.*"
     },
-    {
     "config": {
         "preferred-install": {
             "my-organization/stable-package": "dist",
