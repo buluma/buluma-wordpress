@@ -46,4 +46,5 @@ script:
 #  - php vendor/bin/codacycoverage clover build/coverage/xml
   
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  # - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -t f170557d-564b-436d-88b7-36e740010ab6
