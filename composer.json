@@ -24,13 +24,19 @@
         "source": "https://github.com/jolicode/jane",
         "docs": "https://github.com/jolicode/jane/wiki"
     },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
     "require": {
         "monolog/monolog": "1.0.*"
     },
     "require-dev": {
         "debug/dev-only": "1.0.*",
         "codacy/coverage": "dev-master",
-        "phpunit/phpunit": "6.0.*"
+        "phpunit/phpunit": "^6.1",
+        "johnkary/phpunit-speedtrap": "^2.0"
     },
     "replace": {
         "debug/dev-only": "1.0.*"

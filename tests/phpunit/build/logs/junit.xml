@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="tests" tests="3" assertions="3" errors="0" failures="0" skipped="0" time="0.081579">
+    <testsuite name="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" tests="3" assertions="3" errors="0" failures="0" skipped="0" time="0.081579">
+      <testcase name="testCanBeCreatedFromValidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="8" assertions="1" time="0.079586"/>
+      <testcase name="testCannotBeCreatedFromInvalidEmailAddress" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="16" assertions="1" time="0.001320"/>
+      <testcase name="testCanBeUsedAsString" class="EmailTest" classname="EmailTest" file="/Applications/MAMP/htdocs/wordpress/tests/EmailTest.php" line="23" assertions="1" time="0.000673"/>
+    </testsuite>
+  </testsuite>
+</testsuites>

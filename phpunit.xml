@@ -1,9 +1,10 @@
-<phpunit
+<!-- <phpunit
 	bootstrap="tests/phpunit/includes/bootstrap.php"
         backupGlobals="false"
         colors="true"
         beStrictAboutTestsThatDoNotTestAnything="true"
-        >
+        > -->
+<phpunit bootstrap="vendor/autoload.php">
     <testsuites>
         <!-- Default test suite to run all tests -->
         <testsuite>
@@ -35,12 +36,16 @@
         <const name="WP_RUN_CORE_TESTS" value="1" />
     </php>
 	<listeners>
-		<listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php">
+		<!-- <listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php"> -->
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
 			<arguments>
 				<array>
 					<element key="slowThreshold">
 						<integer>150</integer>
 					</element>
+                    <element key="reportLength">
+                        <integer>5</integer>
+                    </element>
 				</array>
 			</arguments>
 		</listener>
