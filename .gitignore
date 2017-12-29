@@ -2,6 +2,7 @@
 wp-config.php
 error_log
 /tests/
+/vendor/
 /import-database-sql-file-using-PHP-script-master/
 /cache/
 /db_dump/filename[0-9].sql
