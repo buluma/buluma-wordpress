@@ -24,6 +24,9 @@
         "source": "https://github.com/jolicode/jane",
         "docs": "https://github.com/jolicode/jane/wiki"
     },
+    "require-dev": {
+        "phpunit/phpunit": "4.3.*"
+    },
     "require": {
         "monolog/monolog": "1.0.*"
     },
