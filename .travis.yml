@@ -5,3 +5,9 @@ php:
   - '7.0'
   - hhvm # on Trusty only
   - nightly
+
+#install database
+services:
+  - mysql
+before_install:
+  - mysql -u root --password="" < test/travis.sql
