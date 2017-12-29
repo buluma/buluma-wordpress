@@ -36,7 +36,7 @@ before_script:
 script:
     #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
     - cd /home/travis/build/buluma/buluma-wordpress/
-    # - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
+    - ls -a /home/travis/build/buluma/buluma-wordpress/
     # - ls -a /home/travis/build/buluma/buluma-wordpress/tests/
     #- vendor/bin/phpunit -c .
     #- vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox test
