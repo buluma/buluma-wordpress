@@ -1,10 +1,14 @@
+# faster builds on new travis setup not using sudo
+sudo: false
 language: php
+
 php:
-  - '5.4'
-  - '5.6'
-  - '7.0'
-  - hhvm # on Trusty only
-  - nightly
+#  - 5.4
+#  - 5.5
+#  - 5.6
+#  - 7.0
+  - 7.0.8
+#  - 7.1
 
 matrix:
 #  fast_finish: true
@@ -24,8 +28,12 @@ matrix:
         - mysql
   allow_failures:
     - php: hhvm
-    
 
-before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
-#  - mysql -u root --password="" < test/travis.sql
+before_script:
+    - travis_retry composer update 
+ #   - travis_retry composer --prefer-source --dev install
+
+script:
+    #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
+    - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
+    - vendor/bin/phpunit -c .
