@@ -32,9 +32,13 @@ matrix:
 before_script:
     - travis_retry composer update 
  #   - travis_retry composer --prefer-source --dev install
+ #   - ls
 
 script:
     #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
-    #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
+    - cd /home/travis/build/buluma/buluma-wordpress/
+    - ls -a /home/travis/build/buluma/buluma-wordpress/vendor/
+    - ls -a /home/travis/build/buluma/buluma-wordpress/tests/
     #- vendor/bin/phpunit -c .
-    - ./vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox test
+    #- vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox test
+    - ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
