@@ -52,9 +52,13 @@ before_install:
   fi
 before_script:
 - npm install -g npm
-- npm install grunt --save-dev
-#- npm install -g grunt-cli
+- npm install -g grunt-cli
 - npm init
+# fill all details and it will create a package.json file.
+- npm install grunt #(for grunt dependencies.)
+#- npm install grunt --save-dev
+#- npm install -g grunt-cli
+#- npm init
 - npm install
 - npm prune
 - mysql --version
