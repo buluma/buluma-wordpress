@@ -28,7 +28,8 @@ before_install:
 #  - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" mysql-server-5.5 mysql-client-5.5 mysql-server-core-5.5
 
 before_script:
-    - travis_retry composer update 
+    # - travis_retry composer update 
+    - travis_retry composer self-update
  #   - travis_retry composer --prefer-source --dev install
  #   - ls
 

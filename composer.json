@@ -25,9 +25,9 @@
         "docs": "https://github.com/jolicode/jane/wiki"
     },
     "autoload": {
-        "classmap": [
-            "src/"
-        ]
+        "psr-0": { 
+            "Example": "src/"
+        }
     },
     "require": {
         "monolog/monolog": "1.0.*"
