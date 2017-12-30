@@ -14,7 +14,7 @@ matrix:
   allow_failures:
   - php: master
   - os: osx
-  fast_finish: true
+  fast_finish: false
 env:
   matrix:
   - DEPENDENCIES="high"
