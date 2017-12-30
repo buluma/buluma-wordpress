@@ -6,8 +6,8 @@ os:
 - linux
 node_js:
 - '6'
-- '5'
-- '4'
+#- '5'
+#- '4'
 env:
   global:
     secure: LZtC2VpPdxom1NoFm9/GsZLM0KdcS7c5RNec4k2xRLmg8Hfo5eozVCzyP+Ia51nXwHanWz4h68qf7KIeluFz6oy5lrbO8qjBi45gB2LDodUn+BcU2g3ydZ2ji0OTYjfatgLcSTfV0oejO5r8SqvH3j1mzpbbW4WcsgZP2Bgw6I38LCrnu6peu+UgG3K2gKUvu0WSZRbJ7KZgUF8QeBslIIgTzKeffoBIWME/CxocVLHXhJ5WJpA8tETIXepDG2cKXdWszNEJ/oKfnuUWtFSL9I+dPJFVXZnw+EfApxUPNucA/go7O1KViZg0UpLRT0JBrDNjHHog93+wNZrn55ceY/63PULzQUaTzJQ2Xq+ONpLFMhYmrtte9W/rKuI1orK19aJdKBLXWDg1Y6PbgxqcfFwnqh0uBu4gjiSjni8g6Zo41o1FCHZaBLdl79Vw22susj4YFtLOmiWi3790X/pkn1hGLzPFcxoF7bqGBlAW5v6l9IHUsU9r/X2QlaQytiL3B+nyDHeYHSQM4QjTG2LHZZbHOx5ZUvPlFLdmXxe9LwAwWmbcaVGVoiByDvXgCD+HQPY/WtHtQPN06eZIWhgna62gfdsbzoFcNODWHOA797mnNXU8i6w4NS34TBX5FVASc+rz3gKLbWcIwbOU1ku1tYFkVfAUD1Ssun7zNjQMbpE=
@@ -53,8 +53,6 @@ before_deploy:
 - ls -al releases
 deploy:
   provider: releases
-  api_key:
-    secure: m3/Wev2JYcVtwJFAhcxhjInO2i20+uT80xethKuhxt0AeqnaEVQy3sIRU+uXsD36Yogl3BiZMCwkMKZF44IzW78o11NpXqIDM/rZegglObGtIVyj5aiJNQhP6boWHdbq0E8qxMy4FUT04fKN8vsztseFMvdFpjinhuI/fWspXybKPIZbexVTQ7nksuuraZDbOWZLVwDmJUBKN1gyNqQKSjEFQBgAHUPHAUb0wSayf6Q2Er8gD2zrpzfg12Mu2ErWr4YJRL7Cx+uVtw6g2sI6i10P4B8nEjKFpjRaTG/ogLAjr2O+FxFxHyAu+JfJYMyOiszEz+jC1654DKjwkagy5dxgXP6rMx1rtCf270TBvRgVAS72EtpdpQYGtki5hxXufI0GzdP0z8y6RasfVBYNCsi+750E8zP//SYKQ1YZN4YAlCLym8W23vSq9aJUy4zk6eDmRdKOqUbsjYRqr3DsTfj2/iXmeVRgmdxQ0UhbcOGSjNuSx4g+Q+TbdBQhAdzAigHDlwTiX2qoniKywLUJZeApOMtktVDUd5E3nl/arT1/ZIzHuuX4W/Gy5er7G6MUD/5Lwf07pit/+Qw2F4gNnWTzIz+qvfhDOrWKE/IS/tA21jpZRm0BUj6Uj5YDZEVMJOQIftta8GXqFmK3Vcpjztt3mlAExxRg8JQu9D1c3bA=
   file_glob: true
   file:
   - releases/*.*
