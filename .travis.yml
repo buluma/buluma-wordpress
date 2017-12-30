@@ -1,96 +1,84 @@
 language: php
-
 sudo: false
-
 php:
-  - 7.1
-  - 7.2
-  - master
-
+- 7.1
+- 7.2
+- master
 matrix:
   allow_failures:
-    - php: master
+  - php: master
   fast_finish: true
-
 env:
   matrix:
-    - DEPENDENCIES="high"
-    - DEPENDENCIES="low"
+  - DEPENDENCIES="high"
+  - DEPENDENCIES="low"
   global:
-    - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
-    - secure: dab89fd486c48bd5941f330cc504c75091561353
-
+  - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
+  - secure: j4H5S8GGVVK9DvpXe1pfLlOaBYA/OfekhtGbaBgR8HIHS7KgjeQLcUSaqOtStXNB/6aUbUSDTKdhhjHdwzC+GSmrgSkOYQliVRqxWp8vG/b/HqYGWld8+jWuFiALS+G60vZg5KySUtTHds/oGnCHcNF+PVa+oJy7JWC1Z/hjD+J4O8cBwXPV2j3NFriDap6RRsWaR66DdIoc88lgvqr3F+tyqrVMp4nfX/xukGBJtLdXZFqVFhQ/8ZRusXqhmd6FwrBnBVN9RITRyVXeW6AQfCX87PXXDAJYXKoVIy0HLkT6VZqlSvQ7fAXARITWAI7en86V4aqLh79jSHUOF1bbdNHNsRnu9iJAmzL41fHwv0uAOh+f6gKFX0mKsfe9WdcwnftLuP5y3Ek9m39+FNw4ALC5GYLy53/zQswPDLNE8AYFUc0h7dVEwKcJMZYqW+b4fvgiyNJl05w+zul9j34TS01YzIiz0fbGJuAzOwNeZGfhVXALwrmoQpjkbasqF1aCqf2Gisr3NfmcBY5qu7L3LoeP9ioOEEuImhHj6FfcyYXgn27HzsSU6PdVviJ9FNIICZUfMTkmYQpQ8m7soJDAhdmquCVhu4IZh4/g4Oe2HgY01Foh73ZQ+LKR1l1L/oGQ89Gsw/dsJ0UEaF/IKVntgJMTk4xe3CDqKo5CgVK084s=
 before_install:
-  - composer self-update
-  - composer clear-cache
-  - npm install -g npm
-  - npm --version
-
+- composer self-update
+- composer clear-cache
+- npm install -g npm
+- npm --version
 install:
-  - if [[ "$DEPENDENCIES" = 'high' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS; fi
-  - if [[ "$DEPENDENCIES" = 'low' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
-  - npm install
-
+- if [[ "$DEPENDENCIES" = 'high' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS;
+  fi
+- if [[ "$DEPENDENCIES" = 'low' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS
+  --prefer-lowest; fi
+- npm install
 before_script:
-     - travis_retry composer update 
-    #- travis_retry composer self-update
-    # - travis_retry composer --prefer-source --dev install
- #   - ls
-
+- travis_retry composer update
 script:
-  - if [[ "$DRIVER" = 'phpdbg' ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover=coverage.xml; fi
-  - if [[ "$DRIVER" = 'xdebug' ]]; then vendor/bin/phpunit --coverage-clover=coverage.xml; fi
-
+- if [[ "$DRIVER" = 'phpdbg' ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover=coverage.xml;
+  fi
+- if [[ "$DRIVER" = 'xdebug' ]]; then vendor/bin/phpunit --coverage-clover=coverage.xml;
+  fi
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
-  - mkdir -p releases
-  - PACKAGE_NAME=`scripts/package-name.sh package.json`
-  - PACKAGE_VERSION=`scripts/package-version.sh package.json`
-  - RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
-  - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
-  - COMMIT_HASH=`git log -1 --format="%h"`
-  - |
-    if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
-      pushd releases;
-      ln -sf ../src ${RELEASE};
-      zip -r ${RELEASE}.zip ${RELEASE};
-      popd;
-      ls -al releases/*;
-      if [[ -z "$TRAVIS_TAG" ]]; then
-        mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
-        npm run github-release -- delete \
-          --owner=cncjs \
-          --repo=cncjs-pendant-tinyweb \
-          --tag="latest" \
-          --name="${TRAVIS_BRANCH}" \
-          "*.zip";
-        npm run github-release -- upload \
-          --owner=cncjs \
-          --repo=cncjs-pendant-tinyweb \
-          --tag="latest" \
-          --name="${TRAVIS_BRANCH}" \
-          --body="${COMMIT_LOG}" \
-          "releases/${RELEASE}-${COMMIT_HASH}.zip";
-      fi
+- bash <(curl -s https://codecov.io/bash)
+- mkdir -p releases
+- PACKAGE_NAME=`scripts/package-name.sh package.json`
+- PACKAGE_VERSION=`scripts/package-version.sh package.json`
+- RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
+- COMMIT_LOG=`git log -1 --format='%ci %H %s'`
+- COMMIT_HASH=`git log -1 --format="%h"`
+- |
+  if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
+    pushd releases;
+    ln -sf ../src ${RELEASE};
+    zip -r ${RELEASE}.zip ${RELEASE};
+    popd;
+    ls -al releases/*;
+    if [[ -z "$TRAVIS_TAG" ]]; then
+      mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
+      npm run github-release -- delete \
+        --owner=cncjs \
+        --repo=cncjs-pendant-tinyweb \
+        --tag="latest" \
+        --name="${TRAVIS_BRANCH}" \
+        "*.zip";
+      npm run github-release -- upload \
+        --owner=cncjs \
+        --repo=cncjs-pendant-tinyweb \
+        --tag="latest" \
+        --name="${TRAVIS_BRANCH}" \
+        --body="${COMMIT_LOG}" \
+        "releases/${RELEASE}-${COMMIT_HASH}.zip";
     fi
-
+  fi
 before_deploy:
-  - echo "Deploying to GitHub releases"
-  - ls -al releases
-
+- echo "Deploying to GitHub releases"
+- ls -al releases
 deploy:
   provider: releases
   api_key:
-    secure: "dab89fd486c48bd5941f330cc504c75091561353"
+    secure: j4H5S8GGVVK9DvpXe1pfLlOaBYA/OfekhtGbaBgR8HIHS7KgjeQLcUSaqOtStXNB/6aUbUSDTKdhhjHdwzC+GSmrgSkOYQliVRqxWp8vG/b/HqYGWld8+jWuFiALS+G60vZg5KySUtTHds/oGnCHcNF+PVa+oJy7JWC1Z/hjD+J4O8cBwXPV2j3NFriDap6RRsWaR66DdIoc88lgvqr3F+tyqrVMp4nfX/xukGBJtLdXZFqVFhQ/8ZRusXqhmd6FwrBnBVN9RITRyVXeW6AQfCX87PXXDAJYXKoVIy0HLkT6VZqlSvQ7fAXARITWAI7en86V4aqLh79jSHUOF1bbdNHNsRnu9iJAmzL41fHwv0uAOh+f6gKFX0mKsfe9WdcwnftLuP5y3Ek9m39+FNw4ALC5GYLy53/zQswPDLNE8AYFUc0h7dVEwKcJMZYqW+b4fvgiyNJl05w+zul9j34TS01YzIiz0fbGJuAzOwNeZGfhVXALwrmoQpjkbasqF1aCqf2Gisr3NfmcBY5qu7L3LoeP9ioOEEuImhHj6FfcyYXgn27HzsSU6PdVviJ9FNIICZUfMTkmYQpQ8m7soJDAhdmquCVhu4IZh4/g4Oe2HgY01Foh73ZQ+LKR1l1L/oGQ89Gsw/dsJ0UEaF/IKVntgJMTk4xe3CDqKo5CgVK084s=
   file_glob: true
   file:
-    - 'releases/*.*'
+  - releases/*.*
   overwrite: true
   skip_cleanup: true
   on:
-    # https://docs.travis-ci.com/user/deployment#Conditional-Releases-with-on
-    tags: false  # Deploy app only when a tag is applied to the commit
+    tags: false
     node: '6'
-
 notifications:
   email: ops@buluma.me.ke
