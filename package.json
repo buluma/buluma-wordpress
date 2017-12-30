@@ -16,6 +16,6 @@
   "name": "buluma-wordpress",
   "version": "2.0.6",
   "dependencies": {
-    "github-release": "^0.2.0",
+    "github-release": "^0.2.0"
   }
 }
