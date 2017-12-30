@@ -10,9 +10,9 @@ php:
 group: deprecated-2017Q4
 
 before_script:
-  - sudo apt-get update
+ - sudo apt-get update
  # - curl -sSf -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
- - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+ # - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
  #install phpdbg dep
  - cd /usr/src/php-src/sapi
  - git clone https://github.com/krakjoe/phpdbg
