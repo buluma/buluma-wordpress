@@ -12,7 +12,7 @@ os:
 
 matrix:
   allow_failures:
-  # - php: master
+  - php: master
   - os: osx
   fast_finish: false
 env:
@@ -27,6 +27,7 @@ before_install:
 - composer clear-cache
 - npm install -g npm
 - npm --version
+- npm install --save-dev release-it
 install:
 - if [[ "$DEPENDENCIES" = 'high' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS;
   fi
