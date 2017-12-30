@@ -54,8 +54,9 @@ before_deploy:
 - ls -al releases
 deploy:
   provider: releases
-  user: buluma
-  passwordx: s9KEqMOvgLGv
+  api_key: 
+    secure: l/6RsqAHDouhTaAsiGjvxVyReonlTQzzMTw3A34d3S3T2dwnT6oZaKfOuukGhIzxxk9S3RL1XWD4X9p0QKQTQO7+72jRsg2TY3FL1H3EbeUrT17Pgft+I03MyDGDbCuMTdhKhK+13XtitCH2Jnv40c/iKAEFCjV1/TAiU38Gc5sOq7YX7THtNpiPYnbkBlZbJzKfKn+cIVCG1NBAgolgDA1iPZIgu+qfX87S9A9dCcM7aagODIdkhLu6tiP2uLNU8IoqUi7r8oFlwdvfpxt9PxZVJhiR8yEOF8xL41vgx8kKY4xQxs/lL+zbXP8QcVCAhcPV7dQyufWMKX0jYnG1cHWIourrLNGpO0fBT4feUNt6EmRDs1mtmHd3NaHRgAj+uQs8i41dyoS9GaoQerP67LTFJDdxI5Os1l+1IcbpclIOVocx5mW9vvbRYUB3Dy4El/6reFZj85iY7c979oKyEgmKa3N7sUrLIV6VEGgJcH2cg4UlEnm/tkx3vyxCn1oJg2kmDhvoQlsthvyskfxmsvULaW2TnIw1WwPMNuIhY1yEoQe1dpo5a7/K7qqDl6o56go2s4nCRswueR6dtc92C/HcsjBfOnMxpnE3yo+sRI/7zOc2hDnwyZ/EFO8kdvnV4OhU/utkmcvTfIiVib9aJ6SJL4FmWvrnsF6IIjwcJQ8=
+  # passwordx: s9KEqMOvgLGv
   file_glob: true
   file:
   - releases/*.*
@@ -63,5 +64,4 @@ deploy:
   skip_cleanup: true
   on:
     branch: master
-  password:
-    secure: l/6RsqAHDouhTaAsiGjvxVyReonlTQzzMTw3A34d3S3T2dwnT6oZaKfOuukGhIzxxk9S3RL1XWD4X9p0QKQTQO7+72jRsg2TY3FL1H3EbeUrT17Pgft+I03MyDGDbCuMTdhKhK+13XtitCH2Jnv40c/iKAEFCjV1/TAiU38Gc5sOq7YX7THtNpiPYnbkBlZbJzKfKn+cIVCG1NBAgolgDA1iPZIgu+qfX87S9A9dCcM7aagODIdkhLu6tiP2uLNU8IoqUi7r8oFlwdvfpxt9PxZVJhiR8yEOF8xL41vgx8kKY4xQxs/lL+zbXP8QcVCAhcPV7dQyufWMKX0jYnG1cHWIourrLNGpO0fBT4feUNt6EmRDs1mtmHd3NaHRgAj+uQs8i41dyoS9GaoQerP67LTFJDdxI5Os1l+1IcbpclIOVocx5mW9vvbRYUB3Dy4El/6reFZj85iY7c979oKyEgmKa3N7sUrLIV6VEGgJcH2cg4UlEnm/tkx3vyxCn1oJg2kmDhvoQlsthvyskfxmsvULaW2TnIw1WwPMNuIhY1yEoQe1dpo5a7/K7qqDl6o56go2s4nCRswueR6dtc92C/HcsjBfOnMxpnE3yo+sRI/7zOc2hDnwyZ/EFO8kdvnV4OhU/utkmcvTfIiVib9aJ6SJL4FmWvrnsF6IIjwcJQ8=
+    
