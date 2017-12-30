@@ -8,8 +8,7 @@
     "grunt-contrib-qunit": "~0.5.2",
     "grunt-contrib-watch": "~0.6.1",
     "release-it": "^5.1.2",
-    "github-release-cli": "^0.3.0",
-    "github-release": "^0.2.0"
+    "github-release-cli": "^0.3.0"
   },
   "name": "buluma-wordpress",
   "version": "2.0.6"
