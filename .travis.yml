@@ -47,7 +47,7 @@ after_success:
   fi
 before_deploy:
 - echo "Deploying to GitHub releases"
-- ls -al releases
+# - ls -al releases
 - git config --local user.name "buluma"
 - git config --local user.email "bulumaknight@gmail.com"
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
