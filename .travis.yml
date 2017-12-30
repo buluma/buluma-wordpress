@@ -1,25 +1,18 @@
 
-# language: php
-# sudo: false
-# php:
-# - 7.1
-# - 7.2
-os:
-  - linux
-  - master
+language: php
+sudo: false
+php:
+- 7.1
+- 7.2
+- master
 matrix:
   allow_failures:
   - php: master
   fast_finish: true
 env:
   matrix:
-    include:
-    - language: php
-      php: "7.2"
-    - language: node_js
-      node_js: "6"
-    - DEPENDENCIES="high"
-    - DEPENDENCIES="low"
+  - DEPENDENCIES="high"
+  - DEPENDENCIES="low"
   global:
   - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
   - secure: j4H5S8GGVVK9DvpXe1pfLlOaBYA/OfekhtGbaBgR8HIHS7KgjeQLcUSaqOtStXNB/6aUbUSDTKdhhjHdwzC+GSmrgSkOYQliVRqxWp8vG/b/HqYGWld8+jWuFiALS+G60vZg5KySUtTHds/oGnCHcNF+PVa+oJy7JWC1Z/hjD+J4O8cBwXPV2j3NFriDap6RRsWaR66DdIoc88lgvqr3F+tyqrVMp4nfX/xukGBJtLdXZFqVFhQ/8ZRusXqhmd6FwrBnBVN9RITRyVXeW6AQfCX87PXXDAJYXKoVIy0HLkT6VZqlSvQ7fAXARITWAI7en86V4aqLh79jSHUOF1bbdNHNsRnu9iJAmzL41fHwv0uAOh+f6gKFX0mKsfe9WdcwnftLuP5y3Ek9m39+FNw4ALC5GYLy53/zQswPDLNE8AYFUc0h7dVEwKcJMZYqW+b4fvgiyNJl05w+zul9j34TS01YzIiz0fbGJuAzOwNeZGfhVXALwrmoQpjkbasqF1aCqf2Gisr3NfmcBY5qu7L3LoeP9ioOEEuImhHj6FfcyYXgn27HzsSU6PdVviJ9FNIICZUfMTkmYQpQ8m7soJDAhdmquCVhu4IZh4/g4Oe2HgY01Foh73ZQ+LKR1l1L/oGQ89Gsw/dsJ0UEaF/IKVntgJMTk4xe3CDqKo5CgVK084s=
@@ -50,7 +43,7 @@ after_success:
 - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
 - COMMIT_HASH=`git log -1 --format="%h"`
 - |
-  if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
+  if [[ "$TRAVIS_NODE_VERSION" == "6" ]]; then
     pushd releases;
     ln -sf ../src ${RELEASE};
     zip -r ${RELEASE}.zip ${RELEASE};
