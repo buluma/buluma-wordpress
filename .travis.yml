@@ -1,3 +1,4 @@
+
 language: php
 sudo: false
 php:
@@ -14,7 +15,7 @@ env:
   - DEPENDENCIES="low"
   global:
   - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
-  # - secure: j4H5S8GGVVK9DvpXe1pfLlOaBYA/OfekhtGbaBgR8HIHS7KgjeQLcUSaqOtStXNB/6aUbUSDTKdhhjHdwzC+GSmrgSkOYQliVRqxWp8vG/b/HqYGWld8+jWuFiALS+G60vZg5KySUtTHds/oGnCHcNF+PVa+oJy7JWC1Z/hjD+J4O8cBwXPV2j3NFriDap6RRsWaR66DdIoc88lgvqr3F+tyqrVMp4nfX/xukGBJtLdXZFqVFhQ/8ZRusXqhmd6FwrBnBVN9RITRyVXeW6AQfCX87PXXDAJYXKoVIy0HLkT6VZqlSvQ7fAXARITWAI7en86V4aqLh79jSHUOF1bbdNHNsRnu9iJAmzL41fHwv0uAOh+f6gKFX0mKsfe9WdcwnftLuP5y3Ek9m39+FNw4ALC5GYLy53/zQswPDLNE8AYFUc0h7dVEwKcJMZYqW+b4fvgiyNJl05w+zul9j34TS01YzIiz0fbGJuAzOwNeZGfhVXALwrmoQpjkbasqF1aCqf2Gisr3NfmcBY5qu7L3LoeP9ioOEEuImhHj6FfcyYXgn27HzsSU6PdVviJ9FNIICZUfMTkmYQpQ8m7soJDAhdmquCVhu4IZh4/g4Oe2HgY01Foh73ZQ+LKR1l1L/oGQ89Gsw/dsJ0UEaF/IKVntgJMTk4xe3CDqKo5CgVK084s=
+  - secure: j4H5S8GGVVK9DvpXe1pfLlOaBYA/OfekhtGbaBgR8HIHS7KgjeQLcUSaqOtStXNB/6aUbUSDTKdhhjHdwzC+GSmrgSkOYQliVRqxWp8vG/b/HqYGWld8+jWuFiALS+G60vZg5KySUtTHds/oGnCHcNF+PVa+oJy7JWC1Z/hjD+J4O8cBwXPV2j3NFriDap6RRsWaR66DdIoc88lgvqr3F+tyqrVMp4nfX/xukGBJtLdXZFqVFhQ/8ZRusXqhmd6FwrBnBVN9RITRyVXeW6AQfCX87PXXDAJYXKoVIy0HLkT6VZqlSvQ7fAXARITWAI7en86V4aqLh79jSHUOF1bbdNHNsRnu9iJAmzL41fHwv0uAOh+f6gKFX0mKsfe9WdcwnftLuP5y3Ek9m39+FNw4ALC5GYLy53/zQswPDLNE8AYFUc0h7dVEwKcJMZYqW+b4fvgiyNJl05w+zul9j34TS01YzIiz0fbGJuAzOwNeZGfhVXALwrmoQpjkbasqF1aCqf2Gisr3NfmcBY5qu7L3LoeP9ioOEEuImhHj6FfcyYXgn27HzsSU6PdVviJ9FNIICZUfMTkmYQpQ8m7soJDAhdmquCVhu4IZh4/g4Oe2HgY01Foh73ZQ+LKR1l1L/oGQ89Gsw/dsJ0UEaF/IKVntgJMTk4xe3CDqKo5CgVK084s=
 before_install:
 - composer self-update
 - composer clear-cache
@@ -71,15 +72,14 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: dab89fd486c48bd5941f330cc504c75091561353
+    secure: j4H5S8GGVVK9DvpXe1pfLlOaBYA/OfekhtGbaBgR8HIHS7KgjeQLcUSaqOtStXNB/6aUbUSDTKdhhjHdwzC+GSmrgSkOYQliVRqxWp8vG/b/HqYGWld8+jWuFiALS+G60vZg5KySUtTHds/oGnCHcNF+PVa+oJy7JWC1Z/hjD+J4O8cBwXPV2j3NFriDap6RRsWaR66DdIoc88lgvqr3F+tyqrVMp4nfX/xukGBJtLdXZFqVFhQ/8ZRusXqhmd6FwrBnBVN9RITRyVXeW6AQfCX87PXXDAJYXKoVIy0HLkT6VZqlSvQ7fAXARITWAI7en86V4aqLh79jSHUOF1bbdNHNsRnu9iJAmzL41fHwv0uAOh+f6gKFX0mKsfe9WdcwnftLuP5y3Ek9m39+FNw4ALC5GYLy53/zQswPDLNE8AYFUc0h7dVEwKcJMZYqW+b4fvgiyNJl05w+zul9j34TS01YzIiz0fbGJuAzOwNeZGfhVXALwrmoQpjkbasqF1aCqf2Gisr3NfmcBY5qu7L3LoeP9ioOEEuImhHj6FfcyYXgn27HzsSU6PdVviJ9FNIICZUfMTkmYQpQ8m7soJDAhdmquCVhu4IZh4/g4Oe2HgY01Foh73ZQ+LKR1l1L/oGQ89Gsw/dsJ0UEaF/IKVntgJMTk4xe3CDqKo5CgVK084s=
   file_glob: true
   file:
   - releases/*.*
   overwrite: true
   skip_cleanup: true
   on:
-    all_branches: true
-    # tags: false
-    # node: '6'
+    tags: false
+    node: '6'
 notifications:
   email: ops@buluma.me.ke
