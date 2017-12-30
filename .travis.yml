@@ -10,10 +10,11 @@ php:
 group: deprecated-2017Q4
 
 before_script:
- - curl -sSf -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
+ # - curl -sSf -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
  - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
-# before_script:
+before_script:
+    - composer update
 #   - sudo apt-get update
 #   - sudo apt-get install apache2 libapache2-mod-fastcgi
 #   # enable php-fpm
