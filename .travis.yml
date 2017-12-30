@@ -33,14 +33,14 @@ after_success:
     if [[ -z "$TRAVIS_TAG" ]]; then
       mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
       npm run github-release -- delete \
-        --owner=cncjs \
-        --repo=cncjs-pendant-tinyweb \
+        --owner=buluma \
+        --repo=buluma-wordpress \
         --tag="latest" \
         --name="${TRAVIS_BRANCH}" \
         "*.zip";
       npm run github-release -- upload \
-        --owner=cncjs \
-        --repo=cncjs-pendant-tinyweb \
+        --owner=buluma \
+        --repo=buluma-wordpress \
         --tag="latest" \
         --name="${TRAVIS_BRANCH}" \
         --body="${COMMIT_LOG}" \
