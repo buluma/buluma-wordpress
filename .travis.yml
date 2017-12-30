@@ -46,7 +46,7 @@ after_success:
     fi
   fi
 before_deploy:
-- echo "Deploying to GitHub releases"
+# - echo "Deploying to GitHub releases"
 # - ls -al releases
 - git config --local user.name "buluma"
 - git config --local user.email "bulumaknight@gmail.com"
