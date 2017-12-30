@@ -7,8 +7,7 @@ os:
 node_js:
 - '6'
 env:
-  global:
-    secure: hZD0NIb1unLDZERMuCgJfEROOlTIEt6AYCQSTBlC9GE2o7Yz1DViK8vxAgEmCAByjY4wV4Nz0G4hRuQOt+S1bu1d9HtYrJu3fAlWpx/e0764A8WAknSwnEF8qvd4peiq2iBzM1tx5lEteZnVHFSmP8Bgjke2eFOV8ZaEzMaFT16iuGawfsLGoW84hH8kLzEjGN6bHosFDtr8hqV+ljZJ4eXd14qzrWxmYRGUZRIo+jHOUIK8gn/I1uoGMcQ7M1JNUfjmIB9aUtbwANbdtD1qMDd6BJzPGW+UZ/j+7pz70UaR3bMr5y+GjgXg9z9UTfQtACFqU+ZaxjLdTy0U6Pfxeg/+KraQHBPikQEyweT9pEFKfreBojxyGEKr7aFsebKo/pfz715rq/gjYocClLRjv11bgymw/bPqDmirnhvJiIMO/u6c3UZAscHRRNqYA4fN8nbBWd6Q4p1QhabfzWWm6ESFWPZzVDZYF6VN5dII8fACB2U5JEnVMDr8saSHrQOwf0Gn0Kx3zGsJ/NkBHhQM0d3sUHpgbBh+MirGZIvBmoud0FFrY8XJ6DR7KECpuEU8iWLKMn/q4jQGzL7Do7bwpBbnYap/3XKVb/Zvk3Xf1I6OHxck8djELixoN0N2XmJnV8xjhGjArKgmT8YALWuVJnSIwS4Uz6QRp6JHlPoI1d8=
+  global: 
 before_install:
 - npm install -g npm
 - npm --version
@@ -54,14 +53,15 @@ before_deploy:
 - ls -al releases
 deploy:
   provider: releases
-  api_key: 
-    secure: l/6RsqAHDouhTaAsiGjvxVyReonlTQzzMTw3A34d3S3T2dwnT6oZaKfOuukGhIzxxk9S3RL1XWD4X9p0QKQTQO7+72jRsg2TY3FL1H3EbeUrT17Pgft+I03MyDGDbCuMTdhKhK+13XtitCH2Jnv40c/iKAEFCjV1/TAiU38Gc5sOq7YX7THtNpiPYnbkBlZbJzKfKn+cIVCG1NBAgolgDA1iPZIgu+qfX87S9A9dCcM7aagODIdkhLu6tiP2uLNU8IoqUi7r8oFlwdvfpxt9PxZVJhiR8yEOF8xL41vgx8kKY4xQxs/lL+zbXP8QcVCAhcPV7dQyufWMKX0jYnG1cHWIourrLNGpO0fBT4feUNt6EmRDs1mtmHd3NaHRgAj+uQs8i41dyoS9GaoQerP67LTFJDdxI5Os1l+1IcbpclIOVocx5mW9vvbRYUB3Dy4El/6reFZj85iY7c979oKyEgmKa3N7sUrLIV6VEGgJcH2cg4UlEnm/tkx3vyxCn1oJg2kmDhvoQlsthvyskfxmsvULaW2TnIw1WwPMNuIhY1yEoQe1dpo5a7/K7qqDl6o56go2s4nCRswueR6dtc92C/HcsjBfOnMxpnE3yo+sRI/7zOc2hDnwyZ/EFO8kdvnV4OhU/utkmcvTfIiVib9aJ6SJL4FmWvrnsF6IIjwcJQ8=
-  # passwordx: s9KEqMOvgLGv
+  user: buluma
+  password: UYWOSVaAae1xe73bIdf+8a6QQzui9/S2EhAdm7J1B+ZJx3xI2yLpOT0AtejJFktcOCtzWAQ4mYwGyKjAt4WSA5ntlHOBMJFFKOppg2edUPhJ5VtnbGs3c6M3J/IfFEOoQRVREU3oOQqE0Pab95ZpFQ5HEDREhNVv/T8XVtbxckk3hr1IkIbDBH2zCxHpbOFBdl0rSv4V5Hs2HiMfAS633cfZGpjjAIfQ9w8HVUdlTN6O2oOXdf5Qbb6JU3+fDiEK2kW5zCcs9SCdl/mahMVZDoNPvoV0kgooH9hYQGEFFsByW7Ky8t0v62GMeP+R28jF0n4sMrc5EjYjCww5qxgyNkW9u4lIkHHY0ZhFvtMR+6BCEL3sAF8FhDWFDz9qYyT4i07/fhhj4MIZ3YW+XIUoM6c7QNCDBGXU3DlTSjhcRfixMvfm1nC8xO475NGqyl1Pi8Gk53e5c72M9qDgDSQz4zx8eX+bbqYUYVc+8c8ZNe55Qytn9xw/1oV1AbB8GNOduDqZmK9gUVRqPvxltaVBYXXI5CCOG5jsgShXKeuHhZ68rJ9QoU3myV1RouboupzZ6GKlJJjtWSpcqvuc4wrOfNyAmU10efmvDn5T2/XZxc5jBRugBSamPtq7RoZOm9t6MkmfCDD/kuAXn0u+90wPVvY38vCe1dA91CKFXooWHRw=
   file_glob: true
   file:
   - releases/*.*
   overwrite: true
   skip_cleanup: true
   on:
-    branch: master
-    
+    tags: false
+    node: '6'
+notifications:
+  email: ops@buluma.me.ke
