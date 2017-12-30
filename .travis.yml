@@ -48,9 +48,9 @@ after_success:
 - RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
 - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
 - COMMIT_HASH=`git log -1 --format="%h"`
-- echo $TRAVIS_NODE_VERSION
+# - echo $TRAVIS_NODE_VERSION
 - |
-  if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     pushd releases;
     ln -sf ../src ${RELEASE};
     zip -r ${RELEASE}.zip ${RELEASE};
