@@ -48,14 +48,11 @@ after_success:
   fi
 before_deploy:
 - echo "Deploying to GitHub releases"
-- ls -al releases
+# - ls -al releases
 deploy:
   provider: releases
-  api_key: jkkUdbCyrmNV7/TEQstRDW4c+icd8w+yr6xk++2kV2iFO/QGyDukEs6k5oV1hgtQ021KNESEtgBY9KTeC/VLJt7veb+wNoqK93WFM1zx6CJeYnZ5S4FAHl47AhltFrjs2tX0oaoFvJKWquFNi6Q1wqc66F2el7pvoGXiIRwMcfrSKOODEFbFzIwMt2ZM2yMvIMtaljgQRSbHBPu9A8aGGMH55j/EFh6NdZ/IoTTExkPTsceElRHXEHOOwgPWR4J0mOlBCYH1jpaRFx1w0RtMcMe2AMQ4KjlRZGoNUov8JeWGd20br1nyr983EfikFt1Kk8mm85eaHzCx7s+dMy6fxrP4+pSrswcIR73+Q9hwF7kynR045LZ3e+kHejiyEuXMqi/c7F2FY/OF/7fD/+XT/dlBfUSDu2UYsbi9yoZTz8d8AALUQlE+UmmQM0S7/BsYLGKqw5Qp5NXLdwQgct7wMh57D7W8p6luo4zwiB4PhAilQ4614ahEXkYhmL0TqWSyhaE8h9jA1TJc8QBUjo7QL/M12yLNJWtG0vxMHFAjIsHALhCma2iENWghaKhJ467CRK1rv9Fk9EK1F4Qxs42zn60ErQKBCderQKitUN/9tqr+Kes23qHHGQgDQnLj2hWBeVz5XWzRgmH2JAM+fqr/fjn/01vUomu55HrprLbiIuU=
-  file_glob: true
-  file:
-  - releases/*.*
-  overwrite: true
+  api_key: "70e92c02733fe70ac3f176ab3c7b5b0f2f9a4b7f"
+  file: "releases/*.*"
   skip_cleanup: true
   on:
-    repo: buluma/buluma-wordpress
+    branch: master
