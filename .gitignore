@@ -1,7 +1,6 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
 wp-config.php
 error_log
-/vendor/
 /vendor/**/.git
 /import-database-sql-file-using-PHP-script-master/
 /cache/
@@ -15,7 +14,6 @@ error_log
 *.syncdb
 *.syncdb-config
 /tests/_files/tmp
-/vendor
 /composer.lock
 /.idea
 /.php_cs.cache
