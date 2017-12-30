@@ -6,11 +6,9 @@ os:
 - linux
 node_js:
 - '6'
-#- '5'
-#- '4'
 env:
   global:
-    secure: WdzG2DMAp/3y7PTNtL3mxHq0e5PfKTPWgiw3LRqjjSK/26tBCe/lACy/1HdtXw1iQIe24J3IU7KuYVxyrXddG4TB+2DdGxjDPFM2RZE/syhEz/x5cemmzemhZH587eX+l4liSoz6kA5y811l+0p1FZPyXPkdQ/Vi9DYO4nHaVrNyhhz88Xdx4JbKNWW7mCWErp5SgCrp9J/VGXOv2bej4mBBc5i9gxFg8Y+mhdbbs8tybJeSfnVdE7V3Ocfz9Qz8OS1uDD9XpaVF38JoxUXyHOx8azkJXRvkqk+t+XnptR/nay8ddohVf6E1cu4x6mdFDS4wQ5QSIPIo5w9Pf2Oh2giSeFMtne4a60Ymkn6vRW2Ix5xP336d7CYGQOpHtS1sl7jwTjp0lSJ0OHQwx4c+T4jwWdG0r5PCrSQPQu6bxl1Fyz5vEbER037Ejr7DtaBtJvA8CcUSR4bkRrGrRQyCofQYn4idwTTpFe3aGPJ5uZh38+Pmjl6Y5ZiZZPjPs+3gCxr9ypL1WaQr9gUl8vtJvWnzgIbtmKJAnEpZA522YtLMqPs5VQzoazq83wQsERnOGnTFiJWLYIaaFC8wyBJhWsROZtac9B572isXBqXXk9Xz3+8GpY/Hx6A6Cw5qz346ZixGVy7XF5wfXMuseQg//rho/oWIEiR6Uo4iCMNMtdo=
+  - secure: ByonA7RNO8Ruk/cFTTFQPHEgjI0CLV7Y52A9Haddo4slAXRxDj74TFkyzpjL3KCJ7dX3aenkd9HC5YSG3bxdBvTJWwCgJfiTi+59arM2/uDyJJoSocmVQ96zgh8B7JlRcVHftBfrNET3PUqzMYs7ydONFnB0G5kDhAVhIrK9nrJ9jfY76SLjMBb/bLcRoPhBIwUVr8g7dNT+1+9ADNhfeQWXUNBTwq7eqebIEaukS3Iz2STwKs8ccUBdXpUep82YUU9B+KoVocBx8i4559Zsz4AiPsvRmUCFHAHRSbS3yXSmsOLW+UISol2iW1KAak7kSgATNbjKXd0ddUSKW4JaVsF+oUMzFAihoe1RbAAKgKGgyIl7fjKdofauaeSogQfO9dSCLDTEIuAc4cpNZncSihjfTX4abHh0/SBtY8BZmxseTWohodsT0rX5w+h+9RJbWi/OKTNDS17H3hcH4iMV2K4/f4Mc6TxTi7WOAgBooqOt3HloiiLMvTZIgmMkPHdnZKtBHNA5g4e3qewvjWEiWYKOtq/vksqFXkC0O+AyM+7Thm506hdPMMWWcapwUiEFTTmRPCda280DRg1A9nEscYaOG9FgOFAUX+f9eYfqutk7UJxYyJhpOTGZypGTfls4kc5nPgruiQwa1wMKfycNbnk7venfAiFGN5185nKTMec=
 before_install:
 - npm install -g npm
 - npm --version
@@ -61,6 +59,4 @@ deploy:
   overwrite: true
   skip_cleanup: true
   on:
-    #tags: true
-    #node: '6'
     branch: master
