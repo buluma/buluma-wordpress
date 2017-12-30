@@ -1,15 +1,30 @@
 {
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-jshint": "~0.10.0",
-    "grunt-contrib-qunit": "~0.5.2",
-    "grunt-contrib-watch": "~0.6.1",
-    "release-it": "^5.1.2",
-    "github-release-cli": "^0.3.0"
-  },
   "name": "buluma-wordpress",
-  "version": "2.0.6"
+  "version": "2.1.0",
+  "description": "Official WP repository",
+  "homepage": "https://github.com/buluma/buluma-wordpress",
+  "author": "Michael B <ops@buluma.me.ke>",
+  "bin": {},
+  "files": [],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:buluma/buluma-wordpress.git"
+  },
+  "license": "MIT",
+  "preferGlobal": true,
+  "scripts": {
+    "github-release": "github-release"
+  },
+  "keywords": [
+    "cncjs",
+    "raspberry",
+    "pi",
+    "cnc",
+    "pendant",
+    "tinyweb"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "github-release-cli": "^0.3.0"
+  }
 }

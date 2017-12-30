@@ -18,7 +18,7 @@ env:
   - DEPENDENCIES="low"
   global:
   - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
-  - secure: m3/Wev2JYcVtwJFAhcxhjInO2i20+uT80xethKuhxt0AeqnaEVQy3sIRU+uXsD36Yogl3BiZMCwkMKZF44IzW78o11NpXqIDM/rZegglObGtIVyj5aiJNQhP6boWHdbq0E8qxMy4FUT04fKN8vsztseFMvdFpjinhuI/fWspXybKPIZbexVTQ7nksuuraZDbOWZLVwDmJUBKN1gyNqQKSjEFQBgAHUPHAUb0wSayf6Q2Er8gD2zrpzfg12Mu2ErWr4YJRL7Cx+uVtw6g2sI6i10P4B8nEjKFpjRaTG/ogLAjr2O+FxFxHyAu+JfJYMyOiszEz+jC1654DKjwkagy5dxgXP6rMx1rtCf270TBvRgVAS72EtpdpQYGtki5hxXufI0GzdP0z8y6RasfVBYNCsi+750E8zP//SYKQ1YZN4YAlCLym8W23vSq9aJUy4zk6eDmRdKOqUbsjYRqr3DsTfj2/iXmeVRgmdxQ0UhbcOGSjNuSx4g+Q+TbdBQhAdzAigHDlwTiX2qoniKywLUJZeApOMtktVDUd5E3nl/arT1/ZIzHuuX4W/Gy5er7G6MUD/5Lwf07pit/+Qw2F4gNnWTzIz+qvfhDOrWKE/IS/tA21jpZRm0BUj6Uj5YDZEVMJOQIftta8GXqFmK3Vcpjztt3mlAExxRg8JQu9D1c3bA=
+  #- secure: m3/Wev2JYcVtwJFAhcxhjInO2i20+uT80xethKuhxt0AeqnaEVQy3sIRU+uXsD36Yogl3BiZMCwkMKZF44IzW78o11NpXqIDM/rZegglObGtIVyj5aiJNQhP6boWHdbq0E8qxMy4FUT04fKN8vsztseFMvdFpjinhuI/fWspXybKPIZbexVTQ7nksuuraZDbOWZLVwDmJUBKN1gyNqQKSjEFQBgAHUPHAUb0wSayf6Q2Er8gD2zrpzfg12Mu2ErWr4YJRL7Cx+uVtw6g2sI6i10P4B8nEjKFpjRaTG/ogLAjr2O+FxFxHyAu+JfJYMyOiszEz+jC1654DKjwkagy5dxgXP6rMx1rtCf270TBvRgVAS72EtpdpQYGtki5hxXufI0GzdP0z8y6RasfVBYNCsi+750E8zP//SYKQ1YZN4YAlCLym8W23vSq9aJUy4zk6eDmRdKOqUbsjYRqr3DsTfj2/iXmeVRgmdxQ0UhbcOGSjNuSx4g+Q+TbdBQhAdzAigHDlwTiX2qoniKywLUJZeApOMtktVDUd5E3nl/arT1/ZIzHuuX4W/Gy5er7G6MUD/5Lwf07pit/+Qw2F4gNnWTzIz+qvfhDOrWKE/IS/tA21jpZRm0BUj6Uj5YDZEVMJOQIftta8GXqFmK3Vcpjztt3mlAExxRg8JQu9D1c3bA=
 
 before_install:
   - echo "running before_install"
@@ -29,7 +29,7 @@ before_install:
 install:
   - echo "running install"
   - npm install github-release
-  - npm install
+  - npm run
   - echo "show list again"
   - npm prune
 
