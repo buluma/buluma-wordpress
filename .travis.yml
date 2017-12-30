@@ -1,58 +1,51 @@
-sudo: required
-dist: trusty
-group: edge
-language: node_js
-os:
-- linux
-node_js:
-- '6'
-env:
-  global:
-  - secure: jkkUdbCyrmNV7/TEQstRDW4c+icd8w+yr6xk++2kV2iFO/QGyDukEs6k5oV1hgtQ021KNESEtgBY9KTeC/VLJt7veb+wNoqK93WFM1zx6CJeYnZ5S4FAHl47AhltFrjs2tX0oaoFvJKWquFNi6Q1wqc66F2el7pvoGXiIRwMcfrSKOODEFbFzIwMt2ZM2yMvIMtaljgQRSbHBPu9A8aGGMH55j/EFh6NdZ/IoTTExkPTsceElRHXEHOOwgPWR4J0mOlBCYH1jpaRFx1w0RtMcMe2AMQ4KjlRZGoNUov8JeWGd20br1nyr983EfikFt1Kk8mm85eaHzCx7s+dMy6fxrP4+pSrswcIR73+Q9hwF7kynR045LZ3e+kHejiyEuXMqi/c7F2FY/OF/7fD/+XT/dlBfUSDu2UYsbi9yoZTz8d8AALUQlE+UmmQM0S7/BsYLGKqw5Qp5NXLdwQgct7wMh57D7W8p6luo4zwiB4PhAilQ4614ahEXkYhmL0TqWSyhaE8h9jA1TJc8QBUjo7QL/M12yLNJWtG0vxMHFAjIsHALhCma2iENWghaKhJ467CRK1rv9Fk9EK1F4Qxs42zn60ErQKBCderQKitUN/9tqr+Kes23qHHGQgDQnLj2hWBeVz5XWzRgmH2JAM+fqr/fjn/01vUomu55HrprLbiIuU=
+# faster builds on new travis setup not using sudo
+sudo: false
+language: php
+
+php:
+#  - 5.4
+#  - 5.5
+#  - 5.6
+  - 7.0
+  - 7.0.8
+
+matrix:
+#  fast_finish: true
+  include:
+    # test against the latest HHVM version by using trusty
+    - php: 7.2
+      sudo: false
+      dist: trusty
+      group: edge # Use edge image until the next travis CI image update
+      services:
+        - mysql
+        - memcached
+  
 before_install:
-- npm install -g npm
-- npm --version
-install:
-- npm install
+  #- sudo apt-get update && sudo apt-get dist-upgrade
+  - sudo apt-get update
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+#  - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" mysql-server-5.5 mysql-client-5.5 mysql-server-core-5.5
+
+before_script:
+    - travis_retry composer update 
+    # - travis_retry composer self-update
+    # - travis_retry composer --prefer-source --dev install
+ #   - ls
+
+script:
+    #- ls -a /home/travis/build/buluma/buluma-wordpress/vendor/codacy/coverage
+    - cd /home/travis/build/buluma/buluma-wordpress/
+    - ls -a /home/travis/build/buluma/buluma-wordpress/
+    # - ls -a /home/travis/build/buluma/buluma-wordpress/tests/
+    #- vendor/bin/phpunit -c .
+    #- vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox test
+    - ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
+    #- php vendor/bin/phpunit --coverage-clover build/coverage/xml
+
+#after_script:
+#  - php vendor/bin/codacycoverage clover build/coverage/xml
+  
 after_success:
-- mkdir -p releases
-- PACKAGE_NAME=`scripts/package-name.sh package.json`
-- PACKAGE_VERSION=`scripts/package-version.sh package.json`
-- RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
-- Travis_version=${TRAVIS_NODE_VERSION}
-- COMMIT_LOG=`git log -1 --format='%ci %H %s'`
-- COMMIT_HASH=`git log -1 --format="%h"`
-- |
-  if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
-    pushd releases;
-    ln -sf ../src ${RELEASE};
-    zip -r ${RELEASE}.zip ${RELEASE};
-    popd;
-    ls -al releases/*;
-    if [[ -z "$TRAVIS_TAG" ]]; then
-      mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
-      npm run github-release -- delete \
-        --owner=buluma \
-        --repo=buluma-wordpress \
-        --tag="latest" \
-        --name="${TRAVIS_BRANCH}" \
-        "*.zip";
-      npm run github-release -- upload \
-        --owner=buluma \
-        --repo=buluma-wordpress \
-        --tag="latest" \
-        --name="${TRAVIS_BRANCH}" \
-        --body="${COMMIT_LOG}" \
-        "releases/${RELEASE}-${COMMIT_HASH}.zip";
-    fi
-  fi
-before_deploy:
-- echo "Deploying to GitHub releases"
-# - ls -al releases
-deploy:
-  provider: releases
-  api_key: "70e92c02733fe70ac3f176ab3c7b5b0f2f9a4b7f"
-  file: "releases/*.*"
-  skip_cleanup: true
-  on:
-    branch: master
+  # - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -t f170557d-564b-436d-88b7-36e740010ab6
