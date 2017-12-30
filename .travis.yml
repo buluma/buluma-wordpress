@@ -10,6 +10,7 @@ php:
 group: deprecated-2017Q4
 
 before_script:
+  - sudo apt-get update
  # - curl -sSf -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
  - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
  #install phpdbg dep
@@ -20,11 +21,12 @@ before_script:
  - ./configure --enable-phpdbg
  - make -j8
  - make install-phpdbg
+ - composer update
 
-before_script:
-  - sudo apt-get update
-  - sudo apt-get install '^php7. *
-  - composer update
+# before_script:
+#   - sudo apt-get update
+#   - sudo apt-get install '^php7. *
+#   - composer update
 #   # enable php-fpm
 #   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
 #   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf
