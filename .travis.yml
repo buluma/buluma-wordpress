@@ -24,11 +24,14 @@ before_install:
   - echo "running before_install"
   - npm install -g npm
   - npm --version
+  - npm prune
 
 install:
   - echo "running install"
   - npm install github-release
   - npm install
+  - echo "show list again"
+  - npm prune
 
 after_success:
 - echo "running after_success"
