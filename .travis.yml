@@ -49,9 +49,14 @@ after_success:
 before_deploy:
 - echo "Deploying to GitHub releases"
 - ls -al releases
+ # Set up git user name and tag this commit
+- git config --local user.name "buluma"
+- git config --local user.email "bulumaknight@gmail.com"
+- git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   provider: releases
-  api_key: 70e92c02733fe70ac3f176ab3c7b5b0f2f9a4b7f
+  user: buluma
+  password: 70e92c02733fe70ac3f176ab3c7b5b0f2f9a4b7f
   file_glob: true
   file:
   - releases/*.*
