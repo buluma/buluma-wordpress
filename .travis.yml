@@ -18,14 +18,18 @@ env:
     - DEPENDENCIES="low"
   global:
     - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
+    - secure: dab89fd486c48bd5941f330cc504c75091561353
 
 before_install:
   - composer self-update
   - composer clear-cache
+  - npm install -g npm
+  - npm --version
 
 install:
   - if [[ "$DEPENDENCIES" = 'high' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS; fi
   - if [[ "$DEPENDENCIES" = 'low' ]]; then travis_retry composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
+  - npm install
 
 before_script:
      - travis_retry composer update 
@@ -39,6 +43,54 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+    - mkdir -p releases
+  - PACKAGE_NAME=`scripts/package-name.sh package.json`
+  - PACKAGE_VERSION=`scripts/package-version.sh package.json`
+  - RELEASE=${PACKAGE_NAME}-${PACKAGE_VERSION}
+  - COMMIT_LOG=`git log -1 --format='%ci %H %s'`
+  - COMMIT_HASH=`git log -1 --format="%h"`
+  - |
+    if [[ "$TRAVIS_NODE_VERSION" == "6" && "$TRAVIS_OS_NAME" == "linux" ]]; then
+      pushd releases;
+      ln -sf ../src ${RELEASE};
+      zip -r ${RELEASE}.zip ${RELEASE};
+      popd;
+      ls -al releases/*;
+      if [[ -z "$TRAVIS_TAG" ]]; then
+        mv "releases/${RELEASE}.zip" "releases/${RELEASE}-${COMMIT_HASH}.zip";
+        npm run github-release -- delete \
+          --owner=cncjs \
+          --repo=cncjs-pendant-tinyweb \
+          --tag="latest" \
+          --name="${TRAVIS_BRANCH}" \
+          "*.zip";
+        npm run github-release -- upload \
+          --owner=cncjs \
+          --repo=cncjs-pendant-tinyweb \
+          --tag="latest" \
+          --name="${TRAVIS_BRANCH}" \
+          --body="${COMMIT_LOG}" \
+          "releases/${RELEASE}-${COMMIT_HASH}.zip";
+      fi
+    fi
+
+before_deploy:
+  - echo "Deploying to GitHub releases"
+  - ls -al releases
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "dab89fd486c48bd5941f330cc504c75091561353"
+  file_glob: true
+  file:
+    - 'releases/*.*'
+  overwrite: true
+  skip_cleanup: true
+  on:
+    # https://docs.travis-ci.com/user/deployment#Conditional-Releases-with-on
+    tags: true  # Deploy app only when a tag is applied to the commit
+    node: '6'
 
 notifications:
   email: ops@buluma.me.ke
