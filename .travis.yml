@@ -7,8 +7,7 @@ os:
 node_js:
 - '6'
 env:
-  global:
-    # secure: EH/jxnQ5uY+RQ64BahYXh8Y6+pJ8pNpQWVqW3HDgnzuFytH+M3aB1q1fgZ/FY+B59KKE1ljAlhlNKp9tx5U2jo5lDewPCxX1jXkWH4XfnQaUWmAi//huWhYzWidZVRa01vJmffN+kwIEKwrjqHHMBzsoC5qA1zWYB1J3aFuwoVnsR4N0uegHrXTABIcKoS4m1ml131TYaMuDTawtXTUEmmNYxs7QlPvmlJveChm81i1XbGuZh5/p83HMA9ujdw6X93BoTrsDetXSSxMHSzt8XaDWsTjqwQgGYDl7zsLtcahOtnW/+vRH3dUe277E1wbsdabANcJAORA9EtLbrbTsWnqq8e2RmzVhKzUubLWetWINPZ9sKvON5CnNkhMhMgB72mtH9Ey490OMZnYI131zdp6eTB8MQ2y576ZNpMRAsW6EbUMtdXKGDqo625NmZ58LmJF28FgVPS1BFpG4j/NTne8jZbAIs2Be7trMyxQODgQOQyJZsm26Vwtw1P/I/swrZuXRKL5iprPUwi5fuEAqOn8zKQh8J6QzbfsvhjnjMZPLmcG5Jnim13557DOKnoSvmjNrP0T+4qAHRMg8fjKOTthwkElazBw3gBBI3sivJUzaS39Z39gajJjmQFyYlmg+Sf7c9ooIBiSrUsvINdn6tk/mAlV5rjsvixHfa1VubZY=
+  global: 
 before_install:
 - npm install -g npm
 - npm --version
@@ -49,18 +48,13 @@ after_success:
 before_deploy:
 - echo "Deploying to GitHub releases"
 - ls -al releases
- # Set up git user name and tag this commit
 - git config --local user.name "buluma"
 - git config --local user.email "bulumaknight@gmail.com"
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   provider: releases
-  user: buluma
-  password: 70e92c02733fe70ac3f176ab3c7b5b0f2f9a4b7f
-  file_glob: true
-  file:
-  - releases/*.*
-  overwrite: true
-  skip_cleanup: true
+  api_key:
+    secure: eilv9M0KHlJz7v4qYUe3GEo4f3D7PBKMBXtUn7CqyLBkpE08qQWxRS4A25oRuXmT982UGxleW8Et0DUP2ApbZhr0vpPWIH7AaNEDLGd5eHE63C5/LoslVUs6jqYgzGCYy1a30F/0XIuyJR33AqO0MNfYWgMuPG8XM0dLzR5LHbcA/qIOteXvs4uuV81XHNKAnnXJQn9Heheo4tiaZyz8rCPb/YKk3uuuvXMjxXJsUMQYKqCkibuXT9PSHwVZn6EJjk4JcP7aCo3qPbdcGrb8rzcL4CNJtiAtbblPSc4ql0MNMb961KnF5VbchUfq3npDhGrc82Ht0DCvgrBbDoQCoA4y4q6ftzFAF69aCTOwVoMy171ugzoYvIDKLFxQS77/adL7HI7pkrMVXkenE2ba8h9IMVIH/IL/0ukwDPadEDBcyhjhz22ex/ensx0jf3l/aCGk9Ua+tqyTEYdXgH4U+b0d92sQxlWmVjyDIexBt3muAr6sWX5EtjWxnWC/BkZIyblRkFi5s6a5FraifUGanKRLau2gxPiqT9+TsGd01em5LW4q7beg3sVoEcjx10Oq1lmTIgNGVoO1xpYefg3RuTms066j0a5CXOMV88vjv5ZTFXRnuNeCOx24iO/QwTeZD8Ik2BkLJuqRe1WSpWh3batPZFU0szKI+ZKfYoK50kU=
+  file: releases/*.*
   on:
-    branch: master
+    repo: buluma/buluma-wordpress
