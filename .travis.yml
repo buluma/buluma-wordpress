@@ -28,7 +28,7 @@ before_install:
 - echo "Installing Nodjs"
 - curl -sL https://deb.nodesource.com/setup | sudo -E bash -
 - npm install -g npm
-- apt-get install -y nodejs
+- sudo apt-get install -y nodejs
 - npm --version
 - npm install --save-dev release-it
 - npm install --save github-release
