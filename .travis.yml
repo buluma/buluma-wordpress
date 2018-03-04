@@ -11,6 +11,7 @@ before_script:
  - composer self-update
  - chmod ugo+x bin/travis.sh
  - ./bin/travis.sh $(phpenv version-name) $(pwd)
+ - composer update
 
 install:
  - travis_retry composer install --no-interaction --prefer-source --dev
