@@ -5,6 +5,8 @@ matrix:
       dist: precise
     - php: 5.3
       dist: precise
+    - php: 7.1
+    - php: 7.2
 
 services:
  - mysql
