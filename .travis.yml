@@ -19,7 +19,7 @@ before_script:
 install:
 #- travis_retry composer update --no-interaction --prefer-source --dev
 #- travis_retry composer install --no-interaction --prefer-source --dev
-- travis_retry composer update --no-interaction --prefer-source
+# - travis_retry composer update --no-interaction --prefer-source
 - travis_retry composer install --no-interaction --prefer-source
 
 notifications:
