@@ -7,7 +7,7 @@
   global.$swRegistrations = {};
 
   if ('serviceWorker' in navigator) {
-    var enabledSw = [{"scope":"\/wordpress\/","url":"\/wordpress\/wp-admin\/admin-ajax.php?action=wpswmgr_serve&_wpswmanager=wpswmanager%2Fsw%2Fsw%40%2Fwordpress%2F"}];
+    var enabledSw = [{"scope":"\/buluma-wordpress\/","url":"\/buluma-wordpress\/wp-admin\/admin-ajax.php?action=wpswmgr_serve&_wpswmanager=wpswmanager%2Fsw%2Fsw%40%2Fbuluma-wordpress%2F"}];
     enabledSw.forEach(function(entry) {
       var scope = entry.scope;
       var swUrl = entry.url;
