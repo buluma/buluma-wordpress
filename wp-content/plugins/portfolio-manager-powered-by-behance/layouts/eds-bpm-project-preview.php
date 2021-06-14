@@ -170,6 +170,42 @@
 							<?php endforeach; ?>
 						</div>
 						<div id="bpm-project-footer-wrapper">
+							<?php $project_comments = $data['project_comments'];?>
+							<?php if(isset($project_comments) && !empty($project_comments)):?>
+								<div class="bpm-footer-comments-wrapper">
+									<div class="bpm-project-footer-block bpm-footer-comments">
+										<div class="bpm-footer-block-heading">Comments (<span class="bpm-comment-count"><?php echo count($project_comments);?></span>)</div>
+										<?php foreach($project_comments as $project_comment):?>
+											<div class="bpm-comment">
+												<div class="bpm-comment-author-image bpm-project-by-right-image">
+													<?php if(isset($project_comment['user']['images'][50]) && !empty($project_comment['user']['images'][50])): ?>
+														<img src="<?php echo $project_comment['user']['images'][50];?>">
+													<?php elseif(isset($project_comment['user']['images'][100]) && !empty($project_comment['user']['images'][100])): ?>	
+														<img src="<?php echo $project_comment['user']['images'][100];?>">
+													<?php elseif(isset($project_comment['user']['images'][115]) && !empty($project_comment['user']['images'][115])): ?>	
+														<img src="<?php echo $project_comment['user']['images'][115];?>">
+													<?php elseif(isset($project_comment['user']['images'][138]) && !empty($project_comment['user']['images'][138])): ?>	
+														<img src="<?php echo $project_comment['user']['images'][138];?>">
+													<?php elseif(isset($project_comment['user']['images'][230]) && !empty($project_comment['user']['images'][230])): ?>	
+														<img src="<?php echo $project_comment['user']['images'][230];?>">
+													<?php else: ?>	
+														<img src="<?php echo $project_comment['user']['images'][276];?>">
+													<?php endif;?>
+												</div>
+												<div class="comment-text-container">
+													<div class="bpm-comment-author-info">
+														<?php echo $project_comment['user']['first_name'].' '.$project_comment['user']['last_name'];?>
+														<span class="bpm-comment-time"><?php echo date('M d, Y',$project_comment['created_on']); ?></span>
+													</div>
+													<div class="bpm-comment-content">
+														<?php echo $project_comment['comment'];?>
+													</div>
+												</div>
+											</div>
+										<?php endforeach;?>
+									</div>
+								</div>
+							<?php endif;?>
 							<div id="bpm-inner-footer-wrapper">						
 								<div class="bpm-project-footer-block bpm-footer-basic-info">							
 									<div class="bpm-footer-block-heading">Basic Info</div>

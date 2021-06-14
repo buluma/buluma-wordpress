@@ -3,8 +3,10 @@
 /**
  * HTML code for the Add New/Edit Snippet page
  *
- * @package Code_Snippets
+ * @package    Code_Snippets
  * @subpackage Views
+ *
+ * @var Code_Snippets_Edit_Menu $this
  */
 
 /* Bail if accessed directly */
@@ -12,51 +14,159 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-global $pagenow;
+$snippet = $this->snippet;
+$classes = array();
 
-$table = code_snippets()->db->get_table_name();
-$edit_id = code_snippets()->get_menu_slug( 'edit' ) === $_REQUEST['page'] ? absint( $_REQUEST['id'] ) : 0;
-$snippet = get_snippet( $edit_id );
+if ( ! $snippet->id ) {
+	$classes[] = 'new-snippet';
+} elseif ( 'single-use' === $snippet->scope ) {
+	$classes[] = 'single-use-snippet';
+} else {
+	$classes[] = ( $snippet->active ? '' : 'in' ) . 'active-snippet';
+}
 
 ?>
 <div class="wrap">
 	<h1><?php
-	if ( $edit_id ) {
-		esc_html_e( 'Edit Snippet', 'code-snippets' );
-		printf( ' <a href="%1$s" class="page-title-action add-new-h2">%2$s</a>',
-			code_snippets()->get_menu_url( 'add' ),
-			esc_html_x( 'Add New', 'snippet', 'code-snippets' )
-		);
-	} else {
-		esc_html_e( 'Add New Snippet', 'code-snippets' );
-	}
-	?></h1>
 
-	<form method="post" id="snippet-form" action="" style="margin-top: 10px;">
+		if ( $snippet->id ) {
+			esc_html_e( 'Edit Snippet', 'code-snippets' );
+			printf( ' <a href="%1$s" class="page-title-action add-new-h2">%2$s</a>',
+				code_snippets()->get_menu_url( 'add' ),
+				esc_html_x( 'Add New', 'snippet', 'code-snippets' )
+			);
+		} else {
+			esc_html_e( 'Add New Snippet', 'code-snippets' );
+		}
+
+		$admin = code_snippets()->admin;
+
+		if ( code_snippets()->admin->is_compact_menu() ) {
+
+			printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+				esc_html_x( 'Manage', 'snippets', 'code-snippets' ),
+				code_snippets()->get_menu_url()
+			);
+
+			printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+				esc_html_x( 'Import', 'snippets', 'code-snippets' ),
+				code_snippets()->get_menu_url( 'import' )
+			);
+
+			if ( isset( $admin->menus['settings'] ) ) {
+
+				printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+					esc_html_x( 'Settings', 'snippets', 'code-snippets' ),
+					code_snippets()->get_menu_url( 'settings' )
+				);
+			}
+		}
+
+		?></h1>
+
+	<form method="post" id="snippet-form" action="" style="margin-top: 10px;" class="<?php echo implode( ' ', $classes ); ?>">
 		<?php
 		/* Output the hidden fields */
 
 		if ( 0 !== $snippet->id ) {
-			printf( '<input type="hidden" name="snippet_id" value="%d" />', $snippet->id );
+			printf( '<input type="hidden" name="snippet_id" value="%d">', $snippet->id );
 		}
 
-		printf( '<input type="hidden" name="snippet_active" value="%d" />', $snippet->active );
+		printf( '<input type="hidden" name="snippet_active" value="%d">', $snippet->active );
 
+		do_action( 'code_snippets/admin/before_title_input', $snippet );
 		?>
+
 		<div id="titlediv">
 			<div id="titlewrap">
 				<label for="title" style="display: none;"><?php _e( 'Name', 'code-snippets' ); ?></label>
-				<input id="title" type="text" autocomplete="off" name="snippet_name" value="<?php echo esc_attr( $snippet->name ); ?>" placeholder="<?php _e( 'Enter title here', 'code-snippets' ); ?>" />
+				<input id="title" type="text" autocomplete="off" name="snippet_name" value="<?php echo esc_attr( $snippet->name ); ?>" placeholder="<?php _e( 'Enter title here', 'code-snippets' ); ?>">
 			</div>
 		</div>
 
-		<h3><label for="snippet_code">
-			<?php _e( 'Code', 'code-snippets' ); ?>
-		</label></h3>
+		<?php do_action( 'code_snippets/admin/after_title_input', $snippet ); ?>
 
-		<textarea id="snippet_code" name="snippet_code" rows="200" spellcheck="false" style="font-family: monospace; width: 100%;"><?php
-			echo esc_textarea( $snippet->code );
-			?></textarea>
+		<p class="submit-inline"><?php do_action( 'code_snippets/admin/code_editor_toolbar', $snippet ); ?></p>
+
+		<h2><label for="snippet_code"><?php _e( 'Code', 'code-snippets' ); ?></label></h2>
+
+		<div class="snippet-editor">
+			<textarea id="snippet_code" name="snippet_code" rows="200" spellcheck="false" style="font-family: monospace; width: 100%;"><?php
+				echo esc_textarea( $snippet->code );
+				?></textarea>
+
+			<div class="snippet-editor-help">
+
+				<div class="editor-help-tooltip cm-s-<?php
+				echo esc_attr( code_snippets_get_setting( 'editor', 'theme' ) ); ?>"><?php
+					echo esc_html_x( '?', 'help tooltip', 'code-snippets' ); ?></div>
+
+				<?php
+
+				$keys = array(
+					'Cmd'    => esc_html_x( 'Cmd', 'keyboard key', 'code-snippets' ),
+					'Ctrl'   => esc_html_x( 'Ctrl', 'keyboard key', 'code-snippets' ),
+					'Shift'  => esc_html_x( 'Shift', 'keyboard key', 'code-snippets' ),
+					'Option' => esc_html_x( 'Option', 'keyboard key', 'code-snippets' ),
+					'Alt'    => esc_html_x( 'Alt', 'keyboard key', 'code-snippets' ),
+					'F'      => esc_html_x( 'F', 'keyboard key', 'code-snippets' ),
+					'G'      => esc_html_x( 'G', 'keyboard key', 'code-snippets' ),
+					'R'      => esc_html_x( 'R', 'keyboard key', 'code-snippets' ),
+					'S'      => esc_html_x( 'S', 'keyboard key', 'code-snippets' ),
+				);
+
+				?>
+
+				<div class="editor-help-text">
+					<table>
+						<tr>
+							<td><?php esc_html_e( 'Save changes', 'code-snippets' ); ?></td>
+							<td>
+								<kbd class="pc-key"><?php echo $keys['Ctrl']; ?></kbd><kbd class="mac-key"><?php
+									echo $keys['Cmd']; ?></kbd>&hyphen;<kbd><?php echo $keys['S']; ?></kbd>
+							</td>
+						</tr>
+						<tr>
+							<td><?php esc_html_e( 'Begin searching', 'code-snippets' ); ?></td>
+							<td>
+								<kbd class="pc-key"><?php echo $keys['Ctrl']; ?></kbd><kbd class="mac-key"><?php
+									echo $keys['Cmd']; ?></kbd>&hyphen;<kbd><?php echo $keys['F']; ?></kbd>
+							</td>
+						</tr>
+						<tr>
+							<td><?php esc_html_e( 'Find next', 'code-snippets' ); ?></td>
+							<td>
+								<kbd class="pc-key"><?php echo $keys['Ctrl']; ?></kbd><kbd class="mac-key"><?php echo $keys['Cmd']; ?></kbd>&hyphen;<kbd><?php echo $keys['G']; ?></kbd>
+							</td>
+						</tr>
+						<tr>
+							<td><?php esc_html_e( 'Find previous', 'code-snippets' ); ?></td>
+							<td>
+								<kbd><?php echo $keys['Shift']; ?></kbd>-<kbd class="pc-key"><?php echo $keys['Ctrl']; ?></kbd><kbd class="mac-key"><?php echo $keys['Cmd']; ?></kbd>&hyphen;<kbd><?php echo $keys['G']; ?></kbd>
+							</td>
+						</tr>
+						<tr>
+							<td><?php esc_html_e( 'Replace', 'code-snippets' ); ?></td>
+							<td>
+								<kbd><?php echo $keys['Shift']; ?></kbd>&hyphen;<kbd class="pc-key"><?php echo $keys['Ctrl']; ?></kbd><kbd class="mac-key"><?php echo $keys['Cmd']; ?></kbd>&hyphen;<kbd><?php echo $keys['F']; ?></kbd>
+							</td>
+						</tr>
+						<tr>
+							<td><?php esc_html_e( 'Replace all', 'code-snippets' ); ?></td>
+							<td>
+								<kbd><?php echo $keys['Shift']; ?></kbd>&hyphen;<kbd class="pc-key"><?php echo $keys['Ctrl']; ?></kbd><kbd class="mac-key"><?php echo $keys['Cmd']; ?></kbd><span class="mac-key">&hyphen;</span><kbd class="mac-key"><?php echo $keys['Option']; ?></kbd>&hyphen;<kbd><?php echo $keys['R']; ?></kbd>
+							</td>
+						</tr>
+						<tr>
+							<td><?php esc_html_e( 'Persistent search', 'code-snippets' ); ?></td>
+							<td>
+								<kbd><?php echo $keys['Alt']; ?></kbd>&hyphen;<kbd><?php echo $keys['F']; ?></kbd>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
 
 		<?php
 		/* Allow plugins to add fields and content to this page */
@@ -64,101 +174,9 @@ $snippet = get_snippet( $edit_id );
 
 		/* Add a nonce for security */
 		wp_nonce_field( 'save_snippet' );
+
 		?>
 
-		<p class="submit">
-			<?php
-
-			/* Make the 'Save and Activate' button the default if the setting is enabled */
-
-			if ( $snippet->shared_network && get_current_screen()->in_admin( 'network' ) ) {
-
-				submit_button( null, 'primary', 'save_snippet', false );
-
-			} elseif ( ! $snippet->active && code_snippets_get_setting( 'general', 'activate_by_default' ) ) {
-
-				submit_button(
-					__( 'Save Changes and Activate', 'code-snippets' ),
-					'primary', 'save_snippet_activate', false
-				);
-
-				submit_button( null, 'secondary', 'save_snippet', false );
-
-			} else {
-
-				/* Save Snippet button */
-				submit_button( null, 'primary', 'save_snippet', false );
-
-				/* Save Snippet and Activate/Deactivate button */
-				if ( ! $snippet->active ) {
-					submit_button(
-						__( 'Save Changes and Activate', 'code-snippets' ),
-						'secondary', 'save_snippet_activate', false
-					);
-
-				} else {
-					submit_button(
-						__( 'Save Changes and Deactivate', 'code-snippets' ),
-						'secondary', 'save_snippet_deactivate', false
-					);
-				}
-			}
-
-			if ( 0 !== $snippet->id ) {
-
-				/* Export button */
-
-				submit_button( __( 'Export', 'code-snippets' ), 'secondary', 'export_snippet', false );
-
-				/* Delete button */
-
-				$confirm_delete_js = esc_js(
-					sprintf(
-						'return confirm("%s");',
-						__( 'You are about to permanently delete this snippet.', 'code-snippets' ) . "\n" .
-						__( "'Cancel' to stop, 'OK' to delete.", 'code-snippets' )
-					)
-				);
-
-				submit_button(
-					__( 'Delete', 'code-snippets' ),
-					'secondary', 'delete_snippet', false,
-					sprintf( 'onclick="%s"', $confirm_delete_js )
-				);
-			}
-
-			?>
-		</p>
-
-		<?php if ( has_action( 'code_snippets/admin/single/settings' ) ) : ?>
-
-		<h3><?php _e( 'Settings', 'code-snippets' ); ?></h3>
-		<table class="form-table">
-			<?php do_action( 'code_snippets/admin/single/settings', $snippet ); ?>
-		</table>
-
-		<?php endif; ?>
-
+		<p class="submit"><?php $this->render_submit_buttons( $snippet ); ?></p>
 	</form>
 </div>
-
-<script>
-/* Loads CodeMirror on the snippet editor */
-(function() {
-
-	var atts = [];
-	atts = <?php
-		$atts = array( 'mode' => 'text/x-php' );
-		echo code_snippets_get_editor_atts( $atts, true );
-	?>;
-	atts['viewportMargin'] = Infinity;
-
-	atts['extraKeys'] = {
-		'Ctrl-Enter': function (cm) {
-			document.getElementById('snippet-form').submit();
-		},
-	};
-
-	CodeMirror.fromTextArea(document.getElementById('snippet_code'), atts);
-})();
-</script>

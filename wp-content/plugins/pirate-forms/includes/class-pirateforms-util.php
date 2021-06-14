@@ -11,6 +11,14 @@ class PirateForms_Util {
 	const MAGIC_TAG_POSTFIX     = '}';
 
 	/**
+	 * The default fields used by the plugin.
+	 *
+	 * @access   private
+	 * @var      array    $DEFAULT_FIELDS    The default fields used by the plugin.
+	 */
+	public static $DEFAULT_FIELDS      = array( 'name', 'email', 'subject', 'message', 'checkbox' );
+
+	/**
 	 * Return the table.
 	 *
 	 * @since    1.0.0
@@ -235,16 +243,19 @@ class PirateForms_Util {
 	/**
 	 * The default email content.
 	 */
-	public static function get_default_email_content( $html = true, $id = null ) {
+	public static function get_default_email_content( $html = true, $id = null, $first_time = false ) {
 		$body               = array();
 		$body['heading']    = sprintf( __( 'Contact form submission from %s', 'pirate-forms' ), get_bloginfo( 'name' ) . ' (' . site_url() . ')' );
 		$body['body']       = array();
 		$pirate_forms_options = PirateForms_Util::get_form_options( $id );
 
-		$elements           = array( 'name', 'email', 'subject', 'message' );
+		$elements           = self::$DEFAULT_FIELDS;
 		foreach ( $elements as $k ) {
+			if ( is_array( $pirate_forms_options ) && ! array_key_exists( 'pirateformsopt_' . $k . '_field', $pirate_forms_options ) ) {
+				continue;
+			}
 			$display        = $pirate_forms_options[ 'pirateformsopt_' . $k . '_field' ];
-			if ( empty( $display ) ) {
+			if ( ! $first_time && empty( $display ) ) {
 				continue;
 			}
 			$val            = $pirate_forms_options[ 'pirateformsopt_label_' . $k ];
@@ -253,7 +264,11 @@ class PirateForms_Util {
 			}
 			$body['body'][ $val ] = self::MAGIC_TAG_PREFIX . $k . self::MAGIC_TAG_POSTFIX;
 		}
-		$body['body'][ __( 'IP address', 'pirate-forms' ) ] = self::MAGIC_TAG_PREFIX . 'ip' . self::MAGIC_TAG_POSTFIX;
+
+		if ( isset( $pirate_forms_options['pirateformsopt_store_ip'] ) && 'yes' === $pirate_forms_options['pirateformsopt_store_ip'] ) {
+			$body['body'][ __( 'IP address', 'pirate-forms' ) ] = self::MAGIC_TAG_PREFIX . 'ip' . self::MAGIC_TAG_POSTFIX;
+		}
+
 		$body['body'][ __( 'IP search', 'pirate-forms' ) ]  = 'http://whatismyipaddress.com/ip/' . self::MAGIC_TAG_PREFIX . 'ip' . self::MAGIC_TAG_POSTFIX;
 		$body['body'][ __( 'Came from', 'pirate-forms' ) ]  = self::MAGIC_TAG_PREFIX . 'referer' . self::MAGIC_TAG_POSTFIX;
 		$body['body'][ __( 'Sent from page', 'pirate-forms' ) ] = self::MAGIC_TAG_PREFIX . 'permalink' . self::MAGIC_TAG_POSTFIX;
@@ -267,7 +282,7 @@ class PirateForms_Util {
 					}
 					// replace . and space with _ (PHP does not like dots in variable names so it automatically converts them to _).
 					$field = strtolower( str_replace( array( ' ', '.' ), '_', stripslashes( sanitize_text_field( $custom['label'] ) ) ) );
-					$body['body'][ stripslashes( $custom['label'] ) ] = self::MAGIC_TAG_PREFIX . stripslashes( $custom['label'] ) . self::MAGIC_TAG_POSTFIX;
+					$body['body'][ stripslashes( $custom['label'] ) ] = self::MAGIC_TAG_PREFIX . $field . self::MAGIC_TAG_POSTFIX;
 				}
 			}
 		}
@@ -285,8 +300,11 @@ class PirateForms_Util {
 	public static function get_magic_tags( $id = null ) {
 		$pirate_forms_options = PirateForms_Util::get_form_options( $id );
 
-		$elements           = array( 'name', 'email', 'subject', 'message' );
+		$elements           = self::$DEFAULT_FIELDS;
 		foreach ( $elements as $k ) {
+			if ( is_array( $pirate_forms_options ) && ! array_key_exists( 'pirateformsopt_label_' . $k, $pirate_forms_options ) ) {
+				continue;
+			}
 			$val            = $pirate_forms_options[ 'pirateformsopt_label_' . $k ];
 			if ( empty( $val ) ) {
 				$val        = ucwords( $k );
@@ -294,8 +312,19 @@ class PirateForms_Util {
 			$tags[ $k ]     = $val;
 		}
 
+		if ( isset( $pirate_forms_options['pirateformsopt_save_attachment'] ) && 'yes' === $pirate_forms_options['pirateformsopt_save_attachment'] ) {
+			$tags   += array(
+				'attachments'        => __( 'Attachment(s)', 'pirate-forms' ),
+			);
+		}
+
+		if ( isset( $pirate_forms_options['pirateformsopt_store_ip'] ) && 'yes' === $pirate_forms_options['pirateformsopt_store_ip'] ) {
+			$tags   += array(
+				'ip'        => __( 'IP address', 'pirate-forms' ),
+			);
+		}
+
 		$tags   += array(
-			'ip'        => __( 'IP address', 'pirate-forms' ),
 			'referer'   => __( 'Came from', 'pirate-forms' ),
 			'permalink' => __( 'Sent from page', 'pirate-forms' ),
 		);
@@ -327,7 +356,9 @@ class PirateForms_Util {
 	public static function replace_magic_tags( $content, $body ) {
 		$html           = $content;
 		foreach ( $body['magic_tags'] as $tag => $value ) {
-			$html       = str_replace( self::MAGIC_TAG_PREFIX . $tag . self::MAGIC_TAG_POSTFIX, $value, $html );
+			$from       = htmlspecialchars( self::MAGIC_TAG_PREFIX . $tag . self::MAGIC_TAG_POSTFIX );
+			do_action( 'themeisle_log_event', PIRATEFORMS_NAME, "replacing $from with $value", 'debug', __FILE__, __LINE__ );
+			$html       = str_replace( $from, stripslashes( $value ), $html );
 		}
 
 		$html           = apply_filters( 'pirate_forms_replace_magic_tags', $html, $body['magic_tags'] );

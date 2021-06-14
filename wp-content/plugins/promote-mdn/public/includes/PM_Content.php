@@ -2,7 +2,7 @@
 
 /**
  * Promote_MDN
- * 
+ *
  * @package   Promote_MDN
  * @author    Luke Crouch and Daniele Scasciafratte <mte90net@gmail.com>
  * @copyright 2017 Mozilla
@@ -14,6 +14,8 @@
  * This class contain the Content stuff for the frontend
  */
 class Pm_Content {
+	
+	public $link = '';
 
 	/**
 	 * Initialize the class
@@ -61,7 +63,6 @@ class Pm_Content {
 	}
 
 	function process_text( $text ) {
-		$options = $this->options;
 		$check = $this->return_text( $text );
 		if ( gettype( $check ) === 'string' ) {
 			return $check;
@@ -70,37 +71,29 @@ class Pm_Content {
 		$links = 0;
 
 		$urls = array();
-		if ( isset( $options[ 'exclude_elems' ] ) && is_array( $options[ 'exclude_elems' ] ) ) {
-			// add salt to elements
-			foreach ( $options[ 'exclude_elems' ] as $el ) {
-				$re = sprintf( '|(<%s.*?>)(.*?)(</%s.*?>)|si', $el, $el );
-				$text = preg_replace_callback( $re, create_function( '$matches', 'return $matches[1] . wp_insertspecialchars($matches[2]) . $matches[3];' ), $text );
-			}
-		}
-		$reg = '/(?!(?:[^<\[]+[>\]]|[^>\]]+<\/a>))\b($name)\b/imsU';
+
+		$exclude_elems = $this->exclude_elems();
+		$reg = '/(?!(?:[^<\[]+[>\-\=\?\]]|[^>\]]+(<\/a>' . $exclude_elems . ')))\b($name)\b/imsU';
+
 		$text = " $text ";
 		// custom keywords
-		if ( !empty( $options[ 'customkey' ] ) ) {
-			foreach ( $options[ 'customkey' ] as $name => $url ) {
-				if ( in_array( strtolower( $name ), $options[ 'ignore' ] ) ) {
+		if ( !empty( $this->options[ 'customkey' ] ) ) {
+			foreach ( $this->options[ 'customkey' ] as $name => $url ) {
+				if ( in_array( strtolower( $name ), $this->options[ 'ignore' ] ) || strpos( 'GoogleAnalyticsObject', $url ) ) {
 					continue;
 				}
-				if ( strpos( 'GoogleAnalyticsObject', $url ) ) {
-					continue;
-				}
-				if ( $options[ 'add_src_param' ] == true ) {
+				if ( isset( $this->options[ 'add_src_param' ] ) && $this->options[ 'add_src_param' ] == true ) {
 					$url .= $tracking_querystring;
 				}
 				if ( !isset( $urls[ $url ] ) ) {
 					$urls[ $url ] = 0;
 				}
-				if ( $links < $options[ 'maxlinks' ] && (!$options[ 'maxsingleurl' ] || $urls[ $url ] < $options[ 'maxsingleurl' ] )				) {
+				if ( $links < $this->options[ 'maxlinks' ] && (!$this->options[ 'maxsingleurl' ] || $urls[ $url ] < $this->options[ 'maxsingleurl' ] ) ) {
 					if ( stripos( $text, $name ) !== false ) {
 						$name = preg_quote( $name, '/' );
-						$link = "<a" . $options[ 'blanko' ] . " title=\"%s\" href=\"$url\" class=\"promote-mdn\">%s</a>";
+						$this->link = "<a" . $this->options[ 'blanko' ] . " title=\"%s\" href=\"$url\" class=\"promote-mdn\">%s</a>";
 						$regexp = str_replace( '$name', $name, $reg );
-						$replace = 'return sprintf(\'' . $link . '\', $matches[1], $matches[1]);';
-						$newtext = preg_replace_callback( $regexp, create_function( '$matches', $replace ), $text, $options[ 'maxsingle' ] );
+						$newtext = preg_replace_callback( $regexp, array( $this, 'replace_link' ), $text, $this->options[ 'maxsingle' ] );
 						if ( $newtext != $text ) {
 							$links++;
 							$text = $newtext;
@@ -110,14 +103,35 @@ class Pm_Content {
 				}
 			}
 		}
-		if ( isset( $options[ 'exclude_elems' ] ) && is_array( $options[ 'exclude_elems' ] ) ) {
-			// remove salt from elements
-			foreach ( $options[ 'exclude_elems' ] as $el ) {
-				$re = sprintf( '|(<%s.*?>)(.*?)(</%s.*?>)|si', $el, $el );
-				$text = preg_replace_callback( $re, create_function( '$matches', 'return $matches[1] . wp_removespecialchars($matches[2]) . $matches[3];' ), $text );
+
+		return trim( $text );
+	}
+
+	function exclude_elems( $regex = '', $elems = array() ) {
+		$regex = '';
+		$new_elems = array();
+		if ( empty( $elems ) ) {
+			$elems = $this->options[ 'exclude_elems' ];
+		}
+		if ( isset( $elems ) && is_array( $elems ) ) {
+			foreach ( $elems as $el ) {
+				if ( $el === 'h' ) {
+					for ( $i = 1; $i <= 6; $i++ ) {
+						$new_elems[] = 'h' . $i;
+					}
+				} elseif ( !empty( $el ) ) {
+					$regex .= '|<\/' . $el . '>';
+				}
 			}
 		}
-		return trim( $text );
+		if ( !empty( $new_elems ) ) {
+			$regex .= $this->exclude_elems( $regex, $new_elems );
+		}
+		return $regex;
+	}
+
+	public function replace_link( $matches ) {
+		return sprintf( $this->link, $matches[0], $matches[0]);
 	}
 
 }

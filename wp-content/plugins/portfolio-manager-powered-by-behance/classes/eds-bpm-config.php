@@ -51,8 +51,7 @@ class EDS_BPM_Config{
 				'behanceProjectId' => __('Please enter Behance Project ID','eds-bpm'),
 				'inputNumericValue' => __('Please enter a numeric value','eds-bpm'),
 				'portfolioManager' => __('Portfolio Manager - Powered by Behance','eds-bpm'),
-				'authorName' => __('Eleopard Design Studios Pvt. Ltd.','eds-bpm'),
-				
+				'authorName' => __('Eleopard Design Studios Pvt. Ltd.','eds-bpm')
 		); 
 	}
 	
@@ -75,7 +74,8 @@ class EDS_BPM_Config{
 			    	'show_tags' => 'yes',
 			    	'show_tools_used' => 'yes',    	
 			    	'show_copyright_info' => 'yes',
-			    	'eds_bpm_custom_css' => ''		    	
+			    	'eds_bpm_custom_css' => '',
+				    'show_project_comments' => ''		    	
 			        ), self::$advanced_config ); 
 			}else
 				self::$advanced_config = (array) get_option( EDS_BPM_Config::$advanced_config_key);
@@ -120,7 +120,7 @@ class EDS_BPM_Config{
 			        'behance_api_key' => '',			    	
 			    	'result_per_page' => self::$result_per_page,
 					'view_project_on_behance' => '',
-					'open_in_different_tab' => 'yes',			    			    			    	
+					'open_in_different_tab' => 'yes'
 			        ), self::$general_config );
 			}else{
 				self::$general_config = (array) get_option( EDS_BPM_Config::$general_config_key);

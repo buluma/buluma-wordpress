@@ -1,52 +1,51 @@
 <?php
 /**
- *  Plugin loader
- *
- * @package LOGINCUST
- * @author Themeisle
- * @since 1.0.0
- */
+* Plugin Name: 			Custom Login Page Customizer
+* Plugin URI: 			https://loginpress.pro/?utm_source=login-customizer-lite&utm_medium=plugin-url-link
+* Description: 			Custom Login Customizer plugin allows you to easily customize your login page straight from your WordPress Customizer! Awesome, right?
+* Version: 				2.1.3
+* Requires at least: 	5.0
+* Requires PHP:      	5.6
+* Author: 				Hardeep Asrani
+* Author URI: 			https://loginpress.pro/?utm_source=login-customizer-lite&utm_medium=author-url-link
+* WordPress Available:  yes
+* Requires License:     no
+* License: 				GPLv2+
+* Text Domain: 			login-customizer
+* Domain Path: 			/resources/languages
+*
+* @package 			LoginCustomizer
+* @author 			WPBrigade
+* @copyright 		Copyright (c) 2021, WPBrigade
+* @link 			https://loginpress.pro/
+* @license			https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+*/
+
+namespace LoginCustomizer;
+
+defined( 'ABSPATH' ) || exit;
+
+include_once 'autoload.php';
+
+use LoginCustomizer\Plugin;
 
 /**
- * Plugin Name: Custom Login Page Customizer
- * Plugin URI: https://themeisle.com/plugins/login-customizer/
- * Description: Custom Login Customizer plugin allows you to easily customize your login page straight from your WordPress Customizer! Awesome, right?
- * Author: Hardeep Asrani
- * Author URI:  https://themeisle.com/
- * Version: 1.2.0
- * WordPress Available:  yes
- * Requires License:    no
- */
-
-define( 'LOGINCUST_VERSION', '1.2.0' );
-define( 'LOGINCUST_FREE_PATH', plugin_dir_path( __FILE__ ) );
-define( 'LOGINCUST_FREE_URL', plugin_dir_url( __FILE__ ) );
-if ( ! defined( 'login-customizer' ) ) {
-	define( 'LOGINCUST_TEXTDOMAIN', 'login-customizer' );
-}
-define( 'LOGINCUST_PRO_TEXT', __( '<p class="logincust_pro_text">You need to buy the <a href="http://themeisle.com/plugins/custom-login-customizer-security-addon/" target="_blank">SECURITY ADDON</a> to have this options. </p>', 'login-customizer' ) );
-
-/**
- * Check if security addon is active
+ * Wrapper for the plugin instance.
  *
- * @package LOGINCUST
- * @since 1.0.2
- * @version 1.0.0
- * @return bool
+ * @since  2.2.0
+ * @access public
+ * @return void
  */
-function logincust_check_security() {
-	return ( defined( 'LOGINCUST_SECURITY_VERSION' ) );
+function plugin() {
+	
+	static $instance = null;
+
+	if ( is_null( $instance ) ) {
+		$instance = new Plugin( __DIR__, plugin_dir_url( __FILE__ ) );
+	}
+
+	return $instance;
 }
 
-add_filter( 'themeisle_sdk_products', 'login_customizer_register_sdk', 10, 1 );
-
-function login_customizer_register_sdk( $products ) {
-	$products[] = __FILE__;
-
-	return $products;
-}
-
-include( LOGINCUST_FREE_PATH . 'vendor/autoload.php' );
-include( LOGINCUST_FREE_PATH . 'customizer.php' );
-include( LOGINCUST_FREE_PATH . 'option-panel.php' );
-
+# Boot the plugin.
+plugin();

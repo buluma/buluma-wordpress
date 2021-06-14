@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\User_Groups\Matchables_Source;
+
 final class ITSEC_Form {
 	private $options = array();
 	private $tracked_booleans = array();
@@ -8,12 +10,11 @@ final class ITSEC_Form {
 	private $input_group = '';
 	private $input_group_stack = array();
 
-
 	public function __construct( $options = array() ) {
 		$this->options =& $options;
 	}
 
-	public static function get_post_data() {
+	public static function get_post_data( $desired_inputs = false ) {
 		$remove_vars = array( 'itsec-nonce', '_wp_http_referer' );
 		$data = $_POST;
 
@@ -26,7 +27,6 @@ final class ITSEC_Form {
 		if ( isset( $data['data'] ) && isset( $data['data']['--itsec-form-serialized-data'] ) ) {
 			parse_str( $data['data']['--itsec-form-serialized-data'], $data );
 		}
-
 
 		$defaults = array(
 			'booleans' => false,
@@ -49,10 +49,8 @@ final class ITSEC_Form {
 					if ( is_null( $value ) ) {
 						ITSEC_Form::add_array_value( $data, $index, $default );
 					}
-				} else {
-					if ( ! is_array( $value ) ) {
-						ITSEC_Form::add_array_value( $data, $index, $default );
-					}
+				} else if ( ! is_array( $value ) ) {
+					ITSEC_Form::add_array_value( $data, $index, $default );
 				}
 			}
 
@@ -85,6 +83,14 @@ final class ITSEC_Form {
 			}
 
 			unset( $data['--itsec-form-convert-to-array'] );
+		}
+
+		if ( is_array( $desired_inputs ) ) {
+			foreach ( array_keys( $data ) as $key ) {
+				if ( ! in_array( $key, $desired_inputs ) ) {
+					unset( $data[$key] );
+				}
+			}
 		}
 
 		return $data;
@@ -343,6 +349,16 @@ final class ITSEC_Form {
 		$this->add_custom_input( $var, $options );
 	}
 
+	public function add_html5_input( $var, $type, $options = array() ) {
+		if ( ! is_array( $options ) ) {
+			$options = array( 'value' => $options );
+		}
+
+		$options['type'] = $type;
+
+		$this->add_custom_input( $var, $options );
+	}
+
 	public function add_textarea( $var, $options = array() ) {
 		if ( ! is_array( $options ) ) {
 			$options = array( 'value' => $options );
@@ -359,6 +375,7 @@ final class ITSEC_Form {
 		}
 
 		$options['type'] = 'password';
+
 		$this->add_custom_input( $var, $options );
 	}
 
@@ -435,6 +452,16 @@ final class ITSEC_Form {
 		$this->add_custom_input( $var, $options );
 	}
 
+	public function add_number( $var, $options = array() ) {
+		if ( ! is_array( $options ) ) {
+			$options = array( 'value' => $options );
+		}
+
+		$options['type'] = 'number';
+
+		$this->add_custom_input( $var, $options );
+	}
+
 	public function add_hidden( $var, $options = array() ) {
 		if ( ! is_array( $options ) ) {
 			$options = array( 'value' => $options );
@@ -443,6 +470,90 @@ final class ITSEC_Form {
 		$options['type'] = 'hidden';
 
 		$this->add_custom_input( $var, $options );
+	}
+
+	public function add_canonical_roles( $var, $options = array() ) {
+		$roles = array(
+			'administrator' => translate_user_role( 'Administrator' ),
+			'editor'        => translate_user_role( 'Editor' ),
+			'author'        => translate_user_role( 'Author' ),
+			'contributor'   => translate_user_role( 'Contributor' ),
+			'subscriber'    => translate_user_role( 'Subscriber' ),
+		);
+
+		if ( isset( $options['value'] ) ) {
+			$options['value'] = wp_parse_args( $options['value'], $roles );
+		} else {
+			$options['value'] = $roles;
+		}
+
+		$this->add_select( $var, $options );
+	}
+
+	public function add_user_group( $var, $options = array() ) {
+		$source  = ITSEC_Modules::get_container()->get( Matchables_Source::class );
+
+		$user_groups = [];
+		foreach ( $source->all() as $matchable ) {
+			$user_groups[ $matchable->get_id() ] = $matchable->get_label();
+		}
+
+		if ( isset( $options['value'] ) ) {
+			$options['value'] = wp_parse_args( $options['value'], $user_groups );
+		} else {
+			$options['value'] = $user_groups;
+		}
+
+		$this->add_select( $var, $options );
+	}
+
+	public function add_user_groups( $var, $module, $setting = '', $options = array() ) {
+		$source  = ITSEC_Modules::get_container()->get( Matchables_Source::class );
+
+		$user_groups = [];
+		foreach ( $source->all() as $matchable ) {
+			$user_groups[ $matchable->get_id() ] = $matchable->get_label();
+		}
+
+		if ( isset( $options['value'] ) ) {
+			$options['value'] = wp_parse_args( $options['value'], $user_groups );
+		} else {
+			$options['value'] = $user_groups;
+		}
+
+		$options['data-module'] = $module;
+		$options['data-setting'] = $setting ?: $var;
+
+		$options['class'] = 'itsec-form-input--type-user-groups';
+
+		$this->add_multi_select( $var, $options );
+		wp_enqueue_script( 'itsec-form-user-groups' );
+		wp_enqueue_style( 'itsec-jquery-multi-select' );
+	}
+
+	public function get_dotted_var( $var ) {
+		$dot   = $this->input_group_stack;
+		$dot[] = $var;
+
+		return implode( '.', $dot );
+	}
+
+	public function get_clean_var( $var ) {
+		$clean_var = trim( preg_replace( '/[^a-z0-9_]+/i', '-', $var ), '-' );
+
+		if ( ! empty( $this->input_group ) ) {
+			if ( false === strpos( $var, '[' ) ) {
+				$var = "[{$var}]";
+			} else {
+				$var = preg_replace( '/^([^\[]+)\[/', '[$1][', $var );
+			}
+
+			$var = "{$this->input_group}{$var}";
+
+			$clean_var = trim( preg_replace( '/[^a-z0-9_]+/i', '-', $var ), '-' );
+		}
+
+		return "itsec-$clean_var";
 	}
 
 	private function add_custom_input( $var, $options ) {
@@ -592,7 +703,7 @@ final class ITSEC_Form {
 			}
 		} else if ( 'radio' === $options['type'] ) {
 			if ( ! isset( $this->tracked_strings[$options['name']] ) ) {
-				echo '<input type="hidden" name="--itsec-form-tracked-empty-strings[]" value="' . esc_attr( $options['name'] ) . '" />' . "\n";
+				echo '<input type="hidden" name="--itsec-form-tracked-strings[]" value="' . esc_attr( $options['name'] ) . '" />' . "\n";
 				$this->tracked_strings[$options['name']] = true;
 			}
 		}

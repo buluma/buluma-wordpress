@@ -68,9 +68,9 @@ class Pm_MDN extends WPH_Widget {
 		$out .= $args[ 'before_title' ];
 		$out .= $instance[ 'title' ];
 		$out .= $args[ 'after_title' ];
-		// $out .= '<a href="https://developer.mozilla.org" target="_blank"><img class="img img-responsive" src="' . esc_html( $instance[ 'banner' ] ) . '" /></a><br />
-	 //    <a href="https://developer.mozilla.org/promote" target="_blank">' . __( 'Help Promote MDN!', PM_TEXTDOMAIN ) . '</a>';
-		$out .= '<a href="https://developer.mozilla.org" target="_blank"><img style="width: 100%" src="' . esc_html( $instance[ 'banner' ] ) . '" /></a>';
+		$out .= '<a href="https://developer.mozilla.org" target="_blank"><img src="' . esc_html( $instance[ 'banner' ] ) . '" /></a><br />
+	    <a href="https://developer.mozilla.org/promote" target="_blank">' . __( 'Help Promote MDN!', PM_TEXTDOMAIN ) . '</a><br />
+<a href="http://wordpress.org/plugins/promote-mdn/" target="_blank">' . __( 'Get the WordPress plugin', PM_TEXTDOMAIN ) . '</a>';
 		$out .= $args[ 'after_widget' ];
 		echo $out;
 	}

@@ -50,10 +50,22 @@ You can keep all the contacts in an archive by saving their e-mail addresses. Pi
 
 A simple to use contact form plugin for creating a clean contact form using the [pirate_forms] shortcode or the 'Pirate Forms' form widget.
 
+- Provides option to allow submitting the form using AJAX
+
+Standard contact forms work just fine, but you can make them nicer by using AJAX to submit the form data in the background.
+
+Pirate Forms allows you to take advantage of this great feature using the [pirate_forms ajax="yes"] shortcode or the 'Submit form using Ajax' option in the Pirate Forms widget.
+
 - What PirateForms isn't for now
 
 
 This is not a form maker or drag & drop builder plugin nor "the best contact form plugin", you cannot add new fields or create multiple forms (subscription forms, payment, order, feedback or quote), there are some great alternatives out there for those like : Caldera Forms or Ninja Forms.
+
+- Privacy Notices
+
+If you activate the "Store submissions in the database" feature in the Pirate Forms, the contact form submitter’s personal data, including their IP address, will be stored in the database.
+
+Thus, confirming the provider’s privacy policy is recommended.
 
  = See how Pirate Forms can integrate with your website  =
 
@@ -85,6 +97,11 @@ If are you looking for other alternatives check-out our article on <a href="http
 This plugin started as a fork of https://wordpress.org/plugins/proper-contact-form/.
 
 ## Frequently Asked Questions ##
+
+
+
+
+
 
 
 ### How I can get support for this contact form plugin ? ###
@@ -156,6 +173,105 @@ You can follow the full documentation [here](http://docs.themeisle.com/article/4
  = How to add attributes to form in Pirate Forms = 
  [http://docs.themeisle.com/article/752-how-to-add-attributes-to-form-in-pirate-forms](http://docs.themeisle.com/article/752-how-to-add-attributes-to-form-in-pirate-forms) 
 
+ = How to change default email content in Pirate forms = 
+ [http://docs.themeisle.com/article/779-how-to-change-default-email-content-in-pirate-forms](http://docs.themeisle.com/article/779-how-to-change-default-email-content-in-pirate-forms) 
+
+ = How to change default email content per form in Pirate forms = 
+ [http://docs.themeisle.com/article/780-how-to-change-default-email-content-per-form-in-pirate-forms](http://docs.themeisle.com/article/780-how-to-change-default-email-content-per-form-in-pirate-forms) 
+
+ = How to install and use extended version of Pirate Forms = 
+ [http://docs.themeisle.com/article/787-how-to-install-and-use-extended-version-of-pirate-forms](http://docs.themeisle.com/article/787-how-to-install-and-use-extended-version-of-pirate-forms) 
+
+ = Pirate Forms Documentation = 
+ [https://docs.themeisle.com/article/436-pirate-forms-documentation](https://docs.themeisle.com/article/436-pirate-forms-documentation) 
+
+ = How to Change Pirate Forms Submit Button Color = 
+ [https://docs.themeisle.com/article/423-how-to-change-pirate-forms-submit-button-color](https://docs.themeisle.com/article/423-how-to-change-pirate-forms-submit-button-color) 
+
+ = How to Center the Send Message button for Pirate Forms = 
+ [https://docs.themeisle.com/article/427-how-to-center-the-send-message-button-for-pirate-forms](https://docs.themeisle.com/article/427-how-to-center-the-send-message-button-for-pirate-forms) 
+
+ = How you can overwrite the default form template in Pirate Forms = 
+ [https://docs.themeisle.com/article/664-how-you-can-overwrite-the-default-form-template-in-pirate-forms](https://docs.themeisle.com/article/664-how-you-can-overwrite-the-default-form-template-in-pirate-forms) 
+
+ = How to change font in Pirate Forms = 
+ [https://docs.themeisle.com/article/431-how-to-change-font-in-pirate-forms](https://docs.themeisle.com/article/431-how-to-change-font-in-pirate-forms) 
+
+ = Why do I not receive any emails? - Pirate Forms = 
+ [https://docs.themeisle.com/article/729-why-do-i-not-receive-any-emails---pirate-forms](https://docs.themeisle.com/article/729-why-do-i-not-receive-any-emails---pirate-forms) 
+
+ = Emails are not being sent, what can i do ? = 
+ [https://docs.themeisle.com/article/690-emails-are-not-being-sent-what-can-i-do](https://docs.themeisle.com/article/690-emails-are-not-being-sent-what-can-i-do) 
+
+ = How to add reCaptcha  to a form in Pirate Forms = 
+ [https://docs.themeisle.com/article/731-how-to-add-recaptcha-to-a-form-in-pirate-forms](https://docs.themeisle.com/article/731-how-to-add-recaptcha-to-a-form-in-pirate-forms) 
+
+ = What actions and filters are available in Pirate Forms = 
+ [https://docs.themeisle.com/article/663-what-actions-and-filters-are-available-in-pirate-forms](https://docs.themeisle.com/article/663-what-actions-and-filters-are-available-in-pirate-forms) 
+
+ = How can I change HTML of default form in Pirate Forms = 
+ [https://docs.themeisle.com/article/745-how-can-i-change-html-of-default-form-in-pirate-forms](https://docs.themeisle.com/article/745-how-can-i-change-html-of-default-form-in-pirate-forms) 
+
+ = How to add Dropdown menu in Subject Field in Pirate Forms = 
+ [https://docs.themeisle.com/article/725-how-to-add-dropdown-menu-in-subject-field-in-pirate-forms](https://docs.themeisle.com/article/725-how-to-add-dropdown-menu-in-subject-field-in-pirate-forms) 
+
+ = How to save contacts in Mailchimp list in Pirate Forms = 
+ [https://docs.themeisle.com/article/722-how-to-save-contacts-in-mailchimp-list-in-pirate-forms](https://docs.themeisle.com/article/722-how-to-save-contacts-in-mailchimp-list-in-pirate-forms) 
+
+ = How to add checkbox field in Pirate Forms = 
+ [https://docs.themeisle.com/article/733-how-to-add-checkbox-field-in-pirate-forms](https://docs.themeisle.com/article/733-how-to-add-checkbox-field-in-pirate-forms) 
+
+ = How to add a spam trap in a form in Pirate Forms = 
+ [https://docs.themeisle.com/article/732-how-to-add-a-spam-trap-in-a-form-in-pirate-forms](https://docs.themeisle.com/article/732-how-to-add-a-spam-trap-in-a-form-in-pirate-forms) 
+
+ = How to create multiple forms in Pirate Forms = 
+ [https://docs.themeisle.com/article/730-how-to-create-multiple-forms-in-pirate-forms](https://docs.themeisle.com/article/730-how-to-create-multiple-forms-in-pirate-forms) 
+
+ = How to create a Form Widget in Pirate Forms = 
+ [https://docs.themeisle.com/article/723-how-to-create-a-form-widget-in-pirate-forms](https://docs.themeisle.com/article/723-how-to-create-a-form-widget-in-pirate-forms) 
+
+ = How to change default confirmation email content in Pirate Forms = 
+ [https://docs.themeisle.com/article/724-how-to-change-default-confirmation-email-content-in-pirate-forms](https://docs.themeisle.com/article/724-how-to-change-default-confirmation-email-content-in-pirate-forms) 
+
+ = How to add attributes to form in Pirate Forms = 
+ [https://docs.themeisle.com/article/752-how-to-add-attributes-to-form-in-pirate-forms](https://docs.themeisle.com/article/752-how-to-add-attributes-to-form-in-pirate-forms) 
+
+ = How to change default email content in Pirate forms = 
+ [https://docs.themeisle.com/article/779-how-to-change-default-email-content-in-pirate-forms](https://docs.themeisle.com/article/779-how-to-change-default-email-content-in-pirate-forms) 
+
+ = How to add multiple upload fields in Pirate Forms = 
+ [https://docs.themeisle.com/article/734-how-to-add-multiple-upload-fields-in-pirate-forms](https://docs.themeisle.com/article/734-how-to-add-multiple-upload-fields-in-pirate-forms) 
+
+ = How to create a subscription form in Pirate Forms = 
+ [https://docs.themeisle.com/article/721-how-to-create-a-subscription-form-in-pirate-forms](https://docs.themeisle.com/article/721-how-to-create-a-subscription-form-in-pirate-forms) 
+
+ = How to change default email content per form in Pirate forms = 
+ [https://docs.themeisle.com/article/780-how-to-change-default-email-content-per-form-in-pirate-forms](https://docs.themeisle.com/article/780-how-to-change-default-email-content-per-form-in-pirate-forms) 
+
+ = How to install and use extended version of Pirate Forms = 
+ [https://docs.themeisle.com/article/787-how-to-install-and-use-extended-version-of-pirate-forms](https://docs.themeisle.com/article/787-how-to-install-and-use-extended-version-of-pirate-forms) 
+
+ = How to set a success page on successful form submission = 
+ [https://docs.themeisle.com/article/836-how-to-set-a-success-page-on-successful-form-submission](https://docs.themeisle.com/article/836-how-to-set-a-success-page-on-successful-form-submission) 
+
+ = Pirate Forms: How to change the default subject of email admin receives = 
+ [https://docs.themeisle.com/article/838-pirate-forms-how-to-change-the-default-subject-of-email-admin-receives](https://docs.themeisle.com/article/838-pirate-forms-how-to-change-the-default-subject-of-email-admin-receives) 
+
+ = How to send a copy of the sent email to the sender. = 
+ [https://docs.themeisle.com/article/837-how-to-send-a-copy-of-the-sent-email-to-the-sender](https://docs.themeisle.com/article/837-how-to-send-a-copy-of-the-sent-email-to-the-sender) 
+
+ = How to add a multiple choice field in a form = 
+ [https://docs.themeisle.com/article/866-how-to-add-a-multiple-choice-field-in-a-form](https://docs.themeisle.com/article/866-how-to-add-a-multiple-choice-field-in-a-form) 
+
+ = How to add a select field in a form = 
+ [https://docs.themeisle.com/article/867-how-to-add-a-select-field-in-a-form](https://docs.themeisle.com/article/867-how-to-add-a-select-field-in-a-form) 
+
+ = GDPR and Pirate Forms = 
+ [https://docs.themeisle.com/article/886-gdpr-and-pirate-forms](https://docs.themeisle.com/article/886-gdpr-and-pirate-forms) 
+
+ = How to enable form submission without reloading the page using AJAX = 
+ [https://docs.themeisle.com/article/909-how-to-enable-form-submission-without-reloading-the-page-using-ajax](https://docs.themeisle.com/article/909-how-to-enable-form-submission-without-reloading-the-page-using-ajax) 
+
  == Installation ==
 
 Activating the Pirate Contact Form plugin is just like any other plugin. If you've uploaded the plugin package to your server already, skip to step 5 below:
@@ -177,6 +293,87 @@ Activating the Pirate Contact Form plugin is just like any other plugin. If you'
 4. Screenshot 4. Enabling SMTP
 
 ## Changelog ##
+### 2.5.1 - 2019-01-17  ###
+
+* Remove third party library not needed, from composer (mailin-api).
+
+### 2.5.0 - 2018-09-18  ###
+
+* <a href="https://wpforms.com/wpforms-has-acquired-pirate-forms/" rel="friend">Pirate Forms was acquired by WPForms</a>.
+* We're retiring Pirate Forms in favor of the modern form builder by WPForms, so users can have access to best user experience and more powerful WordPress form features.
+* Added migration wizard to move forms to WPForms.
+
+### 2.4.4 - 2018-07-13  ###
+
+* Fixed compatibility with All in One SEO Pack plugin
+* Fixed problem with form not working with the ajax option
+* Option to save the attachments files
+* Improved recaptcha button layout on mobile devices
+
+
+### 2.4.3 - 2018-06-25  ###
+
+* New Gutenberg block for the default Pirate Forms form
+* Made the checkbox field to store in the database for GDPR compliance
+* New option to disable tracking of the IP for GDPR compliance
+* Replaced subscription form with Sendinblue form
+
+
+### 2.4.2 - 2018-06-07  ###
+
+* NEW support for submitting Ajax forms with [pirate_forms ajax="yes"]
+* Added compatibility with WordPress 4.9.6 Export and Erase Personal Data options
+* Fixed issue with form caused by the reCaptcha
+* Fixed compatibility issues with the wpDataTables Lite plugin
+
+
+### 2.4.1 - 2018-05-07  ###
+
+* GDPR compliance
+
+
+### 2.4.0 - 2018-04-02  ###
+
+* Improves compatibility with various themes.
+* Adds support for two new custom fields.
+* Adds filter for custom classes into form fields.
+* Adds visual/text switch to form wyiwyg editor.
+
+
+### 2.3.5 - 2018-03-05  ###
+
+* Fix characters encoding issue in the subject field.
+* Fix issue with spam label with two forms on the page.
+* Allows zip files to be attached in forms.
+* Adds a filter to dynamically change the subject.
+* Adds options to send a copy of the email to the sender.
+
+
+### 2.3.4 - 2018-02-15  ###
+
+* Added missing Loader.gif file
+* Fixed undefined notice
+* Fix submit button leaving form when ReCaptcha is enabled
+
+
+### 2.3.3 - 2018-01-06  ###
+
+* Fix double reCAPTCHA box bug.
+* Fix custom spam trap alignement error.
+
+
+### 2.3.2 - 2017-12-28  ###
+
+* Fix for tooltip admin behavior.
+
+
+### 2.3.1 - 2017-12-28  ###
+
+* Improves layout and compatibility with various themes.
+* Improves form default email format.
+* Fix issues with various special characters in the magic tag fields.
+
+
 ### 2.3.0 - 2017-11-27  ###
 
 * Adds email content wysiwyg editor. 

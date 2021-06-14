@@ -2,12 +2,14 @@
 
 
 final class ITSEC_Settings_Page {
-	private $version = 1.9;
-
 	private static $instance;
 
 	private $self_url = '';
+
+	/** @var ITSEC_Module_Settings_Page[] */
 	private $modules = array();
+
+	/** @var ITSEC_Settings_Page_Sidebar_Widget[] */
 	private $widgets = array();
 	private $translations = array();
 
@@ -70,6 +72,8 @@ final class ITSEC_Settings_Page {
 	}
 
 	public function add_scripts() {
+		ITSEC_Lib::enqueue_util();
+
 		foreach ( $this->modules as $id => $module ) {
 			$module->enqueue_scripts_and_styles();
 		}
@@ -94,12 +98,12 @@ final class ITSEC_Settings_Page {
 		}
 
 		wp_enqueue_script( 'itsec-scrollTo', plugins_url( 'js/scrollTo.js', dirname( __FILE__ ) ), array( 'jquery' ) );
-		wp_enqueue_script( 'itsec-settings-page-script', plugins_url( 'js/script.js', __FILE__ ), array( 'underscore' ), $this->version, true );
+		wp_enqueue_script( 'itsec-settings-page-script', plugins_url( 'js/settings.js', __FILE__ ), array( 'underscore' ), ITSEC_Core::get_plugin_build(), true );
 		wp_localize_script( 'itsec-settings-page-script', 'itsec_page', $vars );
 	}
 
 	public function add_styles() {
-		wp_enqueue_style( 'itsec-settings-page-style', plugins_url( 'css/style.css', __FILE__ ), array(), $this->version );
+		wp_enqueue_style( 'itsec-settings-page-style', plugins_url( 'css/style.css', __FILE__ ), array(), ITSEC_Core::get_plugin_build() );
 	}
 
 	private function set_translation_strings() {
@@ -120,20 +124,6 @@ final class ITSEC_Settings_Page {
 
 			/* translators: 1: module name */
 			'successful_save'   => __( 'Settings saved successfully for %1$s.', 'better-wp-security' ),
-
-			'ajax_invalid'      => new WP_Error( 'itsec-settings-page-invalid-ajax-response', __( 'An "invalid format" error prevented the request from completing as expected. The format of data returned could not be recognized. This could be due to a plugin/theme conflict or a server configuration issue.', 'better-wp-security' ) ),
-
-			'ajax_forbidden'    => new WP_Error( 'itsec-settings-page-forbidden-ajax-response: %1$s "%2$s"',  __( 'A "request forbidden" error prevented the request from completing as expected. The server returned a 403 status code, indicating that the server configuration is prohibiting this request. This could be due to a plugin/theme conflict or a server configuration issue. Please try refreshing the page and trying again. If the request continues to fail, you may have to alter plugin settings or server configuration that could account for this AJAX request being blocked.', 'better-wp-security' ) ),
-
-			'ajax_not_found'    => new WP_Error( 'itsec-settings-page-not-found-ajax-response: %1$s "%2$s"', __( 'A "not found" error prevented the request from completing as expected. The server returned a 404 status code, indicating that the server was unable to find the requested admin-ajax.php file. This could be due to a plugin/theme conflict, a server configuration issue, or an incomplete WordPress installation. Please try refreshing the page and trying again. If the request continues to fail, you may have to alter plugin settings, alter server configurations, or reinstall WordPress.', 'better-wp-security' ) ),
-
-			'ajax_server_error' => new WP_Error( 'itsec-settings-page-server-error-ajax-response: %1$s "%2$s"', __( 'A "internal server" error prevented the request from completing as expected. The server returned a 500 status code, indicating that the server was unable to complete the request due to a fatal PHP error or a server problem. This could be due to a plugin/theme conflict, a server configuration issue, a temporary hosting issue, or invalid custom PHP modifications. Please check your server\'s error logs for details about the source of the error and contact your hosting company for assistance if required.', 'better-wp-security' ) ),
-
-			'ajax_unknown'      => new WP_Error( 'itsec-settings-page-ajax-error-unknown: %1$s "%2$s"', __( 'An unknown error prevented the request from completing as expected. This could be due to a plugin/theme conflict or a server configuration issue.', 'better-wp-security' ) ),
-
-			'ajax_timeout'      => new WP_Error( 'itsec-settings-page-ajax-error-timeout: %1$s "%2$s"', __( 'A timeout error prevented the request from completing as expected. The site took too long to respond. This could be due to a plugin/theme conflict or a server configuration issue.', 'better-wp-security' ) ),
-
-			'ajax_parsererror'  => new WP_Error( 'itsec-settings-page-ajax-error-parsererror: %1$s "%2$s"', __( 'A parser error prevented the request from completing as expected. The site sent a response that jQuery could not process. This could be due to a plugin/theme conflict or a server configuration issue.', 'better-wp-security' ) ),
 		);
 
 		foreach ( $this->translations as $key => $message ) {
@@ -179,9 +169,13 @@ final class ITSEC_Settings_Page {
 				ITSEC_Modules::load_module_file( 'active.php', $module );
 			}
 
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/user-groups', 'fetchGroupsSettings' );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/core', 'fetchIndex', [ true ] );
 			ITSEC_Response::maybe_flag_new_notifications_available();
 		} else if ( 'deactivate' === $method ) {
 			ITSEC_Response::set_response( ITSEC_Modules::deactivate( $module ) );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/user-groups', 'fetchGroupsSettings' );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/core', 'fetchIndex', [ true ] );
 			ITSEC_Response::maybe_flag_new_notifications_available();
 		} else if ( 'is_active' === $method ) {
 			ITSEC_Response::set_response( ITSEC_Modules::is_active( $module ) );
@@ -488,7 +482,7 @@ final class ITSEC_Settings_Page {
 							<input type="search" placeholder="<?php esc_attr_e( 'Search Modules', 'better-wp-security' ); ?>" id="search" spellcheck="false" autocomplete="off" autofill="off" x-autocomplete="false">
 						</div>
 						<ul class="subsubsub itsec-feature-tabs hide-if-no-js">
-							<?php echo implode( $feature_tabs, " |</li>\n" ) . "</li>\n"; ?>
+							<?php echo implode( " |</li>\n", $feature_tabs ) . "</li>\n"; ?>
 							<li class="itsec-module-filter hide-if-js" id="itsec-module-filter-search">| <a><?php esc_html_e( 'Search', 'better-wp-security' ); ?></a> <span class="count"></span></li>
 						</ul>
 					</div>
@@ -506,8 +500,20 @@ final class ITSEC_Settings_Page {
 							<?php $form->add_hidden( 'widget-id', $id ); ?>
 						<?php endif; ?>
 							<div id="itsec-sidebar-widget-<?php echo $id; ?>" class="postbox itsec-sidebar-widget">
-								<h3 class="hndle ui-sortable-handle"><span><?php echo esc_html( $widget->title ); ?></span></h3>
+								<div class="postbox-header">
+									<h2 class="hndle ui-sortable-handle"><span><?php echo esc_html( $widget->title ); ?></span></h2>
+								</div>
 								<div class="inside">
+									<?php if ( $messages = ITSEC_Lib_Remote_Messages::get_messages_for_placement( array( 'widget' => $id ) ) ) : ?>
+										<div class="itsec-widgets-service-status">
+											<?php foreach ( $messages as $message ): ?>
+												<div class="notice notice-alt notice-<?php echo esc_attr( $message['type'] ); ?> below-h2">
+													<p><?php echo $message['message']; ?></p>
+												</div>
+											<?php endforeach; ?>
+										</div>
+									<?php endif; ?>
+
 									<?php $this->get_widget_settings( $id, $form, true ); ?>
 								</div>
 							</div>
@@ -598,32 +604,48 @@ final class ITSEC_Settings_Page {
 										<?php echo esc_html( $module->title ); ?>
 										<?php do_action( 'itsec_module_settings_after_title', $id ); ?>
 									</h3>
-									<div class="itsec-module-messages-container"></div>
+									<div class="itsec-module-messages-container" id="itsec-module-messages-container-<?php echo esc_attr( $id ); ?>"></div>
 									<div class="itsec-module-settings-content-main">
 										<?php $this->get_module_settings( $id, $form, true ); ?>
 									</div>
 								</div>
 							</div>
 							<div class="itsec-list-content-footer hide-if-no-js">
-								<?php if ( $module->can_save ) : ?>
-									<button class="button button-primary align-left itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
-								<?php endif; ?>
-								<button class="button button-secondary align-left itsec-module-settings-cancel"><?php _e( 'Cancel', 'better-wp-security' ); ?></button>
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--left">
+									<?php if ( $module->can_save ) : ?>
+										<button class="button button-primary itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
+									<?php endif; ?>
+									<button class="button button-secondary itsec-module-settings-cancel"><?php _e( 'Cancel', 'better-wp-security' ); ?></button>
+								</div>
+
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--right">
+									<?php if ( $module->documentation ): ?>
+										<a href="<?php echo esc_url( $module->documentation ); ?>" class="itsec-module-documentation"><?php esc_html_e( 'Documentation', 'better-wp-security' ); ?></a>
+									<?php endif; ?>
+								</div>
 							</div>
 							<div class="itsec-modal-content-footer">
-								<?php if ( $module->enabled || $module->always_active || $module->information_only ) : ?>
-									<?php if ( ! $module->always_active && ! $module->information_only ) : ?>
-										<button class="button button-secondary align-right itsec-toggle-activation"><?php echo $this->translations['deactivate']; ?></button>
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--left">
+									<?php if ( $module->can_save ) : ?>
+										<button class="button button-primary itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
+									<?php else : ?>
+										<button class="button button-primary itsec-close-modal"><?php echo $this->translations['close_settings']; ?></button>
 									<?php endif; ?>
-								<?php else : ?>
-									<button class="button button-primary align-right itsec-toggle-activation"><?php echo $this->translations['activate']; ?></button>
-								<?php endif; ?>
+								</div>
 
-								<?php if ( $module->can_save ) : ?>
-									<button class="button button-primary align-left itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
-								<?php else : ?>
-									<button class="button button-primary align-left itsec-close-modal"><?php echo $this->translations['close_settings']; ?></button>
-								<?php endif; ?>
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--right">
+									<?php if ( $module->documentation ): ?>
+										<a href="<?php echo esc_url( $module->documentation ); ?>" class="itsec-module-documentation"><?php esc_html_e( 'Documentation', 'better-wp-security' ); ?></a>
+									<?php endif; ?>
+
+									<?php if ( $module->enabled || $module->always_active || $module->information_only ) : ?>
+										<?php if ( ! $module->always_active && ! $module->information_only ) : ?>
+											<button class="button button-secondary itsec-toggle-activation"><?php echo $this->translations['deactivate']; ?></button>
+										<?php endif; ?>
+									<?php else : ?>
+										<button class="button button-primary itsec-toggle-activation"><?php echo $this->translations['activate']; ?></button>
+									<?php endif; ?>
+								</div>
 							</div>
 						</div>
 					<?php endif; ?>

@@ -5,7 +5,7 @@
  * Domain Path: /translations
  * Plugin URI: http://www.eleopard.in
  * Description: Portfolio Manager helps in reducing the efforts required in project management by picking up the project details from Behance server so that users can manage all their projects at a centralized location in Behance and present them on their websites using beautiful styles and views.
- * Version: 1.6.3
+ * Version: 1.7.3
  * Author: eLEOPARD Design Studios
  * Author URI: http://www.eleopard.in
  * License: GNU General Public License version 2 or later; see LICENSE.txt

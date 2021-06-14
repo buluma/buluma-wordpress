@@ -478,8 +478,7 @@ function edsIsInt(value) {
 				alert(edsBPMMessages.behanceProjectId);
 			}else if(!edsIsInt(bp_id)){
 				alert(edsBPMMessages.inputNumericValue);				
-			}
-			else{
+			}else{
 				$("input[name=bpm-sub-task]").val("b_project_search");
 				$("#eds_bpm_project").attr("method","get");
 				$("#eds_bpm_project").submit();

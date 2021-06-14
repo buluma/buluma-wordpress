@@ -14,10 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function monsterinsights_debug_output( $var ) {
-	error_log( print_r( $var, true ) . "\n", 3, MONSTERINSIGHTS_PLUGIN_DIR . 'log.txt' );
-}
-
 function monsterinsights_is_page_reload() {
 	// Can't be a refresh without having a referrer
 	if ( ! isset( $_SERVER['HTTP_REFERER'] ) ) {
@@ -29,15 +25,20 @@ function monsterinsights_is_page_reload() {
 }
 
 
-function monsterinsights_track_user() {
-	$user        = wp_get_current_user();
+function monsterinsights_track_user( $user_id = -1 ) {
+	if ( $user_id === -1 ) {
+		$user = wp_get_current_user();
+	} else {
+		$user = new WP_User( $user_id );
+	}
+
 	$track_user  = true;
 	$roles     = monsterinsights_get_option( 'ignore_users', array() );
 
 	if ( ! empty( $roles ) && is_array( $roles ) ) {
 		foreach ( $roles as $role ) {
 			if ( is_string( $role ) ) {
-				if ( current_user_can( $role ) ) {
+				if ( user_can( $user, $role ) ) {
 					$track_user = false;
 					break;
 				}
@@ -46,10 +47,10 @@ function monsterinsights_track_user() {
 	}
 
 	$track_super_admin = apply_filters( 'monsterinsights_track_super_admins', false );
-	if ( $track_super_admin === false && is_super_admin() ) {
+	if ( $user_id === -1 && $track_super_admin === false && is_multisite() && is_super_admin() ) {
 		$track_user = false;
 	}
-	
+
 	// or if UA code is not entered
 	$ua_code = monsterinsights_get_ua();
 	if ( empty( $ua_code ) ) {
@@ -64,7 +65,7 @@ function monsterinsights_get_client_id( $payment_id = false ) {
 		$payment_id = $payment_id->ID;
 	}
 	$user_cid    = monsterinsights_get_uuid();
-	$payment_cid = get_post_meta( $payment_id, '_yoast_gau_uuid', true );
+	$saved_cid   = ! empty( $payment_id ) ? get_post_meta( $payment_id, '_yoast_gau_uuid', true ) : false;
 
 	if ( ! empty( $payment_id ) && ! empty( $saved_cid ) ) {
 		return $saved_cid;
@@ -88,24 +89,30 @@ function monsterinsights_get_uuid() {
 	if ( empty( $_COOKIE['_ga'] ) ) {
 		return false;
 	}
-	
-	/** 
+
+	/**
 	 * Example cookie formats:
 	 *
 	 * GA1.2.XXXXXXX.YYYYY
 	 * _ga=1.2.XXXXXXX.YYYYYY -- We want the XXXXXXX.YYYYYY part
-	 * 
+	 *
+	 * for AMP pages the format is sometimes GA1.3.amp-XXXXXXXXXXXXX-XXXXXXXX
+	 * if the first page visited is AMP, the cookie may be in the format amp-XXXXXXXXXXXXX-XXXXXXXX
+	 *
 	 */
 
 	$ga_cookie    = $_COOKIE['_ga'];
-	$cookie_parts = explode('.', $ga_cookie );
-	if ( is_array( $cookie_parts ) && ! empty( $cookie_parts[2] ) && ! empty( $cookie_parts[3] ) ) {
-		$uuid = (string) $cookie_parts[2] . '.' . (string) $cookie_parts[3];
+	$cookie_parts = explode( '.', $ga_cookie );
+	if ( is_array( $cookie_parts ) && ! empty( $cookie_parts[2] ) ) {
+		$cookie_parts = array_slice( $cookie_parts, 2 );
+		$uuid         = implode( '.', $cookie_parts );
 		if ( is_string( $uuid ) ) {
 			return $uuid;
 		} else {
 			return false;
 		}
+	} elseif ( 0 === strpos( $ga_cookie, 'amp-' ) ) {
+		return $ga_cookie;
 	} else {
 		return false;
 	}
@@ -155,16 +162,19 @@ function monsterinsights_get_cookie( $debug = false ) {
 	if ( empty( $_COOKIE['_ga'] ) ) {
 		return ( $debug ) ? 'FCE' : false;
 	}
-	
+
 	$ga_cookie    = $_COOKIE['_ga'];
-	$cookie_parts = explode('.', $ga_cookie );
-	if ( is_array( $cookie_parts ) && ! empty( $cookie_parts[2] ) && ! empty( $cookie_parts[3] ) ) {
-		$uuid = (string) $cookie_parts[2] . '.' . (string) $cookie_parts[3];
+	$cookie_parts = explode( '.', $ga_cookie );
+	if ( is_array( $cookie_parts ) && ! empty( $cookie_parts[2] ) ) {
+		$cookie_parts = array_slice( $cookie_parts, 2 );
+		$uuid         = implode( '.', $cookie_parts );
 		if ( is_string( $uuid ) ) {
 			return $ga_cookie;
 		} else {
 			return ( $debug ) ? 'FA' : false;
 		}
+	} elseif ( 0 === strpos( $ga_cookie, 'amp-' ) ) {
+		return $ga_cookie;
 	} else {
 		return ( $debug ) ? 'FAE' : false;
 	}
@@ -174,7 +184,7 @@ function monsterinsights_get_cookie( $debug = false ) {
 function monsterinsights_generate_ga_client_id() {
 	return rand(100000000,999999999) . '.' . time();
 }
- 
+
 
 /**
  * Hours between two timestamps.
@@ -216,7 +226,7 @@ function monsterinsights_hours_between( $start, $stop = false ) {
  * for themselves that we're not feature locking anything inside the plugin + it would make it easier for our team to test stuff (both via
  * Travis-CI but also when installing addons to test with the Lite version). Also this would allow for a better user experience for users
  * who want that feature.
- * 
+ *
  * @since 6.0.0
  * @access public
  *
@@ -256,6 +266,33 @@ function monsterinsights_get_roles() {
 	return $roles;
 }
 
+/**
+ * Get the user roles which can manage options. Used to prevent these roles from getting unselected in the settings.
+ *
+ * @return array
+ */
+function monsterinsights_get_manage_options_roles() {
+	global $wp_roles;
+
+	$all_roles = $wp_roles->roles;
+	$roles     = array();
+
+	/**
+	 * Filter: 'editable_roles' - Allows filtering of the roles shown within the plugin (and elsewhere in WP as it's a WP filter)
+	 *
+	 * @api array $all_roles
+	 */
+	$editable_roles = apply_filters( 'editable_roles', $all_roles );
+
+	foreach ( $editable_roles as $id => $role ) {
+		if ( isset( $role['capabilities']['manage_options'] ) && $role['capabilities']['manage_options'] ) {
+			$roles[ $id ] = translate_user_role( $role['name'] );
+		}
+	}
+
+	return $roles;
+}
+
 /** Need to escape in advance of passing in $text. */
 function monsterinsights_get_message( $type = 'error', $text = '' ) {
 	$div = '';
@@ -265,6 +302,48 @@ function monsterinsights_get_message( $type = 'error', $text = '' ) {
 	} else {
 		return '';
 	}
+}
+
+function monsterinsights_is_dev_url( $url = '' ) {
+	$is_local_url = false;
+	// Trim it up
+	$url = strtolower( trim( $url ) );
+	// Need to get the host...so let's add the scheme so we can use parse_url
+	if ( false === strpos( $url, 'http://' ) && false === strpos( $url, 'https://' ) ) {
+		$url = 'http://' . $url;
+	}
+	$url_parts = parse_url( $url );
+	$host      = ! empty( $url_parts['host'] ) ? $url_parts['host'] : false;
+	if ( ! empty( $url ) && ! empty( $host ) ) {
+		if ( false !== ip2long( $host ) ) {
+			if ( ! filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+				$is_local_url = true;
+			}
+		} else if ( 'localhost' === $host ) {
+			$is_local_url = true;
+		}
+
+		$tlds_to_check = array( '.local', ':8888', ':8080', ':8081', '.invalid', '.example', '.test' );
+		foreach ( $tlds_to_check as $tld ) {
+			if ( false !== strpos( $host, $tld ) ) {
+				$is_local_url = true;
+				break;
+			}
+
+		}
+		if ( substr_count( $host, '.' ) > 1 ) {
+			$subdomains_to_check =  array( 'dev.', '*.staging.', 'beta.', 'test.' );
+			foreach ( $subdomains_to_check as $subdomain ) {
+				$subdomain = str_replace( '.', '(.)', $subdomain );
+				$subdomain = str_replace( array( '*', '(.)' ), '(.*)', $subdomain );
+				if ( preg_match( '/^(' . $subdomain . ')/', $host ) ) {
+					$is_local_url = true;
+					break;
+				}
+			}
+		}
+	}
+	return $is_local_url;
 }
 
 // Set cookie to expire in 2 years
@@ -282,6 +361,10 @@ function monsterinsights_string_ends_with( $string, $ending ) {
 }
 
 function monsterinsights_string_starts_with( $string, $start ) {
+	if ( ! is_string( $string ) || ! is_string( $start ) ) {
+		return false;
+	}
+
 	return substr( $string, 0, strlen( $start ) ) === $start;
 }
 
@@ -421,7 +504,7 @@ function monsterinsights_get_country_list( $translated = false ) {
 			'LT' => __( 'Lithuania', 'google-analytics-for-wordpress' ),
 			'LU' => __( 'Luxembourg', 'google-analytics-for-wordpress' ),
 			'MO' => __( 'Macau', 'google-analytics-for-wordpress' ),
-			'MK' => __( 'Macedonia', 'google-analytics-for-wordpress' ),
+			'MK' => __( 'Macedonia (FYROM)', 'google-analytics-for-wordpress' ),
 			'MG' => __( 'Madagascar', 'google-analytics-for-wordpress' ),
 			'MW' => __( 'Malawi', 'google-analytics-for-wordpress' ),
 			'MY' => __( 'Malaysia', 'google-analytics-for-wordpress' ),
@@ -541,6 +624,7 @@ function monsterinsights_get_country_list( $translated = false ) {
 			'YE' => __( 'Yemen', 'google-analytics-for-wordpress' ),
 			'ZM' => __( 'Zambia', 'google-analytics-for-wordpress' ),
 			'ZW' => __( 'Zimbabwe', 'google-analytics-for-wordpress' ),
+			'ZZ' => __( 'Unknown Country', 'google-analytics-for-wordpress' ),
 		);
 	} else {
 		$countries = array(
@@ -698,7 +782,7 @@ function monsterinsights_get_country_list( $translated = false ) {
 			'MS' => 'Montserrat',
 			'MA' => 'Morocco',
 			'MZ' => 'Mozambique',
-			'MM' => 'Myanmar',
+			'MM' => 'Myanmar (Burma)',
 			'NA' => 'Namibia',
 			'NR' => 'Nauru',
 			'NP' => 'Nepal',
@@ -731,7 +815,7 @@ function monsterinsights_get_country_list( $translated = false ) {
 			'XK' => 'Republic of Kosovo',
 			'RE' => 'Reunion Island',
 			'RO' => 'Romania',
-			'RU' => 'Russian Federation',
+			'RU' => 'Russia',
 			'RW' => 'Rwanda',
 			'BL' => 'Saint Barth&eacute;lemy',
 			'SH' => 'Saint Helena',
@@ -797,14 +881,23 @@ function monsterinsights_get_country_list( $translated = false ) {
 			'YE' => 'Yemen',
 			'ZM' => 'Zambia',
 			'ZW' => 'Zimbabwe',
-		);		
+			'ZZ' => 'Unknown Country',
+		);
 	}
 	return $countries;
 }
 
+function monsterinsights_get_api_url(){
+	return apply_filters( 'monsterinsights_get_api_url', 'api.monsterinsights.com/v2/' );
+}
+
+function monsterinsights_get_licensing_url(){
+	return apply_filters( 'monsterinsights_get_licensing_url', 'https://www.monsterinsights.com' );
+}
+
 function monsterinsights_is_wp_seo_active( ) {
 	$wp_seo_active = false; // @todo: improve this check. This is from old Yoast code.
-	
+
 	// Makes sure is_plugin_active is available when called from front end
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	if ( is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ) ) {
@@ -814,7 +907,7 @@ function monsterinsights_is_wp_seo_active( ) {
 }
 
 function monsterinsights_get_asset_version() {
-	if ( monsterinsights_is_debug_mode() ) {
+	if ( monsterinsights_is_debug_mode() || ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
 		return time();
 	} else {
 		return MONSTERINSIGHTS_VERSION;
@@ -826,11 +919,7 @@ function monsterinsights_is_debug_mode() {
 	if ( defined( 'MONSTERINSIGHTS_DEBUG_MODE' ) && MONSTERINSIGHTS_DEBUG_MODE ) {
 		$debug_mode = true;
 	}
-	
-	if ( monsterinsights_get_option( 'debug_mode', false ) ) {
-		$debug_mode = true;
-	}
-	
+
 	return apply_filters( 'monsterinsights_is_debug_mode', $debug_mode );
 }
 
@@ -838,9 +927,9 @@ function monsterinsights_is_network_active() {
 	if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
 		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 	}
-	 
+
 	if ( is_multisite() && is_plugin_active_for_network( plugin_basename( MONSTERINSIGHTS_PLUGIN_FILE ) ) ) {
-	   return true;
+		return true;
 	} else {
 		return false;
 	}
@@ -933,3 +1022,733 @@ if ( ! function_exists ( 'remove_class_action' ) ) {
 		remove_class_filter( $tag, $class_name, $method_name, $priority );
 	}
 } // End function exists
+
+/**
+ * Format a big number, instead of 1000000 you get 1.0M, works with billions also.
+ *
+ * @param int $number
+ * @param int $precision
+ *
+ * @return string
+ */
+function monsterinsights_round_number( $number, $precision = 2 ) {
+
+	if ( $number < 1000000 ) {
+		// Anything less than a million
+		$number = number_format_i18n( $number );
+	} else if ( $number < 1000000000 ) {
+		// Anything less than a billion
+		$number = number_format_i18n( $number / 1000000, $precision ) . 'M';
+	} else {
+		// At least a billion
+		$number = number_format_i18n( $number / 1000000000, $precision ) . 'B';
+	}
+
+	return $number;
+}
+
+if ( ! function_exists( 'wp_get_jed_locale_data' ) ) {
+	/**
+	 * Returns Jed-formatted localization data. Added for backwards-compatibility.
+	 *
+	 * @param  string $domain Translation domain.
+	 *
+	 * @return array
+	 */
+	function wp_get_jed_locale_data( $domain ) {
+		$translations = get_translations_for_domain( $domain );
+
+		$locale = array(
+			'' => array(
+				'domain' => $domain,
+				'lang'   => is_admin() && function_exists( 'get_user_locale' ) ? get_user_locale() : get_locale(),
+			),
+		);
+
+		if ( ! empty( $translations->headers['Plural-Forms'] ) ) {
+			$locale['']['plural_forms'] = $translations->headers['Plural-Forms'];
+		}
+
+		foreach ( $translations->entries as $msgid => $entry ) {
+			$locale[ $msgid ] = $entry->translations;
+		}
+
+		return $locale;
+	}
+}
+
+function monsterinsights_get_inline_menu_icon() {
+	$scheme          = get_user_option( 'admin_color', get_current_user_id() );
+	$use_dark_scheme = $scheme === 'light';
+	if ( $use_dark_scheme ) {
+		return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAFQUlEQVRYha2Yb2hXZRTHP+c3nc6pm07NF0KWWUtSo0wqzBdiZRItTKMaEZXSi0zRNAsqTBKKSFOa0B8Jigqz2lSwLMtqRURgRuCCLLNmselyZups2+/04pzbnt3de3eTDlzufc5znvN8n+ec55zzXFFV8pKITANOqmpTP3JTgIKq7sutPCJVzfUABeAb4DSwMENuKdABNObV3Wv8fwB0C6DAUX8/67sQ9Q8ANsVk5v5vgIDKWHsvcAgYCWzzCbc6kFJgh/PqgVHAb8DnWTpzA3LzHARmeXuqT/Zo0L/eeZuAV/x7fbRrwJPOu9Dbc4EDgJwNoMmurAt4Bljt7cmBjACvOl+BzTEdVzj/EWAj0O3tC84G0AIf3BRMeDz0GZcbBvzqKy+L9Q30A6AxXTdmARqQcPAAyv29CBjjO1RU1SKAiIwGFgLX+MrbgBnAh5ECVe0UkUMO6nHgFLA70J1McacD5gHbfTXzg77qwBeOBysPn830PnnVwXety7wL1AAV/ZoM+MIHdQCfAdfF+s8H/koBEz0rU9xgLtAInHG5j/KYrNWf8ap6OmFD7w+2/Cugwd/NmOkqgbIUS+wEdorIEOAwFqv6UBKgihQwANNc0b2quh1ARIZi/nUqZUycOrDDcCSps5AAaJBPkkStwNVAs4i8JiLHgBPASRFpFZEGEZktIpIBqBIoIWWH4nZegtl3fIofjAKeoyemfAe8hZnu64D/NjAsRcdEl1mcx6lvc+HLU6L3O97/JXBlgszF9KSVvXhswkxUC6wLdKzIA2iWC1+fMNlK72sASlMjrQHf4LIvAw8B7fScwmNAZ7DDs7MARSmjNsYf7oqak0wBjAXuBlb5Lo9wE0Yg6rHAOdjlR2KB9Qc384o0QOe4giUx/u3OX5oA5gEsCoexqBnYAxTTfMXHlvuOF4F5SYBKHPGaGH+jTzQxxefSnnVpYAIdg9x0PwEDkwSOAHUx3hafoDzGP5AB5gQ56h/XU+NjauJxCCxRjo7xOvw9ImKISBUwIWF8RLtVtT2jP6SdWBKe1QuQiCwDLsKcNKSoqJ8e8BJTREAHc4JBVTuBn4Gx/wISkflYndyNOXdI2/29OOAd7mfSIXkBOZUDxTACt2A78SLQnmDnBszOiwLeraT70Ld5/Mf1jPMxqyLGWqxcnYoFMqVvBTgOK9y7gOVAifMfdF4SqJk5Aa3FLFMNduxagQbvvJOUfIb51/f0lKSrsROyHCtlIyDtrrMJqOoHzAysRvrA28wmSBfAtd7uk6u8vwwr/JOqxm4sl01wvZ3AfhJyo+taAPyJhYi/gekCPIXdNitV9YyIXIIFqptVdVsf13MSkVJgJlZF4rvSqKq/BzJzgNexcPEp8LFPXAHcAFzqoKcAddjR5z2Cay/m4Arcl9cp+zFJFfA0dslMOwB1wD1AewGrTw4Ei2/zVcSP/lmRqrap6irs8gAwid7xDOAuzNwlgmXxF1T14ahXRPZjtU1k3+g5Tk8pkUUFzCwVWC003N/DgGVYIXheIF/EfmQcFczDW4DnsVtBCxbUtmIOPAAzY6MPLgMG+/dlDrIADHWlYL4QpZuZWLjYgp3SOb7QMbFFFLF6LDNB7sGcri7FP7qwWmcX9t8oSWaDA6zCqomXUuZ6U1UpYDXxH5jfgKWET/y7zXfolIgkJeJMEpES/xwMXKWq3aq6CLu9PAH8Eog/Fn2UYnlkDWa2c719E3Y/f8NX0AL8GHuianAXtuXx/lZ6brR9/npgcWgHcEfEkyg6ZqyyBrt1ptE+X9SkDJl6VX0/cyKnfwBb6gwNaZ8ExgAAAABJRU5ErkJggg';
+	} else {
+		return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4AoEBjcfBsDvpwAABQBJREFUWMO1mGmollUQgJ9z79Vc01LLH0GLWRqlUhYV5o+LbRIVbVQSUSn9qJTKsqDCoqCINKUbtBEUFbbeDGyz1SIiaCHIINu18KZ1bbkuV+/Tj+arw8v7fvdVcuDjvGdmzsycM3Nm5nywE6BOVSfW4JukTmF3gtqifqJuVmc34ZunblFX7W6DzvYf2BDjPWpLRm9T7y/wzPw/DRhZmH+sfq/urb4YCp8JQwaqLwXuBXW0+pP6XjOZO+ueb9X2mE8OZTdl9MWBu199NL4XN05NvT1wh8R8prpGTbti0BEhbLt6t7ow5kdkPEl9zP/gkYKMowN/o7pU3RHzg3fFoHNj8epM4aY8ZoJvuPpj7HxwgTYgLoAFWac1091WgR8a4xxgH2Ah0JdS6gtlY4DZwAnADmAjMA14vSEgpdSrfg9sBm4BeoCVmex6gayepS6P3ZyT0SZksbDJcnikcPMmZN+zgud59Qx1RB2D3o9FW9R31ZMK9IPUP20O11XInqmuUrcG3xt1XNYVvwNSSptL+K/IjvxDoDPGteG6kcDgMkUppRXACnUIsA7YUNegERXGAEwNQZellJbHzodFfPXUjIwtwHDglzJiS4lBe4SSMugCjgfWqo+rvwF/AH+pXWqnOqOfXDMSaK06oaKf54Z/D6igj1bvzXLK5+rTYchHGf5ZdXiFjPHBc2Udg84P5qMqsvdzQf9APbaEZ2JWVj5u5KbIV7PURZmM+XUMag/mk0to1wWtUx3YT9lZErwPq9er3dkt/E3tzU54Rp2SMauA3zMErS1zhTpWvURdEKe8V7jQrOBOUwcF/97qbPWrcPP8KoP2DQFzC/gLAj+vZM1Vak8hF61V31L7msWKOjROvE89q4yhNSy+rYBfGorGV8RcFSyqESZ7hOu+UQeUMfyidhRwy0LB0AJ+TRNj/qjb/0QpUT2jpYS+ERhTkswA9sqEjALGNdGzMqXUXTNZrogi3F5sJ64GDgXGFhasjvGYDDe4HyXf1i3qKaVe4DtgbF6ZzwHuiZq0b2HN8hjzAF3Xj9IhO9mGDQX68gy8PpqoB9XuEj93hp/nZLjzmsTQZzvR9uwXaxY0EHdEuzo5EpklHeB+0bhvV69RWwN/beDKYHpNg+6I2z2hce261M4gXlRVz9RD1S+zlnRh3JBropVtQHfIXB3B38yYadEjvdZAzMjLhXpizI+tEDA4Gv+yrnFH1LJxIbdX/aKsNma9+++RIrapxyT1TmAeMDKltFU9HPgcODOl9GKTnQ0EpgMHBaobWJVS+jnjOQV4ItLFO8CbwDZgBHAqMAXoBSYBHcBm1JfzZ28EuOrl/9ODc5R6Vzwyq6BDvVTtbgHGA2sKiXFbydXfJUgpbUwpLQAateqwQj4DuDjSTWuKru+BlNIN2a6+ACYCv0dH2PhtCtfYjx0t4ZYR0a7uGeNw4GpgLnBgxt8HfAJsSOpWYD1wH7AqvocAz0Q2bgNGB62RoQfF95FhZAswLIQSZaBRbqYDPwHLogqcEhvdp7CJPqC9vwL5VtyUjor42B69zqvqXxU8S+IFOyq6iYcqdD3VONqngV8jbhol4e0sntqAnuIzumZAt8bnIOC4lNKOlNKceL3cCvyQsd/87/WNRuk29T51/5ifHu/zJ2MH69WvCz+zE+oroXdlL9pUkYdeUi/89xLU6VWAZn88fQoMjNtTBS+klF6pc6p/A2ye4OCYzm1lAAAAAElFTkSuQmCC';
+	}
+}
+
+
+function monsterinsights_get_shareasale_id() {
+	// Check if there's a constant.
+	$shareasale_id = '';
+	if ( defined( 'MONSTERINSIGHTS_SHAREASALE_ID' ) ) {
+		$shareasale_id = MONSTERINSIGHTS_SHAREASALE_ID;
+	}
+
+	// If there's no constant, check if there's an option.
+	if ( empty( $shareasale_id ) ) {
+		$shareasale_id = get_option( 'monsterinsights_shareasale_id', '' );
+	}
+
+	// Whether we have an ID or not, filter the ID.
+	$shareasale_id = apply_filters( 'monsterinsights_shareasale_id', $shareasale_id );
+
+	// Ensure it's a number
+	$shareasale_id = absint( $shareasale_id );
+
+	return $shareasale_id;
+}
+
+// Passed in with mandatory default redirect and shareasaleid from monsterinsights_get_upgrade_link
+function monsterinsights_get_shareasale_url( $shareasale_id, $shareasale_redirect ) {
+	// Check if there's a constant.
+	$custom = false;
+	if ( defined( 'MONSTERINSIGHTS_SHAREASALE_REDIRECT_URL' ) ) {
+		$shareasale_redirect = MONSTERINSIGHTS_SHAREASALE_REDIRECT_URL;
+		$custom              = true;
+	}
+
+	// If there's no constant, check if there's an option.
+	if ( empty( $custom ) ) {
+		$shareasale_redirect = get_option( 'monsterinsights_shareasale_redirect_url', '' );
+		$custom              = true;
+	}
+
+	// Whether we have an ID or not, filter the ID.
+	$shareasale_redirect = apply_filters( 'monsterinsights_shareasale_redirect_url', $shareasale_redirect, $custom );
+	$shareasale_url      = sprintf( 'https://www.shareasale.com/r.cfm?B=971799&U=%s&M=69975&urllink=%s', $shareasale_id, $shareasale_redirect );
+	$shareasale_url      = apply_filters( 'monsterinsights_shareasale_redirect_entire_url', $shareasale_url, $shareasale_id, $shareasale_redirect );
+	return $shareasale_url;
+}
+
+/**
+ * Get a clean page title for archives.
+ */
+function monsterinsights_get_page_title() {
+
+	$title = __( 'Archives' );
+
+	if ( is_category() ) {
+		/* translators: Category archive title. %s: Category name */
+		$title = sprintf( __( 'Category: %s' ), single_cat_title( '', false ) );
+	} elseif ( is_tag() ) {
+		/* translators: Tag archive title. %s: Tag name */
+		$title = sprintf( __( 'Tag: %s' ), single_tag_title( '', false ) );
+	} elseif ( is_author() ) {
+		/* translators: Author archive title. %s: Author name */
+		$title = sprintf( __( 'Author: %s' ), '<span class="vcard">' . get_the_author() . '</span>' );
+	} elseif ( is_year() ) {
+		/* translators: Yearly archive title. %s: Year */
+		$title = sprintf( __( 'Year: %s' ), get_the_date( _x( 'Y', 'yearly archives date format' ) ) );
+	} elseif ( is_month() ) {
+		/* translators: Monthly archive title. %s: Month name and year */
+		$title = sprintf( __( 'Month: %s' ), get_the_date( _x( 'F Y', 'monthly archives date format' ) ) );
+	} elseif ( is_day() ) {
+		/* translators: Daily archive title. %s: Date */
+		$title = sprintf( __( 'Day: %s' ), get_the_date( _x( 'F j, Y', 'daily archives date format' ) ) );
+	} elseif ( is_tax( 'post_format' ) ) {
+		if ( is_tax( 'post_format', 'post-format-aside' ) ) {
+			$title = _x( 'Asides', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-gallery' ) ) {
+			$title = _x( 'Galleries', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-image' ) ) {
+			$title = _x( 'Images', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-video' ) ) {
+			$title = _x( 'Videos', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-quote' ) ) {
+			$title = _x( 'Quotes', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-link' ) ) {
+			$title = _x( 'Links', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-status' ) ) {
+			$title = _x( 'Statuses', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-audio' ) ) {
+			$title = _x( 'Audio', 'post format archive title' );
+		} elseif ( is_tax( 'post_format', 'post-format-chat' ) ) {
+			$title = _x( 'Chats', 'post format archive title' );
+		}
+	} elseif ( is_post_type_archive() ) {
+		/* translators: Post type archive title. %s: Post type name */
+		$title = sprintf( __( 'Archives: %s' ), post_type_archive_title( '', false ) );
+	} elseif ( is_tax() ) {
+		$tax = get_taxonomy( get_queried_object()->taxonomy );
+		/* translators: Taxonomy term archive title. 1: Taxonomy singular name, 2: Current taxonomy term */
+		$title = sprintf( __( '%1$s: %2$s' ), $tax->labels->singular_name, single_term_title( '', false ) );
+	}
+
+	return $title;
+
+}
+
+/**
+ * Count the number of occurrences of UA tags inserted by third-party plugins.
+ *
+ * @param $body
+ *
+ * @return int
+ */
+function monsterinsights_count_third_party_ua_codes( $body ) {
+	$count = 0;
+
+	// Grab all potential google site verification tags
+	$pattern = '/content="UA-[0-9-]+"/';
+	if ( preg_match_all( $pattern, $body, $matches ) ) {
+		// Raise the number of UA limits
+		$count += count( $matches[0] );
+	}
+
+	// Advanced Ads plugin (https://wpadvancedads.com)
+	// When `Ad blocker counter` setting is populated with an UA ID
+	if ( class_exists( 'Advanced_Ads' ) ) {
+		$options = Advanced_Ads::get_instance()->options();
+
+		$pattern = '/UA-[0-9-]+/';
+		if ( isset( $options['ga-UID'] ) && preg_match( $pattern, $options['ga-UID'] ) ) {
+			++ $count;
+		}
+	}
+
+	// WP Popups plugin (https://wppopups.com/)
+	// When `Google UA Code` setting is populated with an UA Id
+	if ( function_exists( 'wppopups_setting' ) ) {
+		$code = wppopups_setting( 'ua-code' );
+
+		$pattern = '/UA-[0-9-]+/';
+		if ( ! empty( $code ) && preg_match( $pattern, $code ) ) {
+			++ $count;
+		}
+	}
+
+	return $count;
+}
+
+/**
+ * Make a request to the front page and check if the tracking code is present. Moved here from onboarding wizard
+ * to be used in the site health check.
+ *
+ * @return array
+ */
+function monsterinsights_is_code_installed_frontend() {
+	// Grab the front page html.
+	$request = wp_remote_request( home_url(), array(
+		'sslverify' => false,
+	) );
+	$errors  = array();
+
+	$accepted_http_codes = array(
+		200,
+		503
+	);
+
+	$response_code = wp_remote_retrieve_response_code( $request );
+
+	if ( in_array( $response_code, $accepted_http_codes, true ) ) {
+
+		$body            = wp_remote_retrieve_body( $request );
+		$current_ua_code = monsterinsights_get_ua_to_output();
+		$ua_limit        = 'gtag' === MonsterInsights()->get_tracking_mode() ? 4 : 2;
+		// If the ads addon is installed another UA is added to the page.
+		if ( class_exists( 'MonsterInsights_Ads' ) ) {
+			$ua_limit++;
+		}
+		// Translators: The placeholders are for making the "We noticed you're using a caching plugin" text bold.
+		$cache_error = sprintf( esc_html__( '%1$sWe noticed you\'re using a caching plugin or caching from your hosting provider.%2$s Be sure to clear the cache to ensure the tracking appears on all pages and posts. %3$s(See this guide on how to clear cache)%4$s.', 'google-analytics-for-wordpress' ), '<b>', '</b>', ' <a href="https://www.wpbeginner.com/beginners-guide/how-to-clear-your-cache-in-wordpress/" target="_blank">', '</a>' );
+
+		// Translators: The placeholders are for making the "We have detected multiple tracking codes" text bold & adding a link to support.
+		$message           = esc_html__( '%1$sWe have detected multiple tracking codes%2$s! You should remove non-MonsterInsights ones. If you need help finding them please %3$sread this article%4$s.', 'google-analytics-for-wordpress' );
+		$url               = monsterinsights_get_url( 'site-health', 'comingsoon', 'https://www.monsterinsights.com/docs/how-to-find-duplicate-google-analytics-tracking-codes-in-wordpress/' );
+		$multiple_ua_error = sprintf(
+			$message,
+			'<b>',
+			'</b>',
+			'<a href="' . $url . '" target="_blank">',
+			'</a>'
+		);
+
+		// First, check if the tracking frontend code is present.
+		if ( false === strpos( $body, '__gaTracker' ) ) {
+			$errors[] = $cache_error;
+		} else {
+			// Check if the current UA code is actually present.
+			if ( $current_ua_code && false === strpos( $body, $current_ua_code ) ) {
+				// We have the tracking code but using another UA, so it's cached.
+				$errors[] = $cache_error;
+			}
+
+			$ua_limit += monsterinsights_count_third_party_ua_codes( $body );
+
+			// Grab all the UA codes from the page.
+			$pattern = '/UA-[0-9]+/m';
+			preg_match_all( $pattern, $body, $matches );
+			// If more than twice ( because MI has a ga-disable-UA also ), let them know to remove the others.
+			if ( ! empty( $matches[0] ) && is_array( $matches[0] ) && count( $matches[0] ) > $ua_limit ) {
+				$errors[] = $multiple_ua_error;
+			}
+		}
+	}
+
+	return $errors;
+}
+
+/**
+ * Returns a HEX color to highlight menu items based on the admin color scheme.
+ */
+function monsterinsights_menu_highlight_color() {
+
+	$color_scheme = get_user_option( 'admin_color' );
+	$color        = '#7cc048';
+	if ( 'light' === $color_scheme || 'blue' === $color_scheme ) {
+		$color = '#5f3ea7';
+	}
+
+	return $color;
+}
+
+/**
+ * Track Pretty Links redirects with MonsterInsights.
+ *
+ * @param string $url The url to which users get redirected.
+ */
+function monsterinsights_custom_track_pretty_links_redirect( $url ) {
+	if ( ! function_exists( 'monsterinsights_mp_track_event_call' ) ) {
+		return;
+	}
+	// Try to determine if click originated on the same site.
+	$referer = ! empty( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
+	if ( ! empty( $referer ) ) {
+		$current_site_url    = get_bloginfo( 'url' );
+		$current_site_parsed = wp_parse_url( $current_site_url );
+		$parsed_referer      = wp_parse_url( $referer );
+		if ( ! empty( $parsed_referer['host'] ) && ! empty( $current_site_parsed['host'] ) && $current_site_parsed['host'] === $parsed_referer['host'] ) {
+			// Don't track clicks originating from same site as those are tracked with JS.
+			return;
+		}
+	}
+	// Check if this is an affiliate link and use the appropriate category.
+	$ec            = 'outbound-link';
+	$inbound_paths = monsterinsights_get_option( 'affiliate_links', array() );
+	$path          = empty( $_SERVER['REQUEST_URI'] ) ? '' : $_SERVER['REQUEST_URI'];
+	if ( ! empty( $inbound_paths ) && is_array( $inbound_paths ) && ! empty( $path ) ) {
+		$found = false;
+		foreach ( $inbound_paths as $inbound_path ) {
+			if ( empty( $inbound_path['path'] ) ) {
+				continue;
+			}
+			if ( 0 === strpos( $path, trim( $inbound_path['path'] ) ) ) {
+				$label = ! empty( $inbound_path['label'] ) ? trim( $inbound_path['label'] ) : 'aff';
+				$ec   .= '-' . $label;
+				$found = true;
+				break;
+			}
+		}
+		if ( ! $found ) {
+			return;
+		}
+	} else {
+		// no paths setup in MonsterInsights settings
+		return;
+	}
+
+	$track_args = array(
+		't'  => 'event',
+		'ec' => $ec,
+		'ea' => $url,
+		'el' => 'external-redirect',
+	);
+	monsterinsights_mp_track_event_call( $track_args );
+}
+add_action( 'prli_before_redirect', 'monsterinsights_custom_track_pretty_links_redirect' );
+
+/**
+ * Get post type in admin side
+ *
+ */
+function monsterinsights_get_current_post_type() {
+	global $post, $typenow, $current_screen;
+
+	if ( $post && $post->post_type ) {
+		return $post->post_type;
+	} elseif ( $typenow ) {
+		return $typenow;
+	} elseif ( $current_screen && $current_screen->post_type ) {
+		return $current_screen->post_type;
+	} elseif ( isset( $_REQUEST['post_type'] ) ) {
+		return sanitize_key( $_REQUEST['post_type'] );
+	}
+
+	return null;
+}
+
+/** Decode special characters, both alpha- (<) and numeric-based (').
+ *
+ * @since 7.10.5
+ *
+ * @param string $string Raw string to decode.
+ *
+ * @return string
+ */
+function monsterinsights_decode_string( $string ) {
+
+	if ( ! is_string( $string ) ) {
+		return $string;
+	}
+
+	return wp_kses_decode_entities( html_entity_decode( $string, ENT_QUOTES ) );
+}
+
+add_filter( 'monsterinsights_email_message', 'monsterinsights_decode_string' );
+
+/**
+ * Sanitize a string, that can be a multiline.
+ * If WP core `sanitize_textarea_field()` exists (after 4.7.0) - use it.
+ * Otherwise - split onto separate lines, sanitize each one, merge again.
+ *
+ * @since 7.10.5
+ *
+ * @param string $string
+ *
+ * @return string If empty var is passed, or not a string - return unmodified. Otherwise - sanitize.
+ */
+function monsterinsights_sanitize_textarea_field( $string ) {
+
+	if ( empty( $string ) || ! is_string( $string ) ) {
+		return $string;
+	}
+
+	if ( function_exists( 'sanitize_textarea_field' ) ) {
+		$string = sanitize_textarea_field( $string );
+	} else {
+		$string = implode( "\n", array_map( 'sanitize_text_field', explode( "\n", $string ) ) );
+	}
+
+	return $string;
+}
+
+/**
+ * Trim a sentence
+ *
+ * @since 7.10.5
+ *
+ * @param string $string
+ * @param int $count
+ *
+ * @return trimed sentence
+ */
+function monsterinsights_trim_text( $text, $count ){
+	$text 	= str_replace("  ", " ", $text);
+	$string = explode(" ", $text);
+	$trimed = "";
+
+	for ( $wordCounter = 0; $wordCounter <= $count; $wordCounter++ ) {
+		$trimed .= isset( $string[$wordCounter] ) ? $string[$wordCounter] : '';
+
+		if ( $wordCounter < $count ){
+			$trimed .= " ";
+		} else {
+			$trimed .= "...";
+		}
+	}
+
+	$trimed = trim($trimed);
+
+	return $trimed;
+}
+
+/**
+ * Add newly generated builder URL to PrettyLinks &
+ * Clear localStorage key(MonsterInsightsURL) after saving PrettyLink
+ */
+function monsterinsights_tools_copy_url_to_prettylinks() {
+	global $pagenow;
+
+	$post_type                 = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+	$monsterinsights_reference = isset( $_GET['monsterinsights_reference'] ) ? $_GET['monsterinsights_reference'] : '';
+
+	if ( 'post-new.php' === $pagenow && 'pretty-link' === $post_type && 'url_builder' === $monsterinsights_reference ) { ?>
+        <script>
+            let targetTitleField = document.querySelector("input[name='post_title']");
+            let targetUrlField = document.querySelector("textarea[name='prli_url']");
+            let MonsterInsightsUrl = JSON.parse(localStorage.getItem('MonsterInsightsURL'));
+            if ( 'undefined' !== typeof targetUrlField && 'undefined' !== typeof MonsterInsightsUrl ) {
+                let url = MonsterInsightsUrl.value;
+                let postTitle = '';
+                let pathArray = url.split('?');
+                if ( pathArray.length <= 1 ) {
+                    pathArray = url.split('#');
+                }
+                let urlParams = new URLSearchParams(pathArray[1]);
+                if (urlParams.has('utm_campaign')) {
+                    let campaign_name = urlParams.get('utm_campaign');
+                    postTitle += campaign_name;
+                }
+                if (urlParams.has('utm_medium')) {
+                    let campaign_medium = urlParams.get('utm_medium');
+                    postTitle += ` ${campaign_medium}`;
+                }
+                if (urlParams.has('utm_source')) {
+                    let campaign_source = urlParams.get('utm_source');
+                    postTitle += ` on ${campaign_source}`;
+                }
+                if (urlParams.has('utm_term')) {
+                    let campaign_term = urlParams.get('utm_term');
+                    postTitle += ` for ${campaign_term}`;
+                }
+                if (urlParams.has('utm_content')) {
+                    let campaign_content = urlParams.get('utm_content');
+                    postTitle += ` - ${campaign_content}`;
+                }
+                if ( 'undefined' !== typeof targetTitleField && postTitle ) {
+                    targetTitleField.value = postTitle;
+                }
+                if( url ) {
+                    targetUrlField.value = url;
+                }
+            }
+            let form = document.getElementById('post');
+            form.addEventListener('submit', function(){
+                localStorage.removeItem('MonsterInsightsURL');
+            });
+        </script>
+	<?php }
+}
+add_action( 'admin_footer', 'monsterinsights_tools_copy_url_to_prettylinks' );
+
+/**
+ * When click on 'Create New Pretty Link" button(on tools/prettylinks-flow page) after installing & activating prettylinks plugin
+ * it redirects to PrettyLinks welcome scree page instead of prettylinks add new page.
+ * This function will skip that welcome screen
+ */
+function monsterinsights_skip_prettylinks_welcome_screen() {
+	global $pagenow;
+
+	$post_type                 = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+	$monsterinsights_reference = isset( $_GET['monsterinsights_reference'] ) ? $_GET['monsterinsights_reference'] : '';
+
+	if ( 'post-new.php' === $pagenow && 'pretty-link' === $post_type && 'url_builder' === $monsterinsights_reference ) {
+		$onboard  = get_option( 'prli_onboard' );
+
+		if ( $onboard == 'welcome' || $onboard == 'update' ) {
+			update_option( 'monsterinsights_backup_prli_onboard_value', $onboard );
+			delete_option( 'prli_onboard' );
+		}
+	}
+}
+add_action( 'wp_loaded', 'monsterinsights_skip_prettylinks_welcome_screen', 9 );
+
+/**
+ * Restore the `prli_onboard` value after creating a prettylinks with monsterinsights prettylinks flow
+ * users will see the prettylinks welcome screen after fresh installation & creating prettylinks with monsterinsights prettylinks flow
+ */
+function monsterinsights_restore_prettylinks_onboard_value() {
+	global $pagenow;
+
+	$post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+
+	if ( 'edit.php' === $pagenow && 'pretty-link' === $post_type ) {
+		$onboard   = get_option( 'monsterinsights_backup_prli_onboard_value' );
+
+		if ( class_exists( 'PrliBaseController' ) && ( $onboard == 'welcome' || $onboard == 'update' ) ) {
+			update_option( 'prli_onboard', $onboard );
+			delete_option( 'monsterinsights_backup_prli_onboard_value' );
+		}
+	}
+}
+add_action( 'wp_loaded', 'monsterinsights_restore_prettylinks_onboard_value', 15 );
+
+/**
+ * Check WP version and include the compatible upgrader skin.
+ *
+ * @param bool $custom_upgrader If true it will include our custom upgrader, otherwise it will use the default WP one.
+ */
+function monsterinsights_require_upgrader( $custom_upgrader = true ) {
+
+	global $wp_version;
+
+	$base = MonsterInsights();
+
+	if ( ! $custom_upgrader ) {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+	}
+
+	// WP 5.3 changes the upgrader skin.
+	if ( version_compare( $wp_version, '5.3', '<' ) ) {
+		if ( $custom_upgrader ) {
+			require_once plugin_dir_path( $base->file ) . 'includes/admin/licensing/plugin-upgrader.php';
+		}
+		require_once plugin_dir_path( $base->file ) . '/includes/admin/licensing/skin-legacy.php';
+	} else {
+		if ( $custom_upgrader ) {
+			require_once plugin_dir_path( $base->file ) . 'includes/admin/licensing/plugin-upgrader.php';
+		}
+		require_once plugin_dir_path( $base->file ) . '/includes/admin/licensing/skin.php';
+	}
+
+}
+
+/**
+ * Load headline analyzer if wp version is higher than/equal to 5.4
+ *
+ * @return boolean
+ * @since 7.12.3
+ *
+ */
+function monsterinsights_load_gutenberg_app() {
+	global $wp_version;
+
+	if ( version_compare( $wp_version, '5.4', '<' ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Helper function for frontend script attributes
+ *
+ * @return string
+ * @since 7.12.3
+ *
+ *
+ */
+function monsterinsights_get_frontend_analytics_script_atts() {
+	$attr_string = '';
+
+	$attributes = apply_filters( 'monsterinsights_tracking_analytics_script_attributes', array(
+		'type'         => "text/javascript",
+		'data-cfasync' => 'false'
+	) );
+
+	if ( ! empty( $attributes ) ) {
+		foreach ( $attributes as $attr_name => $attr_value ) {
+			if ( ! empty( $attr_name ) ) {
+				$attr_string .= ' ' . sanitize_key( $attr_name ) . '="' . esc_attr( $attr_value ) . '"';
+			} else {
+				$attr_string .= ' ' . esc_attr( $attr_value );
+			}
+		}
+	}
+
+	return $attr_string;
+}
+
+/**
+ * Get native english speaking countries
+ *
+ * @return array
+ *
+ * @since 7.12.3
+ */
+function monsterinsights_get_english_speaking_countries() {
+	return array(
+		'AG' => __( 'Antigua and Barbuda', 'google-analytics-for-wordpress' ),
+		'AU' => __( 'Australia', 'google-analytics-for-wordpress' ),
+		'BB' => __( 'Barbados', 'google-analytics-for-wordpress' ),
+		'BZ' => __( 'Belize', 'google-analytics-for-wordpress' ),
+		'BW' => __( 'Botswana', 'google-analytics-for-wordpress' ),
+		'BI' => __( 'Burundi', 'google-analytics-for-wordpress' ),
+		'CM' => __( 'Cameroon', 'google-analytics-for-wordpress' ),
+		'CA' => __( 'Canada', 'google-analytics-for-wordpress' ),
+		'DM' => __( 'Dominica', 'google-analytics-for-wordpress' ),
+		'FJ' => __( 'Fiji', 'google-analytics-for-wordpress' ),
+		'GD' => __( 'Grenada', 'google-analytics-for-wordpress' ),
+		'GY' => __( 'Guyana', 'google-analytics-for-wordpress' ),
+		'GM' => __( 'Gambia', 'google-analytics-for-wordpress' ),
+		'GH' => __( 'Ghana', 'google-analytics-for-wordpress' ),
+		'IE' => __( 'Ireland', 'google-analytics-for-wordpress' ),
+		'IN' => __( 'India', 'google-analytics-for-wordpress' ),
+		'JM' => __( 'Jamaica', 'google-analytics-for-wordpress' ),
+		'KE' => __( 'Kenya', 'google-analytics-for-wordpress' ),
+		'KI' => __( 'Kiribati', 'google-analytics-for-wordpress' ),
+		'LS' => __( 'Lesotho', 'google-analytics-for-wordpress' ),
+		'LR' => __( 'Liberia', 'google-analytics-for-wordpress' ),
+		'MW' => __( 'Malawi', 'google-analytics-for-wordpress' ),
+		'MT' => __( 'Malta', 'google-analytics-for-wordpress' ),
+		'MH' => __( 'Marshall Islands', 'google-analytics-for-wordpress' ),
+		'MU' => __( 'Mauritius', 'google-analytics-for-wordpress' ),
+		'FM' => __( 'Micronesia', 'google-analytics-for-wordpress' ),
+		'NZ' => __( 'New Zealand', 'google-analytics-for-wordpress' ),
+		'NA' => __( 'Namibia', 'google-analytics-for-wordpress' ),
+		'NR' => __( 'Nauru', 'google-analytics-for-wordpress' ),
+		'NG' => __( 'Nigeria', 'google-analytics-for-wordpress' ),
+		'PK' => __( 'Pakistan', 'google-analytics-for-wordpress' ),
+		'PW' => __( 'Palau', 'google-analytics-for-wordpress' ),
+		'PG' => __( 'Papua New Guinea', 'google-analytics-for-wordpress' ),
+		'PH' => __( 'Philippines', 'google-analytics-for-wordpress' ),
+		'RW' => __( 'Rwanda', 'google-analytics-for-wordpress' ),
+		'SG' => __( 'Singapore', 'google-analytics-for-wordpress' ),
+		'KN' => __( 'St Kitts and Nevis', 'google-analytics-for-wordpress' ),
+		'LC' => __( 'St Lucia', 'google-analytics-for-wordpress' ),
+		'VC' => __( 'St Vincent and the Grenadines', 'google-analytics-for-wordpress' ),
+		'SZ' => __( 'Swaziland', 'google-analytics-for-wordpress' ),
+		'WS' => __( 'Samoa', 'google-analytics-for-wordpress' ),
+		'SC' => __( 'Seychelles', 'google-analytics-for-wordpress' ),
+		'SL' => __( 'Sierra Leone', 'google-analytics-for-wordpress' ),
+		'SB' => __( 'Solomon Islands', 'google-analytics-for-wordpress' ),
+		'ZA' => __( 'South Africa', 'google-analytics-for-wordpress' ),
+		'SS' => __( 'South Sudan', 'google-analytics-for-wordpress' ),
+		'SD' => __( 'Sudan', 'google-analytics-for-wordpress' ),
+		'TT' => __( 'Trinidad and Tobago', 'google-analytics-for-wordpress' ),
+		'BS' => __( 'The Bahamas', 'google-analytics-for-wordpress' ),
+		'TZ' => __( 'Tanzania', 'google-analytics-for-wordpress' ),
+		'TO' => __( 'Tonga', 'google-analytics-for-wordpress' ),
+		'TV' => __( 'Tuvalu', 'google-analytics-for-wordpress' ),
+		'GB' => __( 'United Kingdom', 'google-analytics-for-wordpress' ),
+		'US' => __( 'United States of America', 'google-analytics-for-wordpress' ),
+		'UG' => __( 'Uganda', 'google-analytics-for-wordpress' ),
+		'VU' => __( 'Vanuatu', 'google-analytics-for-wordpress' ),
+		'ZM' => __( 'Zambia', 'google-analytics-for-wordpress' ),
+		'ZW' => __( 'Zimbabwe', 'google-analytics-for-wordpress' ),
+	);
+}
+
+/**
+ * Helper function to check if the current user can install a plugin.
+ *
+ * @return bool
+ */
+function monsterinsights_can_install_plugins() {
+
+	if ( ! current_user_can( 'install_plugins' ) ) {
+		return false;
+	}
+
+	// Determine whether file modifications are allowed.
+	if ( function_exists( 'wp_is_file_mod_allowed' ) && ! wp_is_file_mod_allowed( 'monsterinsights_can_install' ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Check if current date is between given dates. Date format: Y-m-d.
+ *
+ * @since 7.13.2
+ *
+ * @param string $start_date Start Date. Eg: 2021-01-01.
+ * @param string $end_date   End Date. Eg: 2021-01-14.
+ *
+ * @return bool
+ */
+function monsterinsights_date_is_between( $start_date, $end_date ) {
+
+	$current_date = current_time( 'Y-m-d' );
+
+	$start_date = date( 'Y-m-d', strtotime( $start_date ) );
+	$end_date   = date( 'Y-m-d', strtotime( $end_date ) );
+
+	if ( ( $current_date >= $start_date ) && ( $current_date <= $end_date ) ) {
+		return true;
+	}
+
+	return false;
+}

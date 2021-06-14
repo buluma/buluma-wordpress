@@ -67,3 +67,9 @@ nav.bpm-top-info-nav ul li ul{
 .bpm-sr-attribution, .bpm-sr-noncommercial, .bpm-sr-sharealike, .bpm-sr-noderivatives, .bpm-sr-zero{
 	display: inline-block;
 }
+.bpm-comment-author-image{
+	margin-left: 15px;
+}
+.comment-text-container{
+	padding-left: 80px;
+}

@@ -5,13 +5,13 @@ final class ITSEC_Away_Mode {
 	public function run() {
 
 		//Execute away mode functions on admin init
-		add_filter( 'itsec_logger_modules', array( $this, 'register_logger' ) );
-		add_action( 'itsec_admin_init', array( $this, 'run_active_check' ) );
+		add_action( 'admin_init', array( $this, 'run_active_check' ) );
 		add_action( 'login_init', array( $this, 'run_active_check' ) );
+
+		add_filter( 'itsec_managed_files', array( $this, 'register_managed_file' ) );
 
 		add_action( 'ithemes_sync_register_verbs', array( $this, 'register_sync_verbs' ) );
 		add_filter( 'itsec-filter-itsec-get-everything-verbs', array( $this, 'register_sync_get_everything_verbs' ) );
-
 	}
 
 	/**
@@ -79,48 +79,35 @@ final class ITSEC_Away_Mode {
 	 */
 	public function run_active_check() {
 
-		global $itsec_logger;
+		if ( wp_doing_ajax() ) {
+			return;
+		}
 
-		//execute lockout if applicable
-		if ( self::is_active() ) {
+		$away_mode_details = self::is_active( true );
 
-			$itsec_logger->log_event(
-				'away_mode',
-				5,
-				array(
-					__( 'A host was prevented from accessing the dashboard due to away-mode restrictions being in effect', 'better-wp-security' ),
-				),
-				ITSEC_Lib::get_ip(),
-				'',
-				'',
-				'',
-				''
-			);
+		if ( $away_mode_details['active'] ) {
+			ITSEC_Log::add_notice( 'away_mode', 'away-mode-active', array( 'login_details' => ITSEC_Lib::get_login_details(), 'away_mode_details' => $away_mode_details ) );
 
 			wp_redirect( get_option( 'siteurl' ) );
 			wp_clear_auth_cookie();
 			die();
-
 		}
-
 	}
 
 	/**
-	 * Register 404 and file change detection for logger
+	 * Register the away mode file as a managed file.
 	 *
-	 * @param  array $logger_modules array of logger modules
+	 * @param array $files
 	 *
-	 * @return array array of logger modules
+	 * @return array
 	 */
-	public function register_logger( $logger_modules ) {
+	public function register_managed_file( $files ) {
 
-		$logger_modules['away_mode'] = array(
-			'type'     => 'away_mode',
-			'function' => __( 'Away Mode Triggered', 'better-wp-security' ),
-		);
+		require_once( dirname( __FILE__ ) . '/utilities.php' );
 
-		return $logger_modules;
+		$files[] = ITSEC_Away_Mode_Utilities::get_active_file_name();
 
+		return $files;
 	}
 
 	/**

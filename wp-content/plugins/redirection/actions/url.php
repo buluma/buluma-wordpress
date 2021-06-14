@@ -1,16 +1,51 @@
 <?php
 
+/**
+ * URL action - redirect to a URL
+ */
 class Url_Action extends Red_Action {
-	protected function redirect_to( $code, $target ) {
-		$redirect = wp_redirect( $target, $code );
+	/**
+	 * Redirect to a URL
+	 *
+	 * @param string $target Target URL.
+	 * @return void
+	 */
+	protected function redirect_to( $target ) {
+		// This is a known redirect, possibly extenal
+		// phpcs:ignore
+		$redirect = wp_redirect( $target, $this->get_code(), 'redirection' );
 
 		if ( $redirect ) {
-			header( 'X-Redirect-Agent: redirection' );
+			/** @psalm-suppress InvalidGlobal */
+			global $wp_version;
+
+			if ( version_compare( $wp_version, '5.1', '<' ) ) {
+				header( 'X-Redirect-Agent: redirection' );
+			}
+
 			die();
 		}
 	}
 
-	public function process_after( $code, $target ) {
-		$this->redirect_to( $code, $target );
+	/**
+	 * Run this action. May not return from this function.
+	 *
+	 * @return void
+	 */
+	public function run() {
+		$target = $this->get_target();
+
+		if ( $target !== null ) {
+			$this->redirect_to( $target );
+		}
+	}
+
+	/**
+	 * Does this action need a target?
+	 *
+	 * @return boolean
+	 */
+	public function needs_target() {
+		return true;
 	}
 }

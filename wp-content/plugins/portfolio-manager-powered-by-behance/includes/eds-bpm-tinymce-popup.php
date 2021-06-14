@@ -90,6 +90,7 @@
 							<option value="three"><?php _e('Style 3', 'eds-bpm');?></option>
 							<option value="four"><?php _e('Style 4', 'eds-bpm');?></option>
 							<option value="five"><?php _e('Style 5', 'eds-bpm');?></option>							
+							<option value="six"><?php _e('Style 6', 'eds-bpm');?></option>							
 						</select>			
 					</div> 								
 				</div>

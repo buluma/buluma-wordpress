@@ -6,7 +6,6 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       http://example.com
  * @since      1.0.0
  *
  * @package    PirateForms
@@ -25,7 +24,6 @@
  * @since      1.0.0
  * @package    PirateForms
  * @subpackage PirateForms/includes
- * @author     Your Name <email@example.com>
  */
 class PirateForms {
 
@@ -69,7 +67,7 @@ class PirateForms {
 	public function __construct() {
 
 		$this->plugin_name = 'pirateforms';
-		$this->version = '2.3.0';
+		$this->version = '2.4.4';
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -77,6 +75,22 @@ class PirateForms {
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 
+		if ( function_exists( 'register_block_type' ) ) {
+			$this->define_gutenberg_hooks();
+		}
+	}
+
+	/**
+	 * Load the required gutenberg dependencies for this plugin.
+	 *
+	 * @access   private
+	 */
+	private function define_gutenberg_hooks() {
+		$gutenberg  = new PirateForms_Gutenberg( $this->get_plugin_name(), $this->get_version() );
+
+		$this->loader->add_action( 'enqueue_block_editor_assets', $gutenberg, 'enqueue_block_editor_assets' );
+		$this->loader->add_action( 'init', $gutenberg, 'register_block' );
+		$this->loader->add_action( 'rest_api_init', $gutenberg, 'register_endpoints' );
 	}
 
 	/**
@@ -130,6 +144,10 @@ class PirateForms {
 	private function define_common_hooks() {
 		$this->loader->add_action( 'init', $this, 'register_content_type', 10 );
 		$this->loader->add_filter( 'pirate_forms_version_supports', $this, 'version_supports' );
+
+		if ( PIRATEFORMS_DEBUG ) {
+			$this->loader->add_action( 'themeisle_log_event', $this, 'themeisle_log_event_debug', 10, 5 );
+		}
 	}
 
 	/**
@@ -142,6 +160,7 @@ class PirateForms {
 	private function define_admin_hooks() {
 
 		$plugin_admin = new PirateForms_Admin( $this->get_plugin_name(), $this->get_version() );
+		new PirateForms_Farewell();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles_and_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_to_admin', 9 );
@@ -149,18 +168,17 @@ class PirateForms {
 		$this->loader->add_filter( 'plugin_action_links_' . PIRATEFORMS_BASENAME, $plugin_admin, 'add_settings_link' );
 		$this->loader->add_action( 'wp_ajax_pirate_forms_save', $plugin_admin, 'save_callback' );
 		$this->loader->add_action( 'wp_ajax_pirate_forms_test', $plugin_admin, 'test_email' );
-		$this->loader->add_action( 'pirate_forms_load_sidebar', $plugin_admin, 'load_sidebar' );
-		$this->loader->add_action( 'pirate_forms_load_sidebar_theme', $plugin_admin, 'load_sidebar_theme' );
-		$this->loader->add_action( 'pirate_forms_load_sidebar_subscribe', $plugin_admin, 'load_sidebar_subscribe' );
+		$this->loader->add_action( 'wp_ajax_' . PIRATEFORMS_SLUG, $plugin_admin, 'ajax' );
+		$this->loader->add_action( 'admin_notices', $plugin_admin, 'admin_notices' );
 
 		// this informs the pro whether the lite will implement the custom spam checkbox or not.
 		add_filter( 'pirate_forms_support_custom_spam', '__return_true' );
 
 		$this->loader->add_filter( 'manage_pf_contact_posts_columns', $plugin_admin, 'manage_contact_posts_columns', PHP_INT_MAX );
 		$this->loader->add_filter( 'manage_pf_contact_posts_custom_column', $plugin_admin, 'manage_contact_posts_custom_column', 10, 2 );
-
+		$this->loader->add_filter( 'wp_privacy_personal_data_exporters', $plugin_admin, 'register_private_data_exporter', 10 );
+		$this->loader->add_filter( 'wp_privacy_personal_data_erasers', $plugin_admin, 'register_private_data_eraser', 10 );
 	}
-
 
 	/**
 	 * Register all of the hooks related to the public-facing functionality
@@ -178,13 +196,12 @@ class PirateForms {
 
 		// ONLY FOR UNIT TESTING: we cannot fire template_redirect without errors, that is why we are creating a manual hook for this
 		$this->loader->add_action( 'pirate_unittesting_template_redirect', $plugin_public, 'template_redirect' );
-		$this->loader->add_action( 'pirate_forms_render_thankyou', $plugin_public, 'render_thankyou' );
-		$this->loader->add_action( 'pirate_forms_render_errors', $plugin_public, 'render_errors' );
-		$this->loader->add_action( 'pirate_forms_render_fields', $plugin_public, 'render_fields' );
 		$this->loader->add_action( 'pirate_forms_send_email', $plugin_public, 'send_email' );
 
 		$this->loader->add_filter( 'widget_text', $plugin_public, 'widget_text_filter', 9 );
 		$this->loader->add_filter( 'pirate_forms_public_controls', $plugin_public, 'compatibility_class', 9 );
+
+		$this->loader->add_action( 'rest_api_init', $plugin_public, 'register_endpoint' );
 
 		/**
 		 * SDK tweaks.
@@ -283,5 +300,12 @@ class PirateForms {
 	 */
 	public function version_supports( $null = null ) {
 		return array( 'wysiwyg' );
+	}
+
+	/**
+	 * For local testing, overrides the 'themeisle_log_event' hook and redirects to error.log.
+	 */
+	final function themeisle_log_event_debug( $name, $message, $type, $file, $line ) {
+		error_log( sprintf( '%s (%s): %s in %s:%s', $name, $type, $message, $file, $line ) );
 	}
 }

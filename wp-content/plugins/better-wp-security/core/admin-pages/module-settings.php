@@ -2,6 +2,19 @@
 
 /**
  * The iThemes Security Module Settings Page API parent class.
+ *
+ * @property-read string $id
+ * @property-read string $title
+ * @property-read string $description
+ * @property-read string $type
+ * @property-read string $pro
+ * @property-read bool $can_save
+ * @property-read bool $redraw_on_save
+ * @property-read bool $upsell
+ * @property-read string $upsell_url
+ * @property-read bool $information_only
+ * @property-read string $status
+ * @property-read string $documentation
  */
 class ITSEC_Module_Settings_Page {
 	/**
@@ -36,7 +49,7 @@ class ITSEC_Module_Settings_Page {
 	 * @access protected
 	 * @var string
 	 */
-	protected $type = 'recommended'; // "additional" or "recommended"
+	protected $type = 'recommended'; // "advanced" or "recommended"
 
 	/**
 	 * Whether the settings require resaving after activation in order to fully-activate the module.
@@ -101,6 +114,12 @@ class ITSEC_Module_Settings_Page {
 	 */
 	protected $status = '';
 
+	/**
+	 * Link to documentation for this module.
+	 *
+	 * @var string
+	 */
+	protected $documentation = '';
 
 	/**
 	 * Constructor.
@@ -127,7 +146,7 @@ class ITSEC_Module_Settings_Page {
 	 * @return mixed Property.
 	 */
 	public function __get( $name ) {
-		if ( in_array( $name, array( 'id', 'title', 'description', 'type', 'pro', 'can_save', 'redraw_on_save', 'upsell', 'upsell_url', 'information_only', 'status' ) ) ) {
+		if ( in_array( $name, array( 'id', 'title', 'description', 'type', 'pro', 'can_save', 'redraw_on_save', 'upsell', 'upsell_url', 'information_only', 'status', 'documentation' ) ) ) {
 			return $this->$name;
 		}
 
@@ -194,10 +213,21 @@ class ITSEC_Module_Settings_Page {
 	 */
 	public function render( $form ) {
 
+		$messages = ITSEC_Lib_Remote_Messages::get_messages_for_placement( array( 'module' => $this->id ) );
+
 ?>
 	<div class="itsec-settings-module-description">
 		<?php $this->render_description( $form ); ?>
 	</div>
+	<?php if ( $messages ) : ?>
+		<div class="itsec-settings-module-service-status">
+			<?php foreach ( $messages as $message ): ?>
+				<div class="notice notice-alt notice-<?php echo esc_attr( $message['type'] ); ?> below-h2">
+					<p><?php echo $message['message']; ?></p>
+				</div>
+			<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
 	<div class="itsec-settings-module-settings">
 		<?php $this->render_settings( $form ); ?>
 	</div>

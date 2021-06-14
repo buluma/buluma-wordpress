@@ -9,18 +9,39 @@
 /**
  * Retrieve a list of snippets from the database
  *
+ * @param array     $ids         The IDs of the snippets to fetch
+ * @param bool|null $multisite   Retrieve multisite-wide or site-wide snippets?
+ *
+ * @param array     $args        {
+ *                               Optional. Arguments to specify which sorts of snippets to retrieve.
+ *
+ * @type bool       $active_only Whether to only fetch active snippets. Default false (will fetch both active and inactive snippets).
+ * @type int        $limit       Limit the number of retrieved snippets. Default 0, which will not impose a limit on the results.
+ * @type string     $orderby     Sort the retrieved snippets by a particular field. Example fields include 'id', 'priority', and 'name'.
+ * @type string     $order       Designates ascending or descending order of snippets. Default 'DESC'. Accepts 'ASC', 'DESC'.
+ * }
+ *
+ * @return array An array of Snippet objects.
+ *
+ * @uses  $wpdb to query the database for snippets
+ * @uses  code_snippets()->db->get_table_name() to dynamically retrieve the snippet table name
+ *
  * @since 2.0
- *
- * @uses $wpdb to query the database for snippets
- * @uses code_snippets()->db->get_table_name() to dynamically retrieve the snippet table name
- *
- * @param  array     $ids       The IDs of the snippets to fetch
- * @param  bool|null $multisite Retrieve multisite-wide or site-wide snippets?
- * @return array                An array of Snippet objects
  */
-function get_snippets( array $ids = array(), $multisite = null ) {
+function get_snippets( array $ids = array(), $multisite = null, array $args = array() ) {
 	/** @var wpdb $wpdb */
 	global $wpdb;
+
+	$searchable_columns = array( 'name', 'description', 'code', 'tags' );
+
+	$args = wp_parse_args( $args, array(
+		'active_only' => false,
+		'limit'       => 0,
+		'orderby'     => '',
+		'order'       => 'desc',
+		'search'      => '',
+		'searchby'    => $searchable_columns,
+	) );
 
 	$db = code_snippets()->db;
 	$multisite = $db->validate_network_param( $multisite );
@@ -29,30 +50,63 @@ function get_snippets( array $ids = array(), $multisite = null ) {
 	$ids_count = count( $ids );
 
 	/* If only one ID has been passed in, defer to the get_snippet() function */
-	if ( 1 == $ids_count ) {
+	if ( 1 === $ids_count ) {
 		return array( get_snippet( $ids[0] ) );
+	}
+
+	$sql = "SELECT * FROM $table WHERE 1=1";
+	$sql_params = array();
+
+	/* Build a query for specific search terms */
+	if ( ! empty( $args['search'] ) && ! empty( $args['searchby'] ) ) {
+		$search = array();
+		foreach ( $args['searchby'] as $column ) {
+			if ( in_array( $column, $searchable_columns, true ) ) {
+				$search[] = "{$column} LIKE %s";
+				$sql_params[] = sprintf( '%%%s%%', $wpdb->esc_like( $args['search'] ) );
+			}
+		}
+		$sql .= sprintf( ' AND ( %s )', implode( ' OR ', $search ) );
 	}
 
 	/* Build a query containing the specified IDs if there are any */
 	if ( $ids_count > 1 ) {
-		$sql = sprintf(
-			'SELECT * FROM %s WHERE id IN (%s);',
-			$table,
-			implode( ',', array_fill( 0, $ids_count, '%d' ) )
-		);
-		$sql = $wpdb->prepare( $sql, $ids );
+		$sql       .= sprintf( ' AND id IN (%s)', implode( ',', array_fill( 0, $ids_count, '%d' ) ) );
+		$sql_params = array_merge( $sql_params, array_values( $ids ) );
+	}
 
-	} else {
-		$sql = "SELECT * FROM $table;";
+	/* Restrict the active status of retrieved snippets if requested */
+	if ( $args['active_only'] ) {
+		$sql .= ' AND active=1';
+	}
+
+	/* Apply custom ordering if requested */
+	if ( $args['orderby'] ) {
+		$order_dir = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+		$sql .= " ORDER BY %s {$order_dir}";
+		$sql_params[] = $args['orderby'];
+	}
+
+	/* Limit the number of retrieved snippets if requested */
+	if ( intval( $args['limit'] ) > 0 ) {
+		$sql .= ' LIMIT %d';
+		$sql_params[] = intval( $args['limit'] );
 	}
 
 	/* Retrieve the results from the database */
+	if ( ! empty( $sql_params ) ) {
+		$sql = $wpdb->prepare( $sql, $sql_params );
+	}
 	$snippets = $wpdb->get_results( $sql, ARRAY_A );
 
-	/* Convert snippets to snippet objects */
-	foreach ( $snippets as $index => $snippet ) {
-		$snippet['network'] = $multisite;
-		$snippets[ $index ] = new Code_Snippet( $snippet );
+	if ( $snippets ) {
+		/* Convert snippets to snippet objects */
+		foreach ( $snippets as $index => $snippet ) {
+			$snippet['network'] = $multisite;
+			$snippets[ $index ] = new Code_Snippet( $snippet );
+		}
+	} else {
+		$snippets = array();
 	}
 
 	return apply_filters( 'code_snippets/get_snippets', $snippets, $multisite );
@@ -78,14 +132,18 @@ function get_all_snippet_tags() {
 	}
 
 	/* Remove duplicate tags */
+
 	return array_values( array_unique( $tags, SORT_REGULAR ) );
 }
+
 /**
  * Make sure that the tags are a valid array
- * @since 2.0
  *
- * @param  mixed $tags The tags to convert into an array
- * @return array       The converted tags
+ * @param mixed $tags The tags to convert into an array
+ *
+ * @return array The converted tags
+ *
+ * @since 2.0
  */
 function code_snippets_build_tags_array( $tags ) {
 
@@ -102,6 +160,7 @@ function code_snippets_build_tags_array( $tags ) {
 	}
 
 	/* If we still don't have an array, just convert whatever we do have into one */
+
 	return (array) $tags;
 }
 
@@ -110,15 +169,11 @@ function code_snippets_build_tags_array( $tags ) {
  * Will return empty snippet object if no snippet
  * ID is specified
  *
+ * @param int          $id        The ID of the snippet to retrieve. 0 to build a new snippet
+ * @param boolean|null $multisite Retrieve a multisite-wide or site-wide snippet?
+ *
+ * @return Code_Snippet A single snippet object
  * @since 2.0
- *
- * @uses $wpdb to query the database for snippets
- * @uses code_snippets()->db->get_table_name() to dynamically retrieve the snippet table name
- *
- * @param  int          $id        The ID of the snippet to retrieve. 0 to build a new snippet
- * @param  boolean|null $multisite Retrieve a multisite-wide or site-wide snippet?
- *
- * @return Code_Snippet                 A single snippet object
  */
 function get_snippet( $id = 0, $multisite = null ) {
 	/** @var wpdb $wpdb */
@@ -149,75 +204,137 @@ function get_snippet( $id = 0, $multisite = null ) {
 /**
  * Activates a snippet
  *
- * @since 2.0
- *
- * @uses $wpdb to set the snippet's active status
- *
  * @param int       $id        The ID of the snippet to activate
  * @param bool|null $multisite Are the snippets multisite-wide or site-wide?
+ *
+ * @return int
+ *
+ * @since 2.0
+ * @uses  $wpdb to set the snippet's active status
  */
 function activate_snippet( $id, $multisite = null ) {
 	/** @var wpdb $wpdb */
 	global $wpdb;
-	$table = code_snippets()->db->get_table_name( $multisite );
+	$db = code_snippets()->db;
+	$table = $db->get_table_name( $multisite );
 
-	$wpdb->update(
-		$table,
-		array( 'active' => '1' ),
-		array( 'id' => $id ),
-		array( '%d' ),
-		array( '%d' )
-	);
+	/* Retrieve the snippet code from the database for validation before activating */
+	$row = $wpdb->get_row( $wpdb->prepare( "SELECT code FROM $table WHERE id = %d;", $id ) );
+	if ( ! $row ) {
+		return false;
+	}
+
+	$validator = new Code_Snippets_Validator( $row->code );
+	if ( $validator->validate() ) {
+		return false;
+	}
+
+	$wpdb->update( $table, array( 'active' => '1' ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
 
 	/* Remove snippet from shared network snippet list if it was Network Activated */
-	if ( $table == $wpdb->ms_snippets && $shared_network_snippets = get_site_option( 'shared_network_snippets', false ) ) {
+	if ( $table === $db->ms_table && $shared_network_snippets = get_site_option( 'shared_network_snippets', false ) ) {
 		$shared_network_snippets = array_diff( $shared_network_snippets, array( $id ) );
 		update_site_option( 'shared_network_snippets', $shared_network_snippets );
 	}
 
 	do_action( 'code_snippets/activate_snippet', $id, $multisite );
+	return true;
+}
+
+/**
+ * Activates multiple snippet.
+ *
+ * @param array     $ids       The IDs of the snippets to activate.
+ * @param bool|null $multisite Are the snippets multisite-wide or site-wide?
+ *
+ * @return array The IDs of the snippets which were successfully activated.
+ *
+ * @since 2.0
+ * @uses  $wpdb to set the snippet's active status
+ */
+function activate_snippets( array $ids, $multisite = null ) {
+	/** @var wpdb $wpdb */
+	global $wpdb;
+	$db = code_snippets()->db;
+	$table = $db->get_table_name( $multisite );
+
+	/* Build a SQL query containing all the provided snippet IDs */
+	$ids_format = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+	$sql = sprintf( 'SELECT id, code FROM %s WHERE id IN (%s);', $table, $ids_format );
+	$rows = $wpdb->get_results( $wpdb->prepare( $sql, $ids ) );
+
+	if ( ! $rows ) {
+		return array();
+	}
+
+	/* Loop through each snippet code and validate individually */
+	$valid_ids = array();
+
+	foreach ( $rows as $row ) {
+		$validator = new Code_Snippets_Validator( $row->code );
+		$code_error = $validator->validate();
+
+		if ( ! $code_error ) {
+			$valid_ids[] = $row->id;
+		}
+	}
+
+	/* If there are no valid snippets, then we're done */
+	if ( ! $valid_ids ) {
+		return $valid_ids;
+	}
+
+	/* Build a SQL query containing all the valid snippet IDs and activate the valid snippets */
+	$ids_format = implode( ',', array_fill( 0, count( $valid_ids ), '%d' ) );
+	$sql = sprintf( 'UPDATE %s SET active = 1 WHERE id IN (%s);', $table, $ids_format );
+	$wpdb->query( $wpdb->prepare( $sql, $valid_ids ) );
+
+	/* Remove snippet from shared network snippet list if it was Network Activated */
+	if ( $table === $db->ms_table && $shared_network_snippets = get_site_option( 'shared_network_snippets', false ) ) {
+		$shared_network_snippets = array_diff( $shared_network_snippets, $valid_ids );
+		update_site_option( 'shared_network_snippets', $shared_network_snippets );
+	}
+
+	do_action( 'code_snippets/activate_snippets', $valid_ids, $multisite );
+	return $valid_ids;
 }
 
 /**
  * Deactivate a snippet
  *
- * @since 2.0
- *
- * @uses $wpdb to set the snippets' active status
- *
  * @param int       $id        The ID of the snippet to deactivate
  * @param bool|null $multisite Are the snippets multisite-wide or site-wide?
+ *
+ * @since 2.0
+ * @uses  $wpdb to set the snippets' active status
+ *
  */
 function deactivate_snippet( $id, $multisite = null ) {
 	/** @var wpdb $wpdb */
 	global $wpdb;
-	$table = code_snippets()->db->get_table_name( $multisite );
+	$db = code_snippets()->db;
+	$table = $db->get_table_name( $multisite );
 
 	/* Set the snippet to active */
 
-	$wpdb->update(
-		$table,
-		array( 'active' => '0' ),
-		array( 'id' => $id ),
-		array( '%d' ),
-		array( '%d' )
-	);
+	$wpdb->update( $table, array( 'active' => '0' ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
 
 	/* Update the recently active list */
 
 	$recently_active = array( $id => time() );
 
-	if ( $table === $wpdb->ms_snippets ) {
-
-		update_site_option(
-			'recently_activated_snippets',
-			$recently_active + (array) get_site_option( 'recently_activated_snippets' )
-		);
-	} elseif ( $table === $wpdb->snippets ) {
+	if ( $table === $db->table ) {
 
 		update_option(
 			'recently_activated_snippets',
-			$recently_active + (array) get_option( 'recently_activated_snippets' )
+			$recently_active + (array) get_option( 'recently_activated_snippets', array() )
+		);
+
+	} elseif ( $table === $db->ms_table ) {
+
+		update_site_option(
+			'recently_activated_snippets',
+			$recently_active + (array) get_site_option( 'recently_activated_snippets', array() )
 		);
 	}
 
@@ -227,12 +344,10 @@ function deactivate_snippet( $id, $multisite = null ) {
 /**
  * Deletes a snippet from the database
  *
- * @since 2.0
- * @uses $wpdb to access the database
- * @uses code_snippets()->db->get_table_name() to dynamically retrieve the name of the snippet table
- *
  * @param int       $id        The ID of the snippet to delete
  * @param bool|null $multisite Delete from site-wide or network-wide table?
+ *
+ * @since 2.0
  */
 function delete_snippet( $id, $multisite = null ) {
 	/** @var wpdb $wpdb */
@@ -250,14 +365,12 @@ function delete_snippet( $id, $multisite = null ) {
 /**
  * Saves a snippet to the database.
  *
+ * @param Code_Snippet $snippet The snippet to add/update to the database
+ *
+ * @return int The ID of the snippet
  * @since 2.0
  *
- * @uses $wpdb to update/add the snippet to the database
- * @uses code_snippets()->db->get_table_name() To dynamically retrieve the name of the snippet table
- *
- * @param  Code_Snippet $snippet   The snippet to add/update to the database
- *
- * @return int                  The ID of the snippet
+ * @uses  $wpdb to update/add the snippet to the database
  */
 function save_snippet( Code_Snippet $snippet ) {
 	/** @var wpdb $wpdb */
@@ -265,19 +378,23 @@ function save_snippet( Code_Snippet $snippet ) {
 
 	$table = code_snippets()->db->get_table_name( $snippet->network );
 
+	/* Update the last modification date and the creation date if necessary */
+	$snippet->update_modified();
+
 	/* Build array of data to insert */
 	$data = array(
-		'name' => $snippet->name,
+		'name'        => $snippet->name,
 		'description' => $snippet->desc,
-		'code' => $snippet->code,
-		'tags' => $snippet->tags_list,
-		'scope' => $snippet->scope,
-		'active' => intval( $snippet->active ),
+		'code'        => $snippet->code,
+		'tags'        => $snippet->tags_list,
+		'scope'       => $snippet->scope,
+		'priority'    => $snippet->priority,
+		'active'      => intval( $snippet->active ),
+		'modified'    => $snippet->modified,
 	);
 
 	/* Create a new snippet if the ID is not set */
-	if ( 0 == $snippet->id ) {
-
+	if ( 0 === $snippet->id ) {
 		$wpdb->insert( $table, $data, '%s' );
 		$snippet->id = $wpdb->insert_id;
 
@@ -326,103 +443,22 @@ function update_snippet_fields( $snippet_id, $fields, $network = null ) {
 }
 
 /**
- * Imports snippets from an XML file
- *
- * @since 2.0
- *
- * @uses save_snippet() to add the snippets to the database
- *
- * @param  string     $file      The path to the XML file to import
- * @param  bool|null  $multisite Import into network-wide table or site-wide table?
- * @return array|bool            An array of imported snippet IDs on success, false on failure
- */
-function import_snippets( $file, $multisite = null ) {
-
-	if ( ! file_exists( $file ) || ! is_file( $file ) ) {
-		return false;
-	}
-
-	$dom = new DOMDocument( '1.0', get_bloginfo( 'charset' ) );
-	$dom->load( $file );
-
-	$snippets_xml = $dom->getElementsByTagName( 'snippet' );
-	$fields = array( 'name', 'description', 'desc', 'code', 'tags', 'scope' );
-	$exported_snippets = array();
-
-	/* Loop through all snippets */
-
-	/** @var DOMElement $snippet_xml */
-	foreach ( $snippets_xml as $snippet_xml ) {
-		$snippet = new Code_Snippet();
-		$snippet->network = $multisite;
-
-		/* Build a snippet object by looping through the field names */
-		foreach ( $fields as $field_name ) {
-
-			/* Fetch the field element from the document */
-			$field = $snippet_xml->getElementsByTagName( $field_name )->item( 0 );
-
-			/* If the field element exists, add it to the snippet object */
-			if ( isset( $field->nodeValue ) ) {
-				$snippet->set_field( $field_name, $field->nodeValue );
-			}
-		}
-
-		/* Get scope from attribute */
-		$scope = $snippet_xml->getAttribute( 'scope' );
-		if ( ! empty( $scope ) ) {
-			$snippet->scope = $scope;
-		}
-
-		/* Save the snippet and increase the counter if successful */
-		if ( $snippet_id = save_snippet( $snippet ) ) {
-			$exported_snippets[] = $snippet_id;
-		}
-	}
-
-	do_action( 'code_snippets/import', $dom, $multisite );
-	return $exported_snippets;
-}
-
-/**
- * Exports snippets as an XML file
- *
- * @since 2.0
- * @uses Code_Snippets_Export to export selected snippets
- * @uses code_snippets()->db->get_table_name() to dynamically retrieve the name of the snippet table
- *
- * @param array     $ids       The IDs of the snippets to export
- * @param bool|null $multisite Is the snippet a network-wide or site-wide snippet?
- * @param string    $format    Export to xml or php?
- */
-function export_snippets( $ids, $multisite = null, $format = 'xml' ) {
-	$table = code_snippets()->db->get_table_name( $multisite );
-
-	if ( ! class_exists( 'Code_Snippets_Export' ) ) {
-		require_once plugin_dir_path( CODE_SNIPPETS_FILE ) . 'php/class-export.php';
-	}
-
-	$class = new Code_Snippets_Export( $ids, $table, $format );
-	$class->do_export();
-}
-
-/**
  * Execute a snippet
  *
  * Code must NOT be escaped, as
  * it will be executed directly
  *
- * @since 2.0
- *
  * @param string $code         The snippet code to execute
  * @param int    $id           The snippet ID
  * @param bool   $catch_output Whether to attempt to suppress the output of execution using buffers
  *
- * @return mixed        The result of the code execution
+ * @return mixed The result of the code execution
+ * @since 2.0
+ *
  */
 function execute_snippet( $code, $id = 0, $catch_output = true ) {
 
-	if ( empty( $code ) ) {
+	if ( empty( $code ) || defined( 'CODE_SNIPPETS_SAFE_MODE' ) && CODE_SNIPPETS_SAFE_MODE ) {
 		return false;
 	}
 
@@ -444,57 +480,78 @@ function execute_snippet( $code, $id = 0, $catch_output = true ) {
 /**
  * Run the active snippets
  *
- * @since 2.0
- *
  * @return bool true on success, false on failure
+ * @since 2.0
  */
 function execute_active_snippets() {
 
-	if ( ! apply_filters( 'code_snippets/execute_snippets', true ) ) {
+	/* Bail early if safe mode is active */
+	if ( defined( 'CODE_SNIPPETS_SAFE_MODE' ) && CODE_SNIPPETS_SAFE_MODE || ! apply_filters( 'code_snippets/execute_snippets', true ) ) {
 		return false;
 	}
 
 	/** @var wpdb $wpdb */
 	global $wpdb;
+	$db = code_snippets()->db;
 
-	$current_scope = is_admin() ? 1 : 2;
+	$current_scope = is_admin() ? 'admin' : 'front-end';
 	$queries = array();
 
+	$sql_format = "SELECT id, code, scope FROM %s WHERE scope IN ('global', 'single-use', %%s) ";
+	$order = 'ORDER BY priority ASC, id ASC';
+
 	/* Fetch snippets from site table */
-	if ( $wpdb->get_var( "SHOW TABLES LIKE '$wpdb->snippets'" ) === $wpdb->snippets ) {
-		$queries[ $wpdb->snippets ] = $wpdb->prepare( "SELECT id, code FROM {$wpdb->snippets} WHERE (scope=0 OR scope=%d) AND active=1", $current_scope );
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '$db->table'" ) === $db->table ) {
+		$queries[ $db->table ] = $wpdb->prepare( sprintf( $sql_format, $db->table ) . 'AND active=1 ' . $order, $current_scope );
 	}
 
 	/* Fetch snippets from the network table */
-	if ( is_multisite() && $wpdb->get_var( "SHOW TABLES LIKE '$wpdb->ms_snippets'" ) === $wpdb->ms_snippets ) {
+	if ( is_multisite() && $wpdb->get_var( "SHOW TABLES LIKE '$db->ms_table'" ) === $db->ms_table ) {
 		$active_shared_ids = get_option( 'active_shared_network_snippets', array() );
 
 		/* If there are active shared snippets, include them in the query */
-		if ( count( $active_shared_ids ) ) {
+		if ( is_array( $active_shared_ids ) && count( $active_shared_ids ) ) {
 
 			/* Build a list of "%d, %d, %d ..." for every active network shared snippet we have */
 			$active_shared_ids_format = implode( ',', array_fill( 0, count( $active_shared_ids ), '%d' ) );
 
 			/* Include them in the query */
-			$sql = "SELECT id, code FROM {$wpdb->snippets} WHERE (scope=0 OR scope=%d) AND (active=1 OR id IN ($active_shared_ids_format))";
+			$sql = sprintf( $sql_format, $db->ms_table ) . " AND (active=1 OR id IN ($active_shared_ids_format)) $order";
 
 			/* Add the scope number to the IDs array, so that it is the first variable in the query */
 			array_unshift( $active_shared_ids, $current_scope );
-			$queries[ $wpdb->ms_snippets ] = $wpdb->prepare( $sql, $active_shared_ids );
+			$queries[ $db->ms_table ] = $wpdb->prepare( $sql, $active_shared_ids );
+			array_shift( $active_shared_ids ); // remove it afterwards as we need this variable later
 
 		} else {
-			$sql = "SELECT id, code  FROM {$wpdb->ms_snippets} WHERE (scope=0 OR scope=%d) AND active=1";
-			$queries[ $wpdb->ms_snippets ] = $wpdb->prepare( $sql, $current_scope );
+			$sql = sprintf( $sql_format, $db->ms_table ) . 'AND active=1 ' . $order;
+			$queries[ $db->ms_table ] = $wpdb->prepare( $sql, $current_scope );
 		}
 	}
 
 	foreach ( $queries as $table_name => $query ) {
-		$active_snippets = $wpdb->get_results( $query, ARRAY_A );
+		$active_snippets = $wpdb->get_results( $query, 'ARRAY_A' );
+
+		if ( ! is_array( $active_snippets ) ) {
+			continue;
+		}
 
 		/* Loop through the returned snippets and execute the PHP code */
 		foreach ( $active_snippets as $snippet ) {
 			$snippet_id = intval( $snippet['id'] );
 			$code = $snippet['code'];
+
+			// if the snippet is a single-use snippet, deactivate it before execution to ensure that the process always happens
+			if ( 'single-use' === $snippet['scope'] ) {
+				if ( $table_name === $db->ms_table && isset( $active_shared_ids ) &&
+				     false !== ( $key = array_search( $snippet_id, $active_shared_ids, true ) ) ) {
+					unset( $active_shared_ids[ $key ] );
+					$active_shared_ids = array_values( $active_shared_ids );
+					update_option( 'active_shared_network_snippets', $active_shared_ids );
+				} else {
+					$wpdb->update( $table_name, array( 'active' => '0' ), array( 'id' => $snippet_id ), array( '%d' ), array( '%d' ) );
+				}
+			}
 
 			if ( apply_filters( 'code_snippets/allow_execute_snippet', true, $snippet_id, $table_name ) ) {
 				execute_snippet( $code, $snippet_id );
@@ -504,5 +561,3 @@ function execute_active_snippets() {
 
 	return true;
 }
-
-

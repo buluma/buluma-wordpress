@@ -8,35 +8,56 @@ class Code_Snippets_Admin_Menu {
 	public $name, $label, $title;
 
 	/**
+	 * The base slug for the top-level admin menu.
+	 *
+	 * @var string
+	 */
+	protected $base_slug;
+
+	/**
+	 * The slug for this admin menu.
+	 *
+	 * @var string
+	 */
+	protected $slug;
+
+	/**
 	 * Constructor
-	 * @param string $name  The snippet page shortname
+	 *
+	 * @param string $name The snippet page short name
 	 * @param string $label The label shown in the admin menu
 	 * @param string $title The text used for the page title
 	 */
-	function __construct( $name, $label, $title ) {
+	public function __construct( $name, $label, $title ) {
 		$this->name = $name;
 		$this->label = $label;
 		$this->title = $title;
+
+		$this->base_slug = code_snippets()->get_menu_slug();
+		$this->slug = code_snippets()->get_menu_slug( $name );
 	}
 
 	/**
 	 * Register action and filter hooks
 	 */
 	public function run() {
-		add_action( 'admin_menu', array( $this, 'register' ) );
-		add_action( 'network_admin_menu', array( $this, 'register' ) );
+		if ( ! code_snippets()->admin->is_compact_menu() ) {
+			add_action( 'admin_menu', array( $this, 'register' ) );
+			add_action( 'network_admin_menu', array( $this, 'register' ) );
+		}
 	}
 
 	/**
 	 * Add a sub-menu to the Snippets menu
 	 * @uses add_submenu_page() to register a submenu
-	 * @param string $slug  The slug of the menu
+	 *
+	 * @param string $slug The slug of the menu
 	 * @param string $label The label shown in the admin menu
 	 * @param string $title The page title
 	 */
 	public function add_menu( $slug, $label, $title ) {
 		$hook = add_submenu_page(
-			code_snippets()->get_menu_slug(),
+			$this->base_slug,
 			$title,
 			$label,
 			code_snippets()->get_cap(),
@@ -51,7 +72,7 @@ class Code_Snippets_Admin_Menu {
 	 * Register the admin menu
 	 */
 	public function register() {
-		$this->add_menu( code_snippets()->get_menu_slug( $this->name ), $this->label, $this->title );
+		$this->add_menu( $this->slug, $this->label, $this->title );
 	}
 
 	/**
@@ -104,6 +125,15 @@ class Code_Snippets_Admin_Menu {
 		}
 
 		/* Create the snippet tables if they don't exist */
-		code_snippets()->db->create_tables();
+		$db = code_snippets()->db;
+		$db->create_missing_table( $db->ms_table );
+		$db->create_missing_table( $db->table );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
+
+	/**
+	 * Enqueue scripts and stylesheets for the admin page, if necessary
+	 */
+	public function enqueue_assets() {}
 }

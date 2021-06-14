@@ -8,8 +8,13 @@
 class Code_Snippets {
 
 	/**
-	 * The current plugin version
-	 * @var string
+	 * The version number for this release of the plugin.
+	 * This will later be used for upgrades and enqueuing files
+	 *
+	 * This should be set to the 'Plugin Version' value defined
+	 * in the plugin header.
+	 *
+	 * @var string A PHP-standardized version number string
 	 */
 	public $version;
 
@@ -30,17 +35,19 @@ class Code_Snippets {
 	public $admin;
 
 	/**
+	 * @var Code_Snippets_Shortcode
+	 */
+	public $shortcode;
+
+	/**
 	 * Class constructor
 	 *
 	 * @param string $version The current plugin version
-	 * @param string $file    The main plugin file
+	 * @param string $file The main plugin file
 	 */
 	function __construct( $version, $file ) {
 		$this->version = $version;
 		$this->file = $file;
-
-		add_action( 'grant_super_admin', array( $this, 'grant_network_cap' ) );
-		add_action( 'remove_super_admin', array( $this, 'remove_network_cap' ) );
 
 		add_action( 'init', array( $this, 'load_textdomain' ), 9 );
 
@@ -60,14 +67,12 @@ class Code_Snippets {
 
 		/* Snippet operation functions */
 		require_once $includes_path . '/snippet-ops.php';
-
-		/* Upgrade function */
-		require_once $includes_path . '/upgrade.php';
+		require_once $includes_path . '/import-export.php';
 
 		/* CodeMirror editor functions */
 		require_once $includes_path . '/editor.php';
 
-		/* Backwards compatability functions */
+		/* Backwards compatibility functions */
 		require_once $includes_path . '/functions.php';
 
 		/* General Administration functions */
@@ -82,14 +87,12 @@ class Code_Snippets {
 		require_once $includes_path . '/settings/settings.php';
 
 		$this->shortcode = new Code_Snippets_Shortcode();
+
+		$upgrade = new Code_Snippets_Upgrade( $this->version, $this->db );
+		add_action( 'plugins_loaded', array( $upgrade, 'run' ), 0 );
 	}
 
 	public function disable_snippet_execution( $execute_snippets ) {
-
-		/* Bail early if safe mode is active */
-		if ( defined( 'CODE_SNIPPETS_SAFE_MODE' ) && CODE_SNIPPETS_SAFE_MODE ) {
-			return false;
-		}
 
 		if ( isset( $_GET['snippets-safe-mode'] ) && $_GET['snippets-safe-mode'] && $this->current_user_can() ) {
 			return false;
@@ -100,22 +103,24 @@ class Code_Snippets {
 
 	/**
 	 * Fetch the admin menu slug for a snippets menu
+	 *
 	 * @param  string $menu The menu to retrieve the slug for
+	 *
 	 * @return string       The menu's slug
 	 */
 	public function get_menu_slug( $menu = '' ) {
 		$add = array( 'single', 'add', 'add-new', 'add-snippet', 'new-snippet', 'add-new-snippet' );
 		$edit = array( 'edit', 'edit-snippet' );
-		$import = array( 'import', 'import-snippets' );
+		$import = array( 'import', 'import-snippets', 'import-code-snippets' );
 		$settings = array( 'settings', 'snippets-settings' );
 
-		if ( in_array( $menu, $edit ) ) {
+		if ( in_array( $menu, $edit, true ) ) {
 			return 'edit-snippet';
-		} elseif ( in_array( $menu, $add ) ) {
+		} elseif ( in_array( $menu, $add, true ) ) {
 			return 'add-snippet';
-		} elseif ( in_array( $menu, $import ) ) {
-			return 'import-snippets';
-		} elseif ( in_array( $menu, $settings ) ) {
+		} elseif ( in_array( $menu, $import, true ) ) {
+			return 'import-code-snippets';
+		} elseif ( in_array( $menu, $settings, true ) ) {
 			return 'snippets-settings';
 		} else {
 			return 'snippets';
@@ -124,13 +129,26 @@ class Code_Snippets {
 
 	/**
 	 * Fetch the URL to a snippets admin menu
-	 * @param  string $menu    The menu to retrieve the URL to
+	 *
+	 * @param  string $menu The menu to retrieve the URL to
 	 * @param  string $context The URL scheme to use
+	 *
 	 * @return string          The menu's URL
 	 */
 	public function get_menu_url( $menu = '', $context = 'self' ) {
 		$slug = $this->get_menu_slug( $menu );
-		$url = 'admin.php?page=' . $slug;
+
+		if ( $this->admin->is_compact_menu() && 'network' !== $context ) {
+			$base_slug = $this->get_menu_slug();
+			$url = 'tools.php?page=' . $base_slug;
+
+			if ( $slug !== $base_slug ) {
+				$url .= '&sub=' . $slug;
+			}
+
+		} else {
+			$url = 'admin.php?page=' . $slug;
+		}
 
 		if ( 'network' === $context ) {
 			return network_admin_url( $url );
@@ -142,20 +160,12 @@ class Code_Snippets {
 	}
 
 	/**
-	 * Fetch the admin menu hook for a snippets menu
-	 * @param  string $menu The menu to retrieve the hook for
-	 * @return string       The menu's hook
-	 */
-	public function get_menu_hook( $menu = '' ) {
-		$slug = $this->get_menu_slug( $menu );
-		return get_plugin_page_hookname( $slug, 'snippets' );
-	}
-
-	/**
 	 * Fetch the admin menu slug for a snippets menu
-	 * @param  int    $snippet_id The snippet
-	 * @param  string $context    The URL scheme to use
-	 * @return string             The URL to the edit snippet page for that snippet
+	 *
+	 * @param int    $snippet_id The snippet
+	 * @param string $context The URL scheme to use
+	 *
+	 * @return string The URL to the edit snippet page for that snippet
 	 */
 	public function get_snippet_edit_url( $snippet_id, $context = 'self' ) {
 		return add_query_arg(
@@ -180,7 +190,7 @@ class Code_Snippets {
 	 * @return string
 	 */
 	public function get_cap_name() {
-		return apply_filters( 'code_snippets_cap', 'manage_snippets' );
+		return apply_filters( 'code_snippets_cap', 'manage_options' );
 	}
 
 	/**
@@ -189,7 +199,7 @@ class Code_Snippets {
 	 * @return string
 	 */
 	public function get_network_cap_name() {
-		return apply_filters( 'code_snippets_network_cap', 'manage_network_snippets' );
+		return apply_filters( 'code_snippets_network_cap', 'manage_network_options' );
 	}
 
 	/**
@@ -218,36 +228,6 @@ class Code_Snippets {
 	}
 
 	/**
-	 * Add the multisite capabilities to a user
-	 *
-	 * @since 2.0
-	 * @param int $user_id The ID of the user to add the cap to
-	 */
-	function grant_network_cap( $user_id ) {
-
-		/* Get the user from the ID */
-		$user = new WP_User( $user_id );
-
-		/* Add the capability */
-		$user->add_cap( $this->get_network_cap_name() );
-	}
-
-	/**
-	 * Remove the multisite capabilities from a user
-	 *
-	 * @since 2.0
-	 * @param int $user_id The ID of the user to remove the cap from
-	 */
-	function remove_network_cap( $user_id ) {
-
-		/* Get the user from the ID */
-		$user = new WP_User( $user_id );
-
-		/* Remove the capability */
-		$user->remove_cap( $this->get_network_cap_name() );
-	}
-
-	/**
 	 * Load up the localization file if we're using WordPress in a different language.
 	 *
 	 * If you wish to contribute a language file to be included in the Code Snippets package,
@@ -272,9 +252,11 @@ class Code_Snippets {
 	 * @return string
 	 */
 	function add_safe_mode_query_var( $url ) {
+
 		if ( isset( $_REQUEST['snippets-safe-mode'] ) ) {
 			return add_query_arg( 'snippets-safe-mode', $_REQUEST['snippets-safe-mode'], $url );
 		}
+
 		return $url;
 	}
 }

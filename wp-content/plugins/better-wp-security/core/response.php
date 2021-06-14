@@ -10,6 +10,7 @@ final class ITSEC_Response {
 	private $infos;
 	private $success;
 	private $js_function_calls;
+	private $store_dispatches;
 	private $show_default_success_message;
 	private $show_default_error_message;
 	private $force_logout;
@@ -72,7 +73,7 @@ final class ITSEC_Response {
 
 		return $self->errors;
 	}
-	
+
 	public static function add_warnings( $warnings ) {
 		foreach ( $warnings as $warning ) {
 			self::add_warning( $warning );
@@ -153,6 +154,23 @@ final class ITSEC_Response {
 		return $self->js_function_calls;
 	}
 
+	public static function remove_js_function_call( $js_function, $args = null ) {
+		$self = self::get_instance();
+		$call = is_null( $args ) ? array( $js_function ) : array( $js_function, $args );
+
+		$self->js_function_calls = array_values( array_filter( $self->js_function_calls, static function ( $maybe_call ) use ( $call ) {
+			return $maybe_call !== $call;
+		} ) );
+	}
+
+	public static function add_store_dispatch( $store, $action, $args = array() ) {
+		self::get_instance()->store_dispatches[] = compact( 'store', 'action', 'args' );
+	}
+
+	public static function get_store_dispatches() {
+		return self::get_instance()->store_dispatches;
+	}
+
 	public static function set_show_default_success_message( $show_default_success_message ) {
 		$self = self::get_instance();
 
@@ -199,6 +217,10 @@ final class ITSEC_Response {
 		self::get_instance()->add_js_function_call( 'reloadAllModules' );
 	}
 
+	public static function refresh_page() {
+		self::get_instance()->add_js_function_call( 'refreshPage' );
+	}
+
 	public static function regenerate_wp_config() {
 		$self = self::get_instance();
 
@@ -223,7 +245,7 @@ final class ITSEC_Response {
 		}
 
 		$self->force_logout = true;
-		self::redirect( add_query_arg( 'loggedout', 'true', wp_login_url() ) );
+		self::redirect( add_query_arg( 'loggedout', 'true', ITSEC_Lib::get_login_url() ) );
 	}
 
 	public static function redirect( $redirect ) {
@@ -279,14 +301,24 @@ final class ITSEC_Response {
 		$added = array_diff( $new, $current );
 
 		if ( $added ) {
-			self::reload_module( 'notification-center' );
-			self::get_instance()->has_new_notifications = true;
-			self::get_instance()->add_info( sprintf(
-				esc_html__( 'New notifications available in the %1$sNotification Center%2$s.', 'better-wp-security' ),
-				'<a href="#" data-module-link="notification-center">',
-				'</a>'
-			) );
+			self::flag_new_notifications_available();
 		}
+	}
+
+	public static function flag_new_notifications_available() {
+		static $run_count = 0;
+
+		if ( $run_count++ > 0 ) {
+			return;
+		}
+
+		self::reload_module( 'notification-center' );
+		self::get_instance()->has_new_notifications = true;
+		self::get_instance()->add_info( sprintf(
+			esc_html__( 'New notifications available in the %1$sNotification Center%2$s.', 'better-wp-security' ),
+			'<a href="#" data-module-link="notification-center">',
+			'</a>'
+		) );
 	}
 
 	public static function get_raw_data() {
@@ -311,6 +343,7 @@ final class ITSEC_Response {
 			'messages'         => $self->messages,
 			'infos'            => $self->infos,
 			'functionCalls'    => self::parse_js_function_calls_for_module_reloads(),
+			'storeDispatches'  => $self->store_dispatches,
 			'redirect'         => $self->redirect,
 			'closeModal'       => $self->close_modal,
 			'newNotifications' => $self->has_new_notifications,
@@ -339,8 +372,10 @@ final class ITSEC_Response {
 		$this->errors = array();
 		$this->warnings = array();
 		$this->messages = array();
+		$this->infos = array();
 		$this->success = true;
 		$this->js_function_calls = array();
+		$this->store_dispatches = array();
 		$this->show_default_success_message = true;
 		$this->show_default_error_message = true;
 		$this->force_logout = false;

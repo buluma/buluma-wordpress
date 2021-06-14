@@ -104,8 +104,7 @@
 						<?php $new_tab_string = 'target="_blank"';?>
 					<?php else: ?>
 						<?php $new_tab_string = '';?>
-					<?php endif; ?>
-					<?php echo $view_on_behance;?>
+					<?php endif; ?>					
 					<?php if($view_on_behance): ?>						
 						<a class="eds-bpm-info" href="<?php echo $project->b_project_url; ?>" <?php echo $new_tab_string; ?> ><?php _e('View Project','eds-bpm');?></a>								
 					<?php else: ?>
@@ -136,5 +135,5 @@
 			</div>
 		</div>			
 		
-	<?php endforeach;;?>	
+	<?php endforeach;?>	
 </div>

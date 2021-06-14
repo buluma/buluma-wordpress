@@ -5,7 +5,7 @@
  * Contains the functions used to deprecate functions and
  * hooks in MonsterInsights, as well as the deprecated functions
  * and hooks themselves, where possible.
- * 
+ *
  * @since 6.0.0
  *
  * @package MonsterInsights
@@ -112,7 +112,7 @@ function _monsterinsights_deprecated_hook( $hook, $version, $message = null ) {
 	 * @param string $message     A message regarding the change.
 	 */
 	do_action( 'deprecated_hook_run', $hook, $version, $message );
- 
+
 	/**
 	 * Filters whether to trigger deprecated hook errors.
 	 *
@@ -123,6 +123,7 @@ function _monsterinsights_deprecated_hook( $hook, $version, $message = null ) {
 	 */
 	if ( ( WP_DEBUG && apply_filters( 'deprecated_hook_trigger_error', true ) ) || monsterinsights_is_debug_mode() ) {
 		$message = empty( $message ) ? '' : ' ' . $message;
+		// Translators: Placeholders add the hook name, plugin version and bold text.
 		trigger_error( sprintf( esc_html__( '%1$s is %3$sdeprecated%4$s since MonsterInsights version %2$s!', 'google-analytics-for-wordpress' ), $hook, $version, '<strong>', '</strong>' ) . esc_html ( $message ) );
 	}
 }
@@ -145,7 +146,7 @@ function _monsterinsights_deprecated_hook( $hook, $version, $message = null ) {
  *   and the version the function was deprecated in.
  * @uses apply_filters() Calls 'monsterinsights_deprecated_function_trigger_error' and expects boolean value of true to do
  *   trigger or false to not trigger error.
- *   
+ *
  * @param string  $function    The function that was called
  * @param string  $version     The version of WordPress that deprecated the function
  * @param array   $backtrace   Optional. Contains stack backtrace of deprecated function
@@ -156,16 +157,16 @@ function _monsterinsights_deprecated_function( $function, $version, $backtrace =
 	/**
 	 * Deprecated Function Action.
 	 *
-	 * Allow plugin run an action on the use of a 
+	 * Allow plugin run an action on the use of a
 	 * deprecated function. This could be used to
 	 * feed into an error logging program or file.
 	 *
 	 * @since 6.0.0
-	 * 
+	 *
 	 * @param string  $function    The function that was called.
 	 * @param string  $version     The version of WordPress that deprecated the function.
 	 * @param array   $backtrace   Optional. Contains stack backtrace of deprecated function.
-	 */	
+	 */
 	do_action( 'deprecated_function_run', $function, $version, $backtrace );
 
 	/**
@@ -176,6 +177,7 @@ function _monsterinsights_deprecated_function( $function, $version, $backtrace =
 	 * @param bool $trigger Whether to trigger the error for deprecated functions. Default true.
 	 */
 	if ( ( WP_DEBUG && apply_filters( 'deprecated_function_trigger_error', true ) ) || monsterinsights_is_debug_mode() ) {
+		// Translators: Placeholders add the hook name, plugin version and bold text.
 		trigger_error( sprintf( esc_html__( '%1$s is %3$sdeprecated%4$s since MonsterInsights version %2$s.', 'google-analytics-for-wordpress' ), $function, $version, '<strong>', '</strong>' ) );
 		trigger_error( print_r( $backtrace, 1 ) );// Limited to previous 1028 characters, but since we only need to move back 1 in stack that should be fine.
 		// Alternatively we could dump this to a file.
@@ -204,9 +206,9 @@ function _monsterinsights_deprecated( $message ) {
 	 * Allow plugin to filter the deprecated message.
 	 *
 	 * @since 6.0.0
-	 * 
+	 *
 	 * @param string $message Error message.
-	 */	
+	 */
 	do_action( 'monsterinsights_deprecated_run', $message );
 
 	$show_errors = current_user_can( 'manage_options' );
@@ -217,7 +219,7 @@ function _monsterinsights_deprecated( $message ) {
 	 * Allow plugin to filter the output error trigger.
 	 *
 	 * @since 6.0.0
-	 * 
+	 *
 	 * @param bool $show_errors Whether to show errors.
 	 */
 	$show_errors = apply_filters( 'monsterinsights_deprecated_trigger_error', $show_errors );
@@ -228,128 +230,9 @@ function _monsterinsights_deprecated( $message ) {
 
 
 /**
- * Start Deprecated Actions & Filters. 
+ * Start Deprecated Actions & Filters.
  *
  * These backwards compatibility fixes may be removed at any time.
- * Users are encouraged to update their code as soon as possible.
+ * Users/Developers are encouraged to update their code as soon as possible.
  */
 
-
-/**
- * Deprecated Filter: 'yst-ga-filter-api-limit'.
- * 
- * Allow people to change the max results value in the API calls. Default value is 1000 results per call.
- *
- * @param int $limit Number of rows to request at most in API calls. Default 300.
- * @return int Number of rows to request at most in API calls.
- */
-function monsterinsights_yst_ga_filter_api_limit( $limit ) {
-	$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_reporting_get_max_api_limit</code>' );
-	return _monsterinsights_apply_filters_deprecated( 'yst-ga-filter-api-limit', array( $limit ), '6.0.0', $message );
-}
-add_filter( 'monsterinsights_reporting_get_max_api_limit', 'monsterinsights_yst_ga_filter_api_limit' );
-
-/**
- * Deprecated Filter: 'yst_ga_track_super_admin'.
- * 
- * Allows filtering if the Super admin should be tracked in a multi-site setup. Default false.
- *
- * @param bool $track Whether to track super admins. Default false.
- * @return bool Whether to track super admins. Default false.
- */
-function monsterinsights_yst_ga_track_super_admin( $track ) {
-	$track = ! $track; // invert track as in Yoast it defaulted to track super admins
-	$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_track_super_admins</code>' );
-	return _monsterinsights_apply_filters_deprecated( 'yst_ga_track_super_admin', array( $track ), '6.0.0', $message );
-}
-add_filter( 'monsterinsights_track_super_admins', 'monsterinsights_yst_ga_track_super_admin' );
-
-
-/**
- * Deprecated Action: 'yst_tracking'.
- * 
- * Allows output before the analytics and ga.js tracking output.
- */
-function monsterinsights_yst_tracking() {
-	$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_tracking_before{_$mode}</code>' );
-	_monsterinsights_do_action_deprecated( 'yst_tracking', array(), '6.0.0', $message );
-}
-add_action( 'monsterinsights_tracking_before_ga', 'monsterinsights_yst_tracking' );
-add_action( 'monsterinsights_tracking_before_analytics', 'monsterinsights_yst_tracking' );
-
-/**
- * Deprecated Filter: 'yoast-ga-push-array-ga-js'.
- * 
- * Allows filtering of the commands to push.
- *
- * @param array $options GA.js options.
- * @return array GA.js options.
- */
-function monsterinsights_yoast_ga_push_array_ga_js( $options ) {
-	$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_frontend_tracking_options_analytics_end</code>' );
-	return _monsterinsights_apply_filters_deprecated( 'yoast-ga-push-array-ga-js', array( $options ), '6.0.0', $message );
-}
-add_filter( 'monsterinsights_frontend_tracking_options_ga_end', 'monsterinsights_yoast_ga_push_array_ga_js' );
-
-/**
- * Deprecated Filter: 'yoast-ga-push-array-universal'.
- * 
- * Allows filtering of the commands to push.
- *
- * @param array $options analytics.js options.
- * @return array Analytics.js options.
- */
-function monsterinsights_yoast_ga_push_array_universal( $options ) {
-	$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_frontend_tracking_options_analytics_end</code>' );
-	return _monsterinsights_apply_filters_deprecated( 'yoast-ga-push-array-universal', array( $options ), '6.0.0', $message );
-}
-add_filter( 'monsterinsights_frontend_tracking_options_analytics_end', 'monsterinsights_yoast_ga_push_array_universal' );
-
-/**
- * Deprecated Filter: 'yst_ga_filter_push_vars'.
- * 
- * Allow adding to the $options variables before scripts are required.
- *
- * @param array $options analytics.js options.
- * @return array Analytics.js options.
- */
-function monsterinsights_yst_ga_filter_push_vars( $options ) {
-	if ( ! has_filter('yst_ga_filter_push_vars' ) ) {
-		return $options;
-	} else {
-		$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_frontend_tracking_options_analytics_before_scripts</code>' );
-		_monsterinsights_deprecated_hook( 'yst_ga_filter_push_vars', '6.0.0', $message );
-
-		$i = 0;
-		while ( true ) {
-			if ( empty( $options[ 'yst_ga_filter_push_vars_' . $i ] ) ) {
-				$options[ 'yst_ga_filter_push_vars_' . $i ] = apply_filters( 'yst_ga_filter_push_vars', $options ); 
-				break;
-			} else {
-				$i++;
-			}
-		}
-		return $options;
-	}
-}
-add_filter( 'monsterinsights_frontend_tracking_options_analytics_before_scripts', 'monsterinsights_yst_ga_filter_push_vars' );
-
-
-/**
- * Deprecated Filter: 'yst-ga-filter-ga-config'.
- * 
- * Allow filtering of the GA app.
- *
- * @param array $config GA App config.
- * @return array GA App config.
- */
-function monsterinsights_yst_ga_filter_ga_config( $config ) {
-	$message = sprintf( __( 'Use %s instead.', 'google-analytics-for-wordpress' ), '<code>monsterinsights_{lite/pro}_google_app_config</code>' );
-	return _monsterinsights_apply_filters_deprecated( 'yst-ga-filter-ga-config', array( $config ), '6.0.0', $message );
-}
-add_filter( 'monsterinsights_lite_google_app_config', 'monsterinsights_yst_ga_filter_ga_config' );
-add_filter( 'monsterinsights_pro_google_app_config', 'monsterinsights_yst_ga_filter_ga_config' );
-
-function monsterinsights_disabled_user_group(){
-	return ! monsterinsights_track_user();
-}

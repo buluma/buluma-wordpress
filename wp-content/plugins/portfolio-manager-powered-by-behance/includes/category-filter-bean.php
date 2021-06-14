@@ -16,6 +16,7 @@ class Category_Filter_Bean{
 		global $wpdb;		
 		$_SESSION['filter_category'] = (isset($_REQUEST['bpm-cat-name']) && $_REQUEST['bpm-cat-name']!='')?$_REQUEST['bpm-cat-name']:null;
 		$_SESSION['filter_status'] = (isset($_REQUEST['bpm-cat-status']) && $_REQUEST['bpm-cat-status']!='')?$_REQUEST['bpm-cat-status']:null;
+		session_write_close();
 	}
 	
 	public function clear_filters(){
@@ -26,6 +27,7 @@ class Category_Filter_Bean{
 		$this->page_number = 1;
 		$this->order_by = 'doc';
 		$this->ordering = 'desc';		
+		session_write_close();
 	}
 	
 	public function set_pagination_order(){
@@ -36,12 +38,16 @@ class Category_Filter_Bean{
 		
 	public function get_filter_category(){
 		session_start();
-		return $_SESSION['filter_category'];
+		$filter_category = isset($_SESSION['filter_category']) && !empty($_SESSION['filter_category']) ? $_SESSION['filter_category'] : null ;
+		session_write_close();
+		return $filter_category;
 	}
 	
 	public function get_filter_status(){
 		session_start();
-		return $_SESSION['filter_status'];
+		$filter_status = isset($_SESSION['filter_status']) && !empty($_SESSION['filter_status']) ? $_SESSION['filter_status'] : null ;
+		session_write_close();
+		return $filter_status;
 	}
 	
 	public function get_page_number(){		

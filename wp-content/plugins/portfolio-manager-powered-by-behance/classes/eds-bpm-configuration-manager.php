@@ -103,7 +103,7 @@ class EDS_BPM_Configuration_Manager{
 							__('Open Project in New Tab','eds-bpm'), 
 							array( $this, 'field_open_in_different_tab' ),
 							$this->general_config_key,
-							EDS_BPM_Config::$general_section);
+							EDS_BPM_Config::$general_section);	
 		
 		register_setting( $this->general_config_key, $this->general_config_key, array($this, 'sanitize_general_settings'));
 
@@ -234,7 +234,7 @@ class EDS_BPM_Configuration_Manager{
 							EDS_BPM_Config::$advanced_section );		
 							
 		add_settings_field( 'show_comments', 
-							__('Show Total Project Comments'), 
+							__('Show Comments Count'), 
 							array( $this, 'field_show_comments' ), 
 							$this->advanced_config_key, 
 							EDS_BPM_Config::$advanced_section );	
@@ -257,12 +257,17 @@ class EDS_BPM_Configuration_Manager{
 							$this->advanced_config_key, 
 							EDS_BPM_Config::$advanced_section );
 		
+		add_settings_field( 'show_project_comments',
+				__('Show Project Comments','eds-bpm'),
+				array( $this, 'field_show_project_comments' ),
+				$this->advanced_config_key,
+				EDS_BPM_Config::$advanced_section);
+		
 		add_settings_field( 'eds_bpm_custom_css', 
 							__('Custom CSS'), 
 							array( $this, 'field_show_eds_bpm_custom_css' ), 
 							$this->advanced_config_key, 
 							EDS_BPM_Config::$advanced_section );
-		
 							
 		register_setting( $this->advanced_config_key, $this->advanced_config_key);
 	}
@@ -478,6 +483,20 @@ class EDS_BPM_Configuration_Manager{
 					name ="'.$this->advanced_config_key.'[eds_bpm_custom_css]"
 					rows ="5"
 				>'.$value.'</textarea>';
+		echo $html;
+	}
+	
+	public function field_show_project_comments(){
+		$value = isset($this->advanced_config['show_project_comments'])?$this->advanced_config['show_project_comments']:'';
+		$checked = (isset($value) && $value=='yes')?'checked':'';
+		$html= '<input
+			 data-on-text="YES"
+			 data-off-text="NO"
+			type="checkbox"
+			class="project_attribute_switches"
+			name="'.$this->advanced_config_key.'[show_project_comments]"
+			value="yes" '.$checked.'
+			 />';
 		echo $html;
 	}
 	

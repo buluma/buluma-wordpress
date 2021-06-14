@@ -95,5 +95,27 @@ class EDS_BPM_Behance{
 		
 	}
 	
+	public function get_project_comments($projectID) {	
+	    
+	    $bAPIKey = $this->general_config['behance_api_key'];
+	    
+	    if(isset($bAPIKey) && $bAPIKey!='')
+	    {
+	        $clientID= trim($bAPIKey);
+	        try {
+	            $api = new Be_Client( $clientID);
+	            $data =  $api->getProjectComments( $projectID, true);
+	            return $data;
+	        }
+	        catch(Exception $e)
+	        {
+	            return null;
+	        }
+	    }
+	    else
+	        return null;
+	}
+	
+	
 }
 }

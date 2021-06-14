@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Code Snippets - An easy, clean and simple way to add code snippets to your site.
  *
@@ -7,20 +6,20 @@
  * to the localization, please see https://github.com/sheabunge/code-snippets
  *
  * @package   Code_Snippets
- * @author    Shea Bunge <shea@bungeshea.com>
- * @copyright 2012-2017 Shea Bunge
+ * @author    Shea Bunge <shea@sheabunge.com>
+ * @copyright 2012-2021 Shea Bunge
  * @license   MIT http://opensource.org/licenses/MIT
- * @version   2.9.4
+ * @version   2.14.1
  * @link      https://github.com/sheabunge/code-snippets
  */
 
 /*
 Plugin Name: Code Snippets
 Plugin URI:  https://github.com/sheabunge/code-snippets
-Description: An easy, clean and simple way to add code snippets to your site. No need to edit to your theme's functions.php file again!
-Author:      Shea Bunge
-Author URI:  https://bungeshea.com
-Version:     2.9.4
+Description: An easy, clean and simple way to run code snippets on your site. No need to edit to your theme's functions.php file again!
+Author:      Code Snippets Pro
+Author URI:  https://codesnippets.pro
+Version:     2.14.1
 License:     MIT
 License URI: license.txt
 Text Domain: code-snippets
@@ -29,20 +28,8 @@ Domain Path: /languages
 
 /* Exit if accessed directly */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	return;
 }
-
-/**
- * The version number for this release of the plugin.
- * This will later be used for upgrades and enqueuing files
- *
- * This should be set to the 'Plugin Version' value,
- * as defined above in the plugin header
- *
- * @since 2.0
- * @var string A PHP-standardized version number string
- */
-define( 'CODE_SNIPPETS_VERSION', '2.9.4' );
 
 /**
  * The full path to the main file of this plugin
@@ -88,7 +75,11 @@ function code_snippets_autoload( $class_name ) {
 	require_once $class_path . "class-{$class_file}.php";
 }
 
-spl_autoload_register( 'code_snippets_autoload' );
+try {
+	spl_autoload_register( 'code_snippets_autoload' );
+} catch ( Exception $e ) {
+	new WP_Error( $e->getCode(), $e->getMessage() );
+}
 
 /**
  * Retrieve the instance of the main plugin class
@@ -100,7 +91,7 @@ function code_snippets() {
 	static $plugin;
 
 	if ( is_null( $plugin ) ) {
-		$plugin = new Code_Snippets( CODE_SNIPPETS_VERSION, __FILE__ );
+		$plugin = new Code_Snippets( '2.14.1', __FILE__ );
 	}
 
 	return $plugin;

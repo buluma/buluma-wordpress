@@ -37,6 +37,24 @@
     background-image: url("../images/btnwizon.png");
 }
 
+
+
+.wp-core-ui a.ytprefs_vi_embed_shortcode span, a.ytprefs_vi_embed_shortcode span, #media-buttons a.ytprefs_vi_embed_shortcode span
+{
+    background: transparent url("../images/icon-monetize_16x18bw.png") no-repeat scroll top left;
+    display: inline-block;
+    height: 16px;
+    margin: 4px 2px 0 0;
+    vertical-align: top;
+    width: 18px;
+}
+
+.wp-core-ui a.ytprefs_vi_embed_shortcode:hover span, a.ytprefs_vi_embed_shortcode:hover span, #media-buttons a.ytprefs_vi_embed_shortcode:hover span
+{
+    background-image: url("../images/icon-monetize_16x18.png");
+}
+
+
 body #TB_overlay.epyt-thickbox {
     z-index: 100000000 !important;
 }
@@ -54,7 +72,6 @@ body #TB_window.epyt-thickbox {
     background-origin: padding-box;
     background-size: auto;
     border-radius: 3px;
-    border: 1px solid #bbbbbb;
     box-sizing: border-box;
     /*color: #333;*/
     cursor: pointer;
@@ -75,10 +92,7 @@ body #TB_window.epyt-thickbox {
 
 #dashboard_right_now .page-count a.ytprefs_glance_button:before, #dashboard_right_now .page-count span.ytprefs_glance_button:before
 {
-    content: '';
-    width: 20px;
-    height: 20px;
-    background:transparent url('../images/youtubeicon16off.png') no-repeat scroll 0px 1px;
+   content: "\f236";
 }
 
 /* menu button */

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitecf8af2ad760834653ee56e418595950
+class ComposerStaticInit2ba1da21402df1f56ccc45ad5db0c805
 {
     public static $files = array (
         'e7a23b473708f4b0fb5b99fe921bee83' => __DIR__ . '/../..' . '/public/includes/lib/widgets-helper/wph-widget.php',
@@ -79,11 +79,11 @@ class ComposerStaticInitecf8af2ad760834653ee56e418595950
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitecf8af2ad760834653ee56e418595950::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitecf8af2ad760834653ee56e418595950::$prefixDirsPsr4;
-            $loader->fallbackDirsPsr4 = ComposerStaticInitecf8af2ad760834653ee56e418595950::$fallbackDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitecf8af2ad760834653ee56e418595950::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitecf8af2ad760834653ee56e418595950::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2ba1da21402df1f56ccc45ad5db0c805::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2ba1da21402df1f56ccc45ad5db0c805::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit2ba1da21402df1f56ccc45ad5db0c805::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit2ba1da21402df1f56ccc45ad5db0c805::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit2ba1da21402df1f56ccc45ad5db0c805::$classMap;
 
         }, null, ClassLoader::class);
     }

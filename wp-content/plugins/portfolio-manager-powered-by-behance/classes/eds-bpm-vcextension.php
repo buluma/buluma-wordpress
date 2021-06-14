@@ -165,7 +165,8 @@ if(!class_exists("EDS_BPM_VCExtension")){
 											__('Style 2', 'eds-bpm') => "two",
 											__('Style 3', 'eds-bpm') => "three",
 											__('Style 4', 'eds-bpm') => "four",
-											__('Style 5', 'eds-bpm')  => "five" 
+											__('Style 5', 'eds-bpm')  => "five",
+											__('Style 6', 'eds-bpm')  => "six"  
 									),									
 									'save_always' => true
 							),
@@ -294,7 +295,8 @@ if(!class_exists("EDS_BPM_VCExtension")){
 											__('Style 2', 'eds-bpm') => "two",
 											__('Style 3', 'eds-bpm') => "three",
 											__('Style 4', 'eds-bpm') => "four",
-											__('Style 5', 'eds-bpm')  => "five" 
+											__('Style 5', 'eds-bpm')  => "five",
+											__('Style 6', 'eds-bpm')  => "six" 
 									),									
 									'save_always' => true
 							),

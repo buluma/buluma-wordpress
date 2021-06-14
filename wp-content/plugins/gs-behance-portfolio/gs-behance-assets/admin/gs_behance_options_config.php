@@ -98,7 +98,7 @@ class GS_behance_Settings_Config {
                 array(
                     'name'  => 'gs_beh_theme',
                     'label' => __( 'Style & Theming', 'gs-behance' ),
-                    'desc'  => __( 'Select preffered Style & Theme', 'gs-behance' ),
+                    'desc'  => __( 'Select preferred Style & Theme', 'gs-behance' ),
                     'type'  => 'select',
                     'default'   => 'gs_beh_theme1',
                     'options'   => array(
@@ -151,8 +151,8 @@ class GS_behance_Settings_Config {
                 <div class="postbox">
                     <h3 class="hndle"><span><?php _e( 'Support / Report a bug' ) ?></span></h3>
                     <div class="inside centered">
-                        <p>Please feel free to let me know if you got any bug to report. Your report / suggestion can make the plugin awesome!</p>
-                        <p style="margin-bottom: 1px! important;"><a href="https://www.gsamdani.com/support" target="_blank" class="button button-primary">Get Support</a></p>
+                        <p>Please feel free to let us know if you have any bugs to report. Your report / suggestion can make the plugin awesome!</p>
+                        <p style="margin-bottom: 1px! important;"><a href="https://www.gsplugins.com/support" target="_blank" class="button button-primary">Get Support</a></p>
                     </div>
                 </div>
                 <div class="postbox">

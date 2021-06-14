@@ -2,12 +2,20 @@
 Contributors: eleopard
 Tags: behance, portfolio, project management
 Requires at least: 3.8
-Tested up to: 4.8.1
-Stable tag: 1.6.3
+Tested up to: 5.5
+Stable tag: 1.7.3
 License: GNU General Public License version 2 or later
 License URI: http://www.gnu.org/copyleft/gpl.html
 
 Show Behance Projects to Your WordPress Website
+
+== Notice ==
+
+We regret to inform that Behance has recently stopped support for generating the API key due to which, new users will no longer be able to use this plugin.
+
+However, we will still be providing support and updates for existing users.
+
+We will keep following up with the Behance team for an alternate solution and try to implement the same as soon as possible.
 
 == Description ==
 
@@ -143,6 +151,23 @@ In order to generate the Behance API Key / Secret, you need to register your APP
 
 = Version 1.6.3 =
 * Bug fixes related to CSS. 
+
+= Version 1.6.4 =
+* Bug fixes related to text. 
+
+= Version 1.7.0 =
+* New functionality added to show project comments.
+* New style added for mosaic view.
+
+= Version 1.7.1 =
+* CSS Related bug fixes
+
+= Version 1.7.2 =
+* Show Project Comments moved from General Tab to Advanced Tab under Settings.
+
+= Version 1.7.3 =
+* Bug fixes related to session_start
+* Tested for WordPress version 5.5
 
 == Upgrade Notice ==
 

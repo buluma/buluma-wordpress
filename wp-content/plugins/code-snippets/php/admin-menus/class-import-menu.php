@@ -35,35 +35,55 @@ class Code_Snippets_Import_Menu extends Code_Snippets_Admin_Menu {
 		$contextual_help = new Code_Snippets_Contextual_Help( 'import' );
 		$contextual_help->load();
 
-		$this->process_import_file();
+		$this->process_import_files();
 	}
 
 	/**
-	 * Process the uploaded import file
+	 * Process the uploaded import files
 	 *
 	 * @uses import_snippets() to process the import file
 	 * @uses wp_redirect() to pass the import results to the page
 	 * @uses add_query_arg() to append the results to the current URI
 	 */
-	private function process_import_file() {
+	private function process_import_files() {
 
 		/* Ensure the import file exists */
-		if ( ! isset( $_FILES['code_snippets_import_file']['tmp_name'] ) ) {
+		if ( ! isset( $_FILES['code_snippets_import_files'] ) || ! count( $_FILES['code_snippets_import_files'] ) ) {
 			return;
 		}
 
-		$network = get_current_screen()->in_admin( 'network' );
+		check_admin_referer( 'import_code_snippets_file' );
 
-		/* Import the snippets  */
-		$result = import_snippets( $_FILES['code_snippets_import_file']['tmp_name'], $network );
+		$count = 0;
+		$network = is_network_admin();
+		$uploads = $_FILES['code_snippets_import_files'];
+		$dup_action = isset( $_POST['duplicate_action'] ) ? $_POST['duplicate_action'] : 'ignore';
+		$error = false;
+
+		/* Loop through the uploaded files and import the snippets */
+
+		foreach ( $uploads['tmp_name'] as $i => $import_file ) {
+			$ext = pathinfo( $uploads['name'][ $i ] );
+			$ext = $ext['extension'];
+			$mime_type = $uploads['type'][ $i ];
+
+			if ( 'json' === $ext || 'application/json' === $mime_type ) {
+				$result = import_snippets_json( $import_file, $network, $dup_action );
+			} elseif ( 'xml' === $ext || 'text/xml' === $mime_type ) {
+				$result = import_snippets_xml( $import_file, $network, $dup_action );
+			} else {
+				$result = false;
+			}
+
+			if ( false === $result || -1 === $result ) {
+				$error = true;
+			} else {
+				$count += count( $result );
+			}
+		}
 
 		/* Send the amount of imported snippets to the page */
-		$url = add_query_arg(
-			$result ?
-			array( 'imported' => count( $result ) ) :
-			array( 'error' => true )
-		);
-
+		$url = add_query_arg( $error ? array( 'error' => true ) : array( 'imported' => $count ) );
 		wp_redirect( esc_url_raw( $url ) );
 		exit;
 	}
@@ -91,25 +111,35 @@ class Code_Snippets_Import_Menu extends Code_Snippets_Admin_Menu {
 	 * Print the status and error messages
 	 */
 	protected function print_messages() {
-		if ( isset( $_REQUEST['imported'] ) ) {
+
+		if ( isset( $_REQUEST['error'] ) && $_REQUEST['error'] ) {
+			echo '<div id="message" class="error fade"><p>';
+			_e( 'An error occurred when processing the import files.', 'code-snippets' );
+			echo '</p></div>';
+		}
+
+		if ( isset( $_REQUEST['imported'] ) && intval( $_REQUEST['imported'] ) >= 0 ) {
 			echo '<div id="message" class="updated fade"><p>';
 
-			printf(
-				_n(
-					'Successfully imported <strong>%d</strong> snippet. <a href="%s">Have fun!</a>',
-					'Successfully imported <strong>%d</strong> snippets. <a href="%s">Have fun!</a>',
-					count( $_REQUEST['imported'] ),
-					'code-snippets'
-				),
-				$_REQUEST['imported'],
-				code_snippets()->get_menu_url( 'manage' )
-			);
+			$imported = intval( $_REQUEST['imported'] );
 
-			echo '</p></div>';
+			if ( 0 === $imported ) {
+				esc_html_e( 'No snippets were imported.', 'code-snippets' );
 
-		} elseif ( isset( $_REQUEST['error'] ) && $_REQUEST['error'] ) {
-			echo '<div id="message" class="error fade"><p>';
-			_e( 'An error occurred when processing the import file.', 'code-snippets' );
+			} else {
+
+				printf(
+					/* translators: 1: amount of snippets imported, 2: link to Snippets menu */
+					_n(
+						'Successfully imported <strong>%1$d</strong> snippet. <a href="%2$s">Have fun!</a>',
+						'Successfully imported <strong>%1$d</strong> snippets. <a href="%2$s">Have fun!</a>',
+						$imported, 'code-snippets'
+					),
+					$imported,
+					code_snippets()->get_menu_url( 'manage' )
+				);
+			}
+
 			echo '</p></div>';
 		}
 	}

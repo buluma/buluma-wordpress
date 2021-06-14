@@ -2,7 +2,7 @@
 
 /**
  * Plugin_name
- *
+ * 
  * @package   Plugin_name
  * @author    Luke Crouch and Daniele Scasciafratte <mte90net@gmail.com>
  * @copyright 2017 Mozilla

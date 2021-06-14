@@ -30,6 +30,10 @@ iframe.__youtube_prefs__
     display: block;
 }
 
+.epyt-gallery-list .epyt-gallery-thumb {
+    box-sizing: border-box;
+}
+
 .epyt-gallery-list p {
     display: none;
 }
@@ -52,6 +56,7 @@ iframe.__youtube_prefs__
     opacity: 1;
     float: left;
     padding: 0 8px 10px 8px;
+    height: auto;
 }
 
 
@@ -59,6 +64,7 @@ iframe.__youtube_prefs__
     position: relative;
     opacity: 1;
     transition: opacity ease-out .3s;
+    height: auto;
 }
 
 .epyt-gallery-img-box {
@@ -73,15 +79,6 @@ iframe.__youtube_prefs__
     background-size: cover !important;
     background-position: center !important;
 
-}
-
-.epyt-gallery-playhover-textonly {
-    position: absolute;
-    top: -10px;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    text-align: center;
 }
 
 .epyt-gallery-playhover {
@@ -167,7 +164,7 @@ iframe.__youtube_prefs__
 
 
 .epyt-pagination.epyt-hide-pagination * {
-   display: none !important;
+    display: none !important;
 }
 
 
@@ -319,5 +316,61 @@ columns
     background: transparent;
     -webkit-box-shadow: none;
     box-shadow: none;    
+    margin: 0;
 }
 
+
+/********* GDPR */
+body div.__youtube_prefs__.__youtube_prefs_gdpr__ {
+    background-color: #000;
+    background-image: -webkit-linear-gradient(top, #000, #444);
+    background-image: linear-gradient(to bottom, #000, #444);
+    padding: 25px;
+    height: auto;
+    text-align: left;
+}
+
+body div.__youtube_prefs__.__youtube_prefs_gdpr__ * {
+    color: #e3e3e3 !important;
+}
+
+body div.__youtube_prefs__.__youtube_prefs_gdpr__ a {
+    text-decoration: underline;
+}
+
+body div.__youtube_prefs__.__youtube_prefs_gdpr__ button.__youtube_prefs_gdpr__, body div.__youtube_prefs__.__youtube_prefs_gdpr__ button.__youtube_prefs_gdpr__:hover {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #E62117 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    border-radius: 3px;
+    font-weight: normal;
+    border-width: 0;
+    box-sizing: border-box;
+}
+
+body div.__youtube_prefs__.__youtube_prefs_gdpr__ button.__youtube_prefs_gdpr__ img {
+    width: 20px !important;
+    height: auto  !important;
+    vertical-align: middle  !important;   
+    padding: 0 6px 3px 0;
+    display: inline-block;
+    background: transparent;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    margin-left: 8px;
+}
+
+body .epyt-gallery-img-gdpr {
+    background-color: #000;
+    background-image: -webkit-linear-gradient(top, #000, #444);
+    background-image: linear-gradient(to bottom, #000, #444);    
+}
+
+
+/********* YTVI */
+.ytvi-story-container {
+    display: block;
+    max-width: 100%;
+}

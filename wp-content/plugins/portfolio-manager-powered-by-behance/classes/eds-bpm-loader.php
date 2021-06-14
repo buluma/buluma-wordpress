@@ -125,7 +125,8 @@ class EDS_BPM_Loader{
 	
 	public function eds_bpm_start_session(){
 		if(!session_id()) {
-	    	session_start();
+			session_start();
+			session_write_close();
 	    }
 	}
 	

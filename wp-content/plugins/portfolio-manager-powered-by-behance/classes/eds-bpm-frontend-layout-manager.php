@@ -158,8 +158,9 @@ if(!class_exists("EDS_BPM_Frontend_Layout_Manager")){
 			$db = new EDS_BPM_Frontend_DB();
 			$behance = new EDS_BPM_Behance();
 					
-			$config = EDS_BPM_Config::get_advanced_config();	
-			$nav_btn_config = EDS_BPM_Config::get_navigation_button_config();
+			$config = EDS_BPM_Config::get_advanced_config();			
+			
+			$nav_btn_config = EDS_BPM_Config::get_navigation_button_config();			
 			
 			$project = $db->get_single_project($project_identifier);
 			
@@ -179,6 +180,13 @@ if(!class_exists("EDS_BPM_Frontend_Layout_Manager")){
 			
 			$status = $response->status;
 			$b_pr_data = $response->data;
+			
+			//getting project comments
+			$project_comments = null;
+			$show_project_comments = (isset($config['show_project_comments']) && $config['show_project_comments']=="yes");
+			if($status == 'S' && $show_project_comments) {
+			    $project_comments = $behance->get_project_comments($project->b_project_id);
+			}
 			
 			ob_start();
 			include EDS_BPM_Loader::$abs_path. '/layouts/eds-bpm-single-project.php';

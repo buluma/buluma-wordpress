@@ -42,7 +42,7 @@ if( ! class_exists( 'GSPlugins_wps' ) ){
         
         public function gs_main_menu_cb() {
             $protocol = is_ssl() ? 'https' : 'http';
-            $promo_content = wp_remote_get( $protocol . '://www.gsamdani.com/gs_plugins_list/index.php' );
+            $promo_content = wp_remote_get( $protocol . '://gsplugins.com/gs_plugins_list/index.php' );
             echo $promo_content['body'];
         }
     }

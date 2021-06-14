@@ -1,7 +1,7 @@
 <?php
 /*
  * GS Behance Portfolio - Theme One (Projects)
- * @author Golam Samdani <samdani1997@gmail.com>
+ * @author Golam Samdani <hello@gsplugins.com>
  * 
  */
 

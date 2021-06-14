@@ -4,11 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function monsterinsights_get_mp_api_url( ) {
-	if ( monsterinsights_is_debug_mode() ) {
-		return 'https://www.google-analytics.com/debug/collect';
-	} else {
-		return 'https://ssl.google-analytics.com/collect';
-	}
+	return 'https://www.google-analytics.com/collect';
 }
 
 function monsterinsights_mp_api_call( $args = array() ) {
@@ -44,6 +40,8 @@ function monsterinsights_mp_api_call( $args = array() ) {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
 
+	$ip = apply_filters( 'monsterinsights_mp_api_call_ip', $ip );
+
 	// If possible, let's get the user's language
 	$user_language = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) : array();
 	$user_language = reset( $user_language );
@@ -52,10 +50,10 @@ function monsterinsights_mp_api_call( $args = array() ) {
 	$default_body = array(
 		// Required: Version
 		'v'   => '1',
-		
+
 		// Required: UA code
 		'tid' => monsterinsights_get_ua_to_output( array( 'ecommerce' => $args ) ),
-		
+
 		// Required: User visitor ID
 		'cid' => monsterinsights_get_client_id( $payment_id ),
 
@@ -84,11 +82,14 @@ function monsterinsights_mp_api_call( $args = array() ) {
 		'ua'  => ! empty( $user_agent ) ?  $user_agent : $_SERVER['HTTP_USER_AGENT'],
 
 		// Optional: Time of the event
-		'z'   => time()
+		'z'   => time(),
+
+		// Developer id.
+		'did' => 'dZGIzZG',
 	);
 
 	$body = wp_parse_args( $body, $default_body );
-	// $body = apply_filters( 'monsterinsights_mp_api_call', $body );
+	$body = apply_filters( 'monsterinsights_mp_api_call', $body );
 
 
 	// Ensure that the CID is not empty
@@ -117,22 +118,23 @@ function monsterinsights_mp_api_call( $args = array() ) {
 
 	$response = wp_remote_post( monsterinsights_get_mp_api_url(), $args );
 
-	//
-	//if ( $debug_mode ) {
-	//	monsterinsights_debug_output( $body );
-	//	monsterinsights_debug_output( $response );
-	//}
 	return $response;
 }
 
 function monsterinsights_mp_track_event_call( $args = array() ) {
+	// Detect if browser request is a prefetch
+	if ( ( isset( $_SERVER["HTTP_X_PURPOSE"] ) && ( 'prefetch' === strtolower( $_SERVER["HTTP_X_PURPOSE"] ) ) ) ||
+	     ( isset( $_SERVER["HTTP_X_MOZ"] ) && ( 'prefetch' === strtolower( $_SERVER["HTTP_X_MOZ"] ) ) ) ) {
+		return;
+	}
+
 	$default_args = array(
 		// Change the default type to event
 		't'  => 'event',
 
 		// Required: Event Category
 		'ec' => '',
-		
+
 		// Required: Event Action
 		'ea' => '',
 
@@ -142,7 +144,8 @@ function monsterinsights_mp_track_event_call( $args = array() ) {
 		// Optional: Event Value
 		'ev' => null,
 	);
-	$args  = wp_parse_args( $args, $default_args );
+	$args         = wp_parse_args( $args, $default_args );
+
 	//$args = apply_filters( 'monsterinsights_mp_track_event_call', $args );
 
 	return monsterinsights_mp_api_call( $args );

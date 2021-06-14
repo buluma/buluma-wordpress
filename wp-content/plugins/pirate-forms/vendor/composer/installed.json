@@ -6,22 +6,22 @@
         "source": {
             "type": "git",
             "url": "https://github.com/Codeinwp/themeisle-sdk.git",
-            "reference": "1933233168091b9e72df9df60b234b7650d6b00b"
+            "reference": "2aa73079ca7523b23637caf90efb80af46df6aa0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Codeinwp/themeisle-sdk/zipball/1933233168091b9e72df9df60b234b7650d6b00b",
-            "reference": "1933233168091b9e72df9df60b234b7650d6b00b",
+            "url": "https://api.github.com/repos/Codeinwp/themeisle-sdk/zipball/2aa73079ca7523b23637caf90efb80af46df6aa0",
+            "reference": "2aa73079ca7523b23637caf90efb80af46df6aa0",
             "shasum": ""
         },
-        "time": "2017-11-23 13:26:34",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "load.php"
-            ]
+        "require-dev": {
+            "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+            "squizlabs/php_codesniffer": "^3.1",
+            "wp-coding-standards/wpcs": "^1.0.0"
         },
+        "time": "2019-01-07T10:33:38+00:00",
+        "type": "library",
+        "installation-source": "source",
         "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GPL-2.0+"
@@ -33,7 +33,7 @@
                 "homepage": "https://themeisle.com"
             }
         ],
-        "description": "ThemeIsle SDK ",
+        "description": "ThemeIsle SDK.",
         "homepage": "https://github.com/Codeinwp/themeisle-sdk",
         "keywords": [
             "wordpress"
@@ -54,7 +54,7 @@
             "reference": "bd41459d5e27df8d33057842b32377c39e97a5a8",
             "shasum": ""
         },
-        "time": "2016-04-16 21:52:24",
+        "time": "2016-04-16T21:52:24+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {

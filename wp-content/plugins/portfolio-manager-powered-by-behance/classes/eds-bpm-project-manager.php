@@ -165,6 +165,7 @@ class EDS_BPM_Project_Manager{
 		$bp_search_id = null;
 		$category_list = null;
 		$b_fields ='';
+		$project_comments = null;
 		$sub_task = isset($_REQUEST['bpm-sub-task'])?$_REQUEST['bpm-sub-task']:null;		
 		if($sub_task == null){
 			$project->id = null;
@@ -298,7 +299,9 @@ class EDS_BPM_Project_Manager{
 					}
 					
 					$customCSS .= " }";
-				}		
+				}
+
+				$project_comments = $behance->get_project_comments($project->b_project_id);
 			}
 		}else if($sub_task == 'b_clear_search'){
 			$project->id = null;			
@@ -328,6 +331,7 @@ class EDS_BPM_Project_Manager{
 		$data['category_list'] = $category_list;
 		$data['sub_task'] = $sub_task;
 		$data['b_fields'] = $b_fields;
+		$data['project_comments'] = $project_comments;
 		
 		return $data;
 		
@@ -352,6 +356,7 @@ class EDS_BPM_Project_Manager{
 		$category_list = null;
 		$b_fields ='';
 		$sub_task = null;
+		$project_comments = null;
 		
 		$project = $db->get_project_details($bpm_id);
 		
@@ -478,8 +483,8 @@ class EDS_BPM_Project_Manager{
 				
 				$customCSS .= " }";
 			}	
-						
 			
+			$project_comments = $behance->get_project_comments($project->b_project_id);
 		}
 		
 		if($status == 'S'){
@@ -503,8 +508,8 @@ class EDS_BPM_Project_Manager{
 		$data['category_list'] = $category_list;
 		$data['sub_task'] = $sub_task;
 		$data['b_fields'] = $b_fields;
-		
-		
+		$data['project_comments'] = $project_comments;
+
 		return $data;
 		
 	}
@@ -635,10 +640,14 @@ class EDS_BPM_Project_Manager{
 		
 		if( isset($user_projects) && !empty($user_projects)) {		
 			$_SESSION['bpm_project_import_data'] = $user_projects;
+			session_write_close();
 			return $user_projects;
 		}
 		
 		$_SESSION['bpm_project_import_data'] = null;
+
+		session_write_close();
+
 		return null;		
 	}
 		
@@ -648,9 +657,12 @@ class EDS_BPM_Project_Manager{
 		$db = new EDS_BPM_DB();
 		
 		if( isset($_SESSION['bpm_project_import_data']) && !empty($_SESSION['bpm_project_import_data'])) {
-			return $db->save_imported_projects( $_SESSION['bpm_project_import_data'], $mappings );
+			$imported_projects = $db->save_imported_projects( $_SESSION['bpm_project_import_data'], $mappings );
+			session_write_close();
+			return $imported_projects;
 		}
-		
+
+		session_write_close();
 		return false;
 	}
 	
