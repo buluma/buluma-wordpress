@@ -1,5 +1,12 @@
 # BEGIN iThemes Security - Do not modify or remove this line
 # iThemes Security Config Details: 2
+	# Pass through Authorization header.
+	<IfModule mod_rewrite.c>
+		RewriteEngine On
+		RewriteCond %{HTTP:Authorization} ^(.*)
+		RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+	</IfModule>
+
 	# Disable XML-RPC - Security > Settings > WordPress Tweaks > XML-RPC
 	<files xmlrpc.php>
 		<IfModule mod_authz_core.c>
@@ -10,27 +17,20 @@
 			Deny from all
 		</IfModule>
 	</files>
-
-	<IfModule mod_rewrite.c>
-		RewriteEngine On
-
-		# Reduce Comment Spam - Security > Settings > WordPress Tweaks > Comment Spam
-		RewriteCond %{REQUEST_METHOD} POST
-		RewriteCond %{REQUEST_URI} /wp-comments-post\.php$
-		RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
-		RewriteCond %{HTTP_REFERER} !^https?://(([^/]+\.)?localhost|jetpack\.wordpress\.com/jetpack-comment)(/|$) [NC]
-		RewriteRule ^.* - [F]
-	</IfModule>
 # END iThemes Security - Do not modify or remove this line
 
 # BEGIN WordPress
+# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteBase /wordpress/
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /buluma-wordpress/
 RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /wordpress/index.php [L]
+RewriteRule . /buluma-wordpress/index.php [L]
 </IfModule>
 
 # END WordPress
