@@ -4,7 +4,9 @@ Theme URI: https://athemes.com/theme/ignis/
 Author: aThemes.com
 Author URI: https://athemes.com
 Description: Ignis is a modern portfolio theme that features a custom home page template for displaying your projects, color and font options, multiple blog layouts and much more. In order to use the portfolio feature in Ignis, you need to have Jetpack installed.
-Version: 1.0.4
+Version: 1.0.7
+Tested up to: 5.7.2
+Requires PHP: 5.6
 License: GNU General Public License v3
 License URI: LICENSE
 Text Domain: ignis
@@ -240,7 +242,7 @@ textarea {
 .main-navigation ul ul {
 	float: left;
 	position: absolute;
-	top: 150%;
+	top: 115%;
 	left: -999em;
 	z-index: 99999;
 	text-align: left;
@@ -248,7 +250,14 @@ textarea {
 	background-color: #fff;
 	border: 1px solid #dde2e6;
 	border-radius: 15px;
+	pointer-events: none;
 	transition: top 0.5s;	
+}
+@media(min-width: 1200px) {
+	.main-navigation ul ul {
+		display: block !important;
+		opacity: 0;
+	}
 }
 
 .main-navigation ul ul ul {
@@ -266,34 +275,33 @@ textarea {
 .main-navigation ul ul li:last-of-type {
 	padding-bottom: 0;
 }
-.main-navigation li:hover > a,
-.main-navigation li.focus > a {
-}
-
-.main-navigation ul ul :hover > a,
-.main-navigation ul ul .focus > a {
-}
-
-.main-navigation ul ul a:hover,
-.main-navigation ul ul a.focus {
-}
 
 .main-navigation ul li:hover > ul,
 .main-navigation ul li.focus > ul {
 	left: auto;
 	top: 100%;
+	opacity: 1;
+	pointer-events: all !important;
 }
 
-.main-navigation ul ul li:hover > ul,
+.main-navigation ul ul:hover li > ul,
 .main-navigation ul ul li.focus > ul {
     top: -15px;
     left: calc( 100% + 15px );
 }
 
-.main-navigation .current_page_item > a,
-.main-navigation .current-menu-item > a,
-.main-navigation .current_page_ancestor > a,
-.main-navigation .current-menu-ancestor > a {
+.main-navigation .sub-menu:not(.sub-menu-reverse) .sub-menu.sub-menu-reverse {
+	right: 100%;
+}
+
+.main-navigation .sub-menu.sub-menu-reverse {
+	right: 0;
+	left: auto !important;
+	pointer-events: none;
+}
+
+.main-navigation .sub-menu.sub-menu-reverse ul.sub-menu-reverse {
+	right: 100%;
 }
 
 .header-search-form {
@@ -309,6 +317,21 @@ textarea {
 }
 .header-search-form.visible {
 	display: block;
+}
+
+@media only screen and (min-width: 1200px) {
+	.main-navigation ul.sub-menu li ul.sub-menu {
+		top: 15px;
+	  	left: 0;
+	 	opacity: 0;
+	}
+	.main-navigation ul.sub-menu li:hover > ul.sub-menu,
+	.main-navigation ul.sub-menu li.focus > ul.sub-menu {
+	  	top: -13px;
+	  	left: 100%;
+	  	opacity: 1;
+		pointer-events: all;
+	}
 }
 
 /* Mobile menu */

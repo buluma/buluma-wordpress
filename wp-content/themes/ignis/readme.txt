@@ -44,6 +44,4 @@ Ignis includes support for the Portfolio custom post type from Jetpack.
 * FontAwesome http://fontawesome.io/ ,(C) Dave Gandy, [SIL](https://scripts.sil.org/OFL?)
 * jQuery.fontselect http://tommoor.com ,(C) Tom Moor, [MIT](http://opensource.org/licenses/MIT)
 * Sticky http://stickyjs.com/ ,(C) Anthony Garand, [MIT](http://opensource.org/licenses/MIT)
-* Header image https://pixabay.com/en/m%C3%A4dhen-lady-woman-madam-model-d%C3%BCn-1773911/ , (C)RondellMelling, [CC0] https://wiki.creativecommons.org/wiki/CC0
-* Screenshot image 1 https://pixabay.com/en/autumn-leafes-colorful-bleter-beads-1773797/ , (C)RondellMelling, [CC0] https://wiki.creativecommons.org/wiki/CC0
 * Screenshot image 2 https://stocksnap.io/photo/CNR6OX02U8 , (C)Aleksandar Milosavljevic, [CC0] https://wiki.creativecommons.org/wiki/CC0

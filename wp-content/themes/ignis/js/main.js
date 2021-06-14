@@ -65,52 +65,89 @@ wow.init();
 
 /* Social links in new window */
 (function($) {
-     $('.social-navigation li a').attr( 'target','_blank' );
+    $('.social-navigation li a').attr( 'target','_blank' );
 })( jQuery );
+
+/* 
+* Desktop menu
+* Check if sub-menu items are visible. If not, reverse the item position 
+*/
+(function($) {
+    var checkMenuReverse = function() {
+        if( window.matchMedia("only screen and (min-width: 1199px)").matches ) {
+            
+            // .off('mouseover') to avoid multiple events on resize event
+            $('.main-navigation .menu > li').off('mouseover').on('mouseover', function(e){
+                $( e.currentTarget ).find('.sub-menu').each(function(){
+                    if( isInViewport( $(this)[0] ) == false ) {
+                        $(this).addClass('sub-menu-reverse');	
+                    }
+                });
+            });
+
+        } else {
+            $('.main-navigation .sub-menu').each(function(){
+                $(this).removeClass('sub-menu-reverse');
+            });
+        }
+    }
+
+    $(document).ready( checkMenuReverse );
+    $(window).on('resize', checkMenuReverse);
+})( jQuery );
+
+function isInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
 
 /* Mobile menu */
 (function($) {
-		var	menuType = 'desktop';
+    var	menuType = 'desktop';
 
-		$(window).on('load resize', function() {
-			var currMenuType = 'desktop';
+    $(window).on('load resize', function() {
+        var currMenuType = 'desktop';
 
-			if ( matchMedia( 'only screen and (max-width: 1199px)' ).matches ) {
-				currMenuType = 'mobile';
-			}
+        if ( matchMedia( 'only screen and (max-width: 1199px)' ).matches ) {
+            currMenuType = 'mobile';
+        }
 
-			if ( currMenuType !== menuType ) {
-				menuType = currMenuType;
+        if ( currMenuType !== menuType ) {
+            menuType = currMenuType;
 
-				if ( currMenuType === 'mobile' ) {
-					var $mobileMenu = $('#site-navigation').attr('id', 'mainnav-mobi').hide();
-					var hasChildMenu = $('#mainnav-mobi').find('li:has(ul)');
+            if ( currMenuType === 'mobile' ) {
+                var $mobileMenu = $('#site-navigation').attr('id', 'mainnav-mobi').hide();
+                var hasChildMenu = $('#mainnav-mobi').find('li:has(ul)');
 
-					hasChildMenu.children('ul').hide();
-					hasChildMenu.children('a').after('<span class="btn-submenu"></span>');
-					$('.btn-menu .icon-menu').removeClass('active');
-				} else {
-					var $desktopMenu = $('#mainnav-mobi').attr('id', 'site-navigation').removeAttr('style');
+                hasChildMenu.children('ul').hide();
+                hasChildMenu.children('a').after('<span class="btn-submenu"></span>');
+                $('.btn-menu .icon-menu').removeClass('active');
+            } else {
+                var $desktopMenu = $('#mainnav-mobi').attr('id', 'site-navigation').removeAttr('style');
 
-					$desktopMenu.find('.submenu').removeAttr('style');
-					$('.btn-submenu').remove();
-				}
-			}
-		});
+                $desktopMenu.find('.submenu').removeAttr('style');
+                $('.btn-submenu').remove();
+            }
+        }
+    });
 
-		$('.btn-menu .icon-menu, .btn-close-menu').on('click', function() {
-			$('#mainnav-mobi').slideToggle(300);
-			$(this).toggleClass('active');
-		});
+    $('.btn-menu .icon-menu, .btn-close-menu').on('click', function() {
+        $('#mainnav-mobi').slideToggle(300);
+        $(this).toggleClass('active');
+    });
 
-		$(document).on('click', '#mainnav-mobi li .btn-submenu', function(e) {
-			$(this).toggleClass('active').next('ul').slideToggle(300);
-			e.stopImmediatePropagation()
-		});	
+    $(document).on('click', '#mainnav-mobi li .btn-submenu', function(e) {
+        $(this).toggleClass('active').next('ul').slideToggle(300);
+        e.stopImmediatePropagation()
+    });	
 })( jQuery );
 
-
-//Fitvids
+/* Fitvids */
 jQuery(function($) {
 	$(window).on('ready load', function () {
 		$('body').fitVids();
